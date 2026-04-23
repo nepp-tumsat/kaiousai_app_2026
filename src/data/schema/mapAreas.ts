@@ -46,8 +46,8 @@ function centroidForArea(
 
 /**
  * イベント会場（`is_event_location`）のマップ座標。
- * CSV の `area_id`（ingest 後 `event_pin_area_id`）を `areas.csv` の id とみなし、
- * エリアの center または他 location からの centroid を使う（CSV の lat/lng は使わない）。
+ * CSV の `lat`/`lng` がある場合は最優先。なければ `area_id`（ingest 後 `event_pin_area_id`）を
+ * `areas.csv` の id とみなし、エリア center または他 location からの centroid を使う。
  */
 export function resolveEventLocationPinCoordinates(
   areas: CsvAreaRow[],
@@ -55,6 +55,9 @@ export function resolveEventLocationPinCoordinates(
   loc: CsvLocationRow,
 ): [number, number] | null {
   if (!loc.is_event_location) return null
+  if (loc.lat !== undefined && loc.lng !== undefined) {
+    return [loc.lat, loc.lng]
+  }
   const aid = loc.event_pin_area_id.trim()
   if (aid === '') return null
   const areaRow = areas.find((a) => a.id === aid)

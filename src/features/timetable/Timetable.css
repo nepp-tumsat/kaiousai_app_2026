@@ -145,6 +145,12 @@
   color: var(--text-muted);
 }
 
+.timetable-need-ticket {
+  margin-left: 0.35em;
+  font-size: 0.8em;
+  white-space: nowrap;
+}
+
 .timetable-content h3 {
   margin: 0 0 0.5rem 0;
   color: var(--text);
@@ -153,6 +159,7 @@
 .timetable-item.now .timetable-content h3,
 .timetable-item.now .timetable-content p,
 .timetable-item.now .timetable-venue,
+.timetable-item.now .timetable-need-ticket,
 .timetable-item.now .timetable-time {
   color: var(--bg);
 }

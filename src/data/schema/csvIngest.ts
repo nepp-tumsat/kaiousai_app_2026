@@ -278,12 +278,11 @@ function whenFlagsToWeatherMode(sunnyRaw: string, rainyRaw: string): 'sunny' | '
 
 /**
  * 旧 events.csv（ISO `start_time` / `weather_mode` / `published`）と
- * 新形式（`public`, `day`, `when_sunny`/`when_rainy`, `9:00` 形式時刻, `img_name`）を正規化する。
+ * 新形式（`public`, `sunny_location_id`/`rainy_location_id` または `location_id`, …）を正規化する。
  */
 export function normalizeEventCsvRow(raw: Record<string, string>): Record<string, string> {
   const r = normalizeCsvRowCells(raw)
   const id = sanitizeCsvCell(r.id).replace(/^\ufeff/, '')
-  const location_id = sanitizeCsvCell(r.location_id)
   const title = sanitizeCsvCell(r.title)
   const organization = sanitizeCsvCell(r.organization)
   const description = sanitizeCsvCell(r.description)
@@ -295,9 +294,16 @@ export function normalizeEventCsvRow(raw: Record<string, string>): Record<string
     const st = normalizeTimeHmForEvent(r.start_time)
     const et = normalizeTimeHmForEvent(r.end_time)
     const wm = whenFlagsToWeatherMode(r.when_sunny ?? '', r.when_rainy ?? '')
+    const location_id = sanitizeCsvCell(r.location_id)
+    const sunnyId = sanitizeCsvCell(r.sunny_location_id)
+    const rainyId = sanitizeCsvCell(r.rainy_location_id)
+    const hasSplitVenues = sunnyId !== '' && rainyId !== ''
     return {
       id,
-      location_id,
+      location_id: hasSplitVenues ? '' : location_id !== '' ? location_id : sunnyId,
+      sunny_location_id: hasSplitVenues ? sunnyId : '',
+      rainy_location_id: hasSplitVenues ? rainyId : '',
+      need_ticket_when_rainy: sanitizeCsvCell(r.need_ticket_when_rainy),
       title,
       organization,
       department: sanitizeCsvCell(r.department),
@@ -311,11 +317,15 @@ export function normalizeEventCsvRow(raw: Record<string, string>): Record<string
     }
   }
 
+  const location_id = sanitizeCsvCell(r.location_id)
   const isoStart = sanitizeCsvCell(r.start_time)
   const isoEnd = sanitizeCsvCell(r.end_time)
   return {
     id,
     location_id,
+    sunny_location_id: '',
+    rainy_location_id: '',
+    need_ticket_when_rainy: 'false',
     title,
     organization,
     department: '',
@@ -336,23 +346,35 @@ const weatherModeCsv = z
 
 /**
  * scripts/sources/csv/events.csv の1行（`normalizeEventCsvRow` 後の形）
- * - 新形式: `public`, `day`, `when_sunny`/`when_rainy`, `start_time`/`end_time`（H:mm）, `img_name`
+ * - 新形式: 会場 id は `sunny_location_id`+`rainy_location_id` または単一 `location_id`
  * - 旧形式: ISO `start_time`/`end_time`, `weather_mode`, `published`, `image`
  */
-export const csvEventRowSchema = z.object({
-  id: z.string().min(1),
-  location_id: z.string().min(1),
-  title: z.string().min(1),
-  organization: z.string().default(''),
-  department: z.string().default(''),
-  description: z.string().default(''),
-  day: eventDaySchema,
-  start_time: z.string().min(1),
-  end_time: z.string().min(1),
-  weather_mode: weatherModeCsv,
-  published: boolFromCsv,
-  image: z.string().min(1),
-})
+export const csvEventRowSchema = z
+  .object({
+    id: z.string().min(1),
+    location_id: z.string().default(''),
+    sunny_location_id: z.string().default(''),
+    rainy_location_id: z.string().default(''),
+    need_ticket_when_rainy: boolFromCsv,
+    title: z.string().min(1),
+    organization: z.string().default(''),
+    department: z.string().default(''),
+    description: z.string().default(''),
+    day: eventDaySchema,
+    start_time: z.string().min(1),
+    end_time: z.string().min(1),
+    weather_mode: weatherModeCsv,
+    published: boolFromCsv,
+    image: z.string().min(1),
+  })
+  .refine(
+    (row) => {
+      const pair = row.sunny_location_id.trim() !== '' && row.rainy_location_id.trim() !== ''
+      const single = row.location_id.trim() !== ''
+      return pair || single
+    },
+    { message: 'location_id、または sunny_location_id と rainy_location_id のいずれかが必要' },
+  )
 
 export type CsvEventRow = z.infer<typeof csvEventRowSchema>
 
@@ -374,6 +396,17 @@ function weatherModeFromCsv(mode: CsvEventRow['weather_mode']): '' | 'sunny' | '
   return mode
 }
 
+function areaLabelForLocation(
+  areaById: Map<string, CsvAreaRow>,
+  loc: CsvLocationRow,
+): string {
+  const outdoor = loc.outdoor_area_id.trim()
+  const pin = loc.event_pin_area_id.trim()
+  const idForArea = outdoor !== '' ? outdoor : pin
+  const a = idForArea !== '' ? areaById.get(idForArea) : undefined
+  return a ? areaDisplayLabel(a) : ''
+}
+
 export function csvRowsToFestivalEventSources(
   areas: CsvAreaRow[],
   locations: CsvLocationRow[],
@@ -384,15 +417,48 @@ export function csvRowsToFestivalEventSources(
 
   const out: FestivalEventSource[] = []
   for (const ev of events) {
-    const loc = locById.get(ev.location_id)
-    if (!loc) throw new Error(`events.csv: location_id が不明です: ${ev.location_id} (event ${ev.id})`)
-    const area =
-      loc.outdoor_area_id.trim() !== '' ? areaById.get(loc.outdoor_area_id) : undefined
-    const areaLabel = area ? areaDisplayLabel(area) : ''
-
     const descriptionParts = [ev.description.trim(), ev.department.trim()].filter(Boolean)
     const description =
       descriptionParts.length > 0 ? descriptionParts.join('\n') : ev.description
+
+    const hasSplit =
+      ev.sunny_location_id.trim() !== '' && ev.rainy_location_id.trim() !== ''
+    if (hasSplit) {
+      const locS = locById.get(ev.sunny_location_id)
+      const locR = locById.get(ev.rainy_location_id)
+      if (!locS) {
+        throw new Error(
+          `events.csv: sunny_location_id が不明です: ${ev.sunny_location_id} (event ${ev.id})`,
+        )
+      }
+      if (!locR) {
+        throw new Error(
+          `events.csv: rainy_location_id が不明です: ${ev.rainy_location_id} (event ${ev.id})`,
+        )
+      }
+      const row = {
+        day: ev.day,
+        weatherMode: weatherModeFromCsv(ev.weather_mode),
+        startTime: ev.start_time,
+        endTime: ev.end_time,
+        title: ev.title,
+        area: areaLabelForLocation(areaById, locS),
+        areaRainy: areaLabelForLocation(areaById, locR),
+        location: locS.name,
+        locationRainy: locR.name,
+        needTicketWhenRainy: ev.need_ticket_when_rainy,
+        description,
+        organization: ev.organization,
+        published: ev.published,
+        image: ev.image,
+      }
+      out.push(festivalEventSourceSchema.parse(row))
+      continue
+    }
+
+    const loc = locById.get(ev.location_id)
+    if (!loc) throw new Error(`events.csv: location_id が不明です: ${ev.location_id} (event ${ev.id})`)
+    const areaLabel = areaLabelForLocation(areaById, loc)
 
     const row = {
       day: ev.day,
@@ -401,7 +467,10 @@ export function csvRowsToFestivalEventSources(
       endTime: ev.end_time,
       title: ev.title,
       area: areaLabel,
+      areaRainy: '',
       location: loc.name,
+      locationRainy: '',
+      needTicketWhenRainy: ev.need_ticket_when_rainy,
       description,
       organization: ev.organization,
       published: ev.published,

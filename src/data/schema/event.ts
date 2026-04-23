@@ -16,8 +16,16 @@ const festivalEventFieldsSchema = z.object({
   startTime: z.string(),
   endTime: z.string(),
   title: z.string(),
+  /** 青天（または会場が1つだけのとき）のエリアラベル */
   area: z.string(),
+  /** 雨天のエリア。空のときは `area` */
+  areaRainy: z.string().default(''),
+  /** 会場名（通常は晴天会場） */
   location: z.string(),
+  /** 雨天会場。空のときは `location` */
+  locationRainy: z.string().default(''),
+  /** 雨天時に整理券等が必要なとき true（CSV: need_ticket_when_rainy） */
+  needTicketWhenRainy: z.boolean().default(false),
   description: z.string(),
   organization: z.string().default(''),
   /** false のとき一覧・タイムテーブルに出さない（データには残す） */

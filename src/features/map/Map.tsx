@@ -374,7 +374,7 @@ export default function MapFeature() {
       </div>
       {isMapReady && (
         <MapContainer
-          center={[35.667957411840746, 139.79262060541004]}
+          center={[35.6672324, 139.791702]}
           zoom={18}
           maxZoom={21}
           style={{ height: '100%', width: '100%' }}

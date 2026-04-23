@@ -69,6 +69,26 @@ function eventMatchesWeather(event: FestivalEvent, selectedWeather: 'sunny' | 'r
   return event.weatherMode === '' || event.weatherMode === selectedWeather
 }
 
+function eventDisplayArea(
+  event: FestivalEvent,
+  selectedWeather: 'sunny' | 'rainy',
+): string {
+  if (selectedWeather === 'rainy' && event.areaRainy.trim() !== '') {
+    return event.areaRainy
+  }
+  return event.area
+}
+
+function eventDisplayLocation(
+  event: FestivalEvent,
+  selectedWeather: 'sunny' | 'rainy',
+): string {
+  if (selectedWeather === 'rainy' && event.locationRainy.trim() !== '') {
+    return event.locationRainy
+  }
+  return event.location
+}
+
 function resolveEndMinutes(
   event: { startMinutes: number; endMinutes: number | null },
   nextStartMinutes: number | undefined,
@@ -161,8 +181,11 @@ export default function TimetableFeature() {
   )
 
   const areas = useMemo(
-    () => Array.from(new Set(dayWeatherEvents.map((event) => event.area))),
-    [dayWeatherEvents],
+    () =>
+      Array.from(
+        new Set(dayWeatherEvents.map((e) => eventDisplayArea(e, selectedWeather))),
+      ),
+    [dayWeatherEvents, selectedWeather],
   )
 
   useEffect(() => {
@@ -175,8 +198,10 @@ export default function TimetableFeature() {
     () =>
       selectedArea === 'all'
         ? dayWeatherEvents
-        : dayWeatherEvents.filter((event) => event.area === selectedArea),
-    [dayWeatherEvents, selectedArea],
+        : dayWeatherEvents.filter(
+            (e) => eventDisplayArea(e, selectedWeather) === selectedArea,
+          ),
+    [dayWeatherEvents, selectedArea, selectedWeather],
   )
 
   const currentEventId = useMemo(() => {
@@ -198,12 +223,13 @@ export default function TimetableFeature() {
   const groupedByArea = useMemo(() => {
     const grouped = new Map<string, typeof filteredEvents>()
     filteredEvents.forEach((event) => {
-      const list = grouped.get(event.area) ?? []
+      const a = eventDisplayArea(event, selectedWeather)
+      const list = grouped.get(a) ?? []
       list.push(event)
-      grouped.set(event.area, list)
+      grouped.set(a, list)
     })
     return grouped
-  }, [filteredEvents])
+  }, [filteredEvents, selectedWeather])
 
   const currentTimeLabel = useMemo(
     () => formatMinutesAsTime(currentMinutes),
@@ -301,8 +327,11 @@ export default function TimetableFeature() {
                                 <h3>{event.title}</h3>
                                 {currentEventId === event.id && <span className="now-badge">開催中 (NOW)</span>}
                                 <p className="timetable-venue">
-                                  {event.location}
+                                  {eventDisplayLocation(event, selectedWeather)}
                                   {event.organization ? ` ・ ${event.organization}` : ''}
+                                  {selectedWeather === 'rainy' && event.needTicketWhenRainy ? (
+                                    <span className="timetable-need-ticket">（雨天は整理券が必要です）</span>
+                                  ) : null}
                                 </p>
                                 <p>{event.description}</p>
                               </div>
