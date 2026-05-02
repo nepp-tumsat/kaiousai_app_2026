@@ -1,10 +1,11 @@
 /**
- * scripts/sources の JSON、または scripts/sources/csv の CSV を検証し、
+ * scripts/sources の JSON、または scripts/sources/csv の CSV、またはマスター xlsx を検証し、
  * src/data/generated に書き出す。
  *
- * CSV 優先: `scripts/sources/csv/` に areas.csv / locations.csv / events.csv が
- * すべてある場合はそちらから `events.json` と `shops.json` を生成する。
- * それ以外は従来どおり `scripts/sources/events.json` と `shops.json` を使う。
+ * 優先順位:
+ * 1. `scripts/sources/海王祭アプリ2026マスターデータ.xlsx` があればそこから（CSV より優先）
+ * 2. `scripts/sources/csv/` に areas.csv / locations.csv / events.csv がすべてある場合は CSV
+ * 3. それ以外は従来どおり `scripts/sources/events.json` と `shops.json`
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -21,9 +22,11 @@ import {
   parseCsvEventRows,
   parseCsvLocationRows,
 } from '../src/data/schema/csvIngest'
+import { indoorMapsPayloadSchema } from '../src/data/schema/indoorMaps'
 import { buildMapAreasPayload, emptyMapAreasPayload } from '../src/data/schema/mapAreas'
 import { buildShopsFromSources, shopSourceListSchema, type ShopSource } from '../src/data/schema/shop'
 import { readCsvFile } from './lib/parseCsv'
+import { MASTER_XLSX_FILENAME, readMasterXlsx } from './lib/readMasterXlsx'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = join(__dirname, '..')
@@ -47,7 +50,10 @@ const csvPaths = csvNames.map((n) => join(csvDir, n))
 const allCsvPresent = csvPaths.every((p) => existsSync(p))
 const anyCsvPresent = csvPaths.some((p) => existsSync(p))
 
-if (anyCsvPresent && !allCsvPresent) {
+const masterXlsxPath = join(sourcesDir, MASTER_XLSX_FILENAME)
+const masterXlsxPresent = existsSync(masterXlsxPath)
+
+if (anyCsvPresent && !allCsvPresent && !masterXlsxPresent) {
   throw new Error(
     `scripts/sources/csv/ に ${csvNames.join(' / ')} の3つすべてが必要です（欠けているファイルがあります）`,
   )
@@ -58,7 +64,16 @@ let eventSources: FestivalEventSource[]
 
 let mapAreasPayload = emptyMapAreasPayload
 
-if (allCsvPresent) {
+if (masterXlsxPresent) {
+  const xlsx = readMasterXlsx(readFileSync(masterXlsxPath))
+  const areas = parseCsvAreaRows(xlsx.areas)
+  const locations = parseCsvLocationRows(xlsx.locations)
+  const eventRows = parseCsvEventRows(xlsx.events)
+  eventSources = csvRowsToFestivalEventSources(areas, locations, eventRows)
+  shopSources = csvRowsToShopSources(areas, locations)
+  mapAreasPayload = buildMapAreasPayload(areas, locations)
+  console.log(`ingest: source=xlsx (scripts/sources/${MASTER_XLSX_FILENAME})`)
+} else if (allCsvPresent) {
   const areas = parseCsvAreaRows(readCsvFile(csvPaths[0]))
   const locations = parseCsvLocationRows(readCsvFile(csvPaths[1]))
   const eventRows = parseCsvEventRows(readCsvFile(csvPaths[2]))
@@ -82,4 +97,13 @@ writeJson('events.json', events)
 
 writeJson('map-areas.json', mapAreasPayload)
 
-console.log('ingest: wrote src/data/generated/shops.json, events.json, map-areas.json')
+const indoorMapsPath = join(sourcesDir, 'indoor-maps.json')
+if (!existsSync(indoorMapsPath)) {
+  throw new Error('scripts/sources/indoor-maps.json が必要です（屋内マップ設定）')
+}
+const indoorMapsPayload = indoorMapsPayloadSchema.parse(readJson(indoorMapsPath))
+writeJson('indoor-maps.json', indoorMapsPayload)
+
+console.log(
+  'ingest: wrote src/data/generated/shops.json, events.json, map-areas.json, indoor-maps.json',
+)

@@ -1,7 +1,7 @@
 'use client'
 
 import './Map.css'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { MutableRefObject } from 'react'
 import {
   CircleMarker,
@@ -15,7 +15,14 @@ import {
   useMapEvents,
 } from 'react-leaflet'
 import L from 'leaflet'
-import { getMapAreas, getShops, type Shop, type ShopCategory } from '../../data/loaders'
+import {
+  getIndoorMaps,
+  getMapAreas,
+  getShops,
+  type IndoorFloor,
+  type Shop,
+  type ShopCategory,
+} from '../../data/loaders'
 import { assetUrl } from '../../lib/assetUrl'
 import ShopPopup from './ShopPopup'
 
@@ -75,6 +82,26 @@ function CampusSvgOverlay() {
       bounds={svgBounds}
       opacity={1}
       zIndex={500}
+    />
+  )
+}
+
+/** 屋内フロア平面図（ImageOverlay） */
+function IndoorFloorImageOverlay({
+  floor,
+}: {
+  floor: IndoorFloor
+}) {
+  const bounds: L.LatLngBoundsExpression = [
+    [floor.bounds[0][0], floor.bounds[0][1]],
+    [floor.bounds[1][0], floor.bounds[1][1]],
+  ]
+  return (
+    <ImageOverlay
+      url={assetUrl(`/images/${floor.image}`)}
+      bounds={bounds}
+      opacity={1}
+      zIndex={550}
     />
   )
 }
@@ -241,6 +268,7 @@ function MapZoomAndMarkers({
   devPinOverrides,
   onDevPinMove,
   onZoomChange,
+  pinsEnabled = true,
 }: {
   shops: Shop[]
   isMapReady: boolean
@@ -251,6 +279,8 @@ function MapZoomAndMarkers({
   devPinOverrides: Record<string, LatLngTuple>
   onDevPinMove: (move: DevPinMove) => void
   onZoomChange?: (zoom: number) => void
+  /** 屋外マップのときのみ店舗・エリアピンを描画（屋内は平面図のみ） */
+  pinsEnabled?: boolean
 }) {
   const map = useMap()
   const [zoom, setZoom] = useState(() => map.getZoom())
@@ -285,7 +315,7 @@ function MapZoomAndMarkers({
    * 店舗表示かつ zoom 20: 店舗はピンのみ、地区名はエリア重ねピンのみ開く。
    */
   useEffect(() => {
-    if (!isMapReady) return
+    if (!pinsEnabled || !isMapReady) return
     let timeoutId: number | undefined
     const syncPopups = () => {
       timeoutId = window.setTimeout(() => {
@@ -311,6 +341,7 @@ function MapZoomAndMarkers({
       if (timeoutId !== undefined) window.clearTimeout(timeoutId)
     }
   }, [
+    pinsEnabled,
     isMapReady,
     map,
     showShopPins,
@@ -322,6 +353,10 @@ function MapZoomAndMarkers({
     mapPayload.areas.length,
     markerRefs,
   ])
+
+  if (!pinsEnabled) {
+    return <div className="zoom-indicator">{zoom}</div>
+  }
 
   return (
     <>
@@ -356,7 +391,9 @@ function MapZoomAndMarkers({
               }}
               icon={L.divIcon({
                 className: 'category-marker-icon',
-                html: `<div class="category-marker-dot" style="background-color:${getCategoryColor(shop.category)}"></div>`,
+                html: `<div class="category-marker-dot${
+                  shop.category === 'facility' ? ' category-marker-dot--facility' : ''
+                }" style="background-color:${getCategoryColor(shop.category)}"></div>`,
                 iconSize: [22, 22],
                 iconAnchor: [11, 11],
               })}
@@ -572,6 +609,11 @@ function MapZoomAndMarkers({
 export default function MapFeature() {
   const [isMapReady, setIsMapReady] = useState(false)
   const [shops] = useState<Shop[]>(() => getShops())
+  const indoorMapsConfig = useMemo(() => getIndoorMaps(), [])
+  const [indoorAreaId, setIndoorAreaId] = useState(() => indoorMapsConfig.areas[0]?.id ?? '')
+  const [indoorFloorId, setIndoorFloorId] = useState(
+    () => indoorMapsConfig.areas[0]?.floors[0]?.id ?? '',
+  )
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
   const [viewMode, setViewMode] = useState<'outdoor' | 'indoor'>('outdoor')
@@ -619,33 +661,95 @@ export default function MapFeature() {
 
   const filteredShops = shops
 
+  const selectedIndoorArea = indoorMapsConfig.areas.find((a) => a.id === indoorAreaId)
+  const selectedIndoorFloor =
+    selectedIndoorArea?.floors.find((f) => f.id === indoorFloorId) ?? selectedIndoorArea?.floors[0]
+
+  const selectIndoorArea = useCallback(
+    (areaId: string) => {
+      setIndoorAreaId(areaId)
+      const next = indoorMapsConfig.areas.find((a) => a.id === areaId)
+      if (next?.floors[0]) setIndoorFloorId(next.floors[0].id)
+    },
+    [indoorMapsConfig.areas],
+  )
+
   return (
     <div className="map-container">
-      <div className="map-mode-toggle">
-        <button
-          type="button"
-          className={`map-mode-button ${viewMode === 'outdoor' ? 'active' : ''}`}
-          onClick={() => setViewMode('outdoor')}
-        >
-          屋外マップ
-        </button>
-        <button
-          type="button"
-          className={`map-mode-button ${viewMode === 'indoor' ? 'active' : ''}`}
-          onClick={() => setViewMode('indoor')}
-        >
-          屋内マップ
-        </button>
-        {isDev && (
+      <div className="map-top-bar">
+        <div className="map-mode-toggle">
           <button
             type="button"
-            className={`map-mode-button ${devPinAdjustEnabled ? 'active' : ''}`}
-            onClick={() => {
-              setDevPinAdjustEnabled((prev) => !prev)
-            }}
+            className={`map-mode-button ${viewMode === 'outdoor' ? 'active' : ''}`}
+            onClick={() => setViewMode('outdoor')}
           >
-            ピン調整
+            屋外マップ
           </button>
+          <button
+            type="button"
+            className={`map-mode-button ${viewMode === 'indoor' ? 'active' : ''}`}
+            onClick={() => setViewMode('indoor')}
+          >
+            屋内マップ
+          </button>
+          {isDev && (
+            <button
+              type="button"
+              className={`map-mode-button ${devPinAdjustEnabled ? 'active' : ''}`}
+              onClick={() => {
+                setDevPinAdjustEnabled((prev) => !prev)
+              }}
+            >
+              ピン調整
+            </button>
+          )}
+        </div>
+        {viewMode === 'indoor' && (
+          <div className="indoor-map-selector" role="navigation" aria-label="屋内マップの建物と階">
+            <div className="indoor-map-selector__row">
+              <span className="indoor-map-selector__hint">建物</span>
+              <div className="indoor-map-selector__tabs indoor-map-selector__tabs--primary" role="tablist">
+                {indoorMapsConfig.areas.map((area) => (
+                  <button
+                    key={area.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={indoorAreaId === area.id}
+                    className={`indoor-map-tab indoor-map-tab--primary ${
+                      indoorAreaId === area.id ? 'active' : ''
+                    }`}
+                    onClick={() => selectIndoorArea(area.id)}
+                  >
+                    {area.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {selectedIndoorArea && (
+              <div className="indoor-map-selector__row">
+                <span className="indoor-map-selector__hint">階</span>
+                <div
+                  className="indoor-map-selector__tabs indoor-map-selector__tabs--secondary"
+                  role="tablist"
+                >
+                  {selectedIndoorArea.floors.map((floor) => (
+                    <button
+                      key={`${selectedIndoorArea.id}-${floor.id}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={selectedIndoorFloor?.id === floor.id}
+                      className={`indoor-map-tab indoor-map-tab--secondary ${
+                        selectedIndoorFloor?.id === floor.id ? 'active' : ''
+                      }`}
+                      onClick={() => setIndoorFloorId(floor.id)}
+                    >
+                      {floor.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </div>
       {isMapReady && (
@@ -657,6 +761,7 @@ export default function MapFeature() {
           closePopupOnClick={false}
         >
           <MapZoomAndMarkers
+            pinsEnabled={viewMode === 'outdoor'}
             shops={filteredShops}
             isMapReady={isMapReady}
             markerRefs={markerRefs}
@@ -728,7 +833,18 @@ export default function MapFeature() {
               <CampusSvgOverlay />
             </>
           )}
-          {viewMode === 'indoor' && <CampusSvgOverlay />}
+          {viewMode === 'indoor' && selectedIndoorFloor && (
+            <>
+              <TileLayer
+                attribution="&copy; OpenStreetMap"
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                maxNativeZoom={19}
+                maxZoom={21}
+                opacity={0.22}
+              />
+              <IndoorFloorImageOverlay floor={selectedIndoorFloor} />
+            </>
+          )}
           {viewMode === 'outdoor' && userLocation && (
             <>
               <CircleMarker

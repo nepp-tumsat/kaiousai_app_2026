@@ -486,7 +486,11 @@ export function csvRowsToShopSources(areas: CsvAreaRow[], locations: CsvLocation
   const out: ShopSource[] = []
 
   for (const loc of locations) {
-    if (!loc.on_map || !loc.is_shop) continue
+    if (!loc.on_map) continue
+    const showAsShopOrFacility = loc.is_shop || loc.is_facility
+    if (!showAsShopOrFacility) continue
+    /** `is_event_location` のみ（模擬店でない）は `map-areas.json` の菱形ピンで表示するため、円ピンは二重にしない */
+    if (loc.is_event_location && !loc.is_shop) continue
     let cats = parseCategories(loc.categories)
     if (cats.length === 0) cats = inferShopCategoriesWhenEmpty(loc)
     const area =
@@ -495,7 +499,7 @@ export function csvRowsToShopSources(areas: CsvAreaRow[], locations: CsvLocation
 
     if (loc.lat === undefined || loc.lng === undefined) {
       throw new Error(
-        `locations.csv: on_map=true かつ is_shop=true だが lat/lng がありません (location ${loc.id})`,
+        `locations.csv: on_map=true かつ is_shop / is_facility だが lat/lng がありません (location ${loc.id})`,
       )
     }
 

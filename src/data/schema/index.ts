@@ -21,6 +21,12 @@ export {
   type FestivalEventSource,
 } from './event'
 export {
+  indoorFloorSchema,
+  indoorMapAreaSchema,
+  indoorMapsPayloadSchema,
+} from './indoorMaps'
+export type { IndoorFloor, IndoorMapArea, IndoorMapsPayload } from './indoorMaps'
+export {
   buildMapAreasPayload,
   emptyMapAreasPayload,
   mapAreaPinSchema,

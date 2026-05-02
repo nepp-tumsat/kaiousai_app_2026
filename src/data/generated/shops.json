@@ -1,7 +1,7 @@
 [
   {
-    "sourceLocationId": "LC-001",
-    "organization": "海王祭実行委員会",
+    "sourceLocationId": "00",
+    "organization": "",
     "title": "本部",
     "description": "本部",
     "area": "",
@@ -15,10 +15,10 @@
     "id": 1
   },
   {
-    "sourceLocationId": "LC-002",
-    "organization": "海王祭実行委員会",
+    "sourceLocationId": "01",
+    "organization": "",
     "title": "海王祭実行委員会ブース",
-    "description": "海王祭実行委員会の模擬店では ノンアルコールビール、海王祭グッズ、 船舶模型、ビンゴカードを 販売いたします！",
+    "description": "海王祭実行委員会ブース",
     "area": "",
     "location": "海王祭実行委員会ブース",
     "coordinates": [
@@ -30,10 +30,10 @@
     "id": 2
   },
   {
-    "sourceLocationId": "LC-003",
-    "organization": "海王祭実行委員会",
+    "sourceLocationId": "02",
+    "organization": "",
     "title": "ベビーカー置き場",
-    "description": "test2",
+    "description": "ベビーカー置き場",
     "area": "",
     "location": "ベビーカー置き場",
     "coordinates": [
@@ -45,67 +45,22 @@
     "id": 3
   },
   {
-    "sourceLocationId": "LC-004",
-    "organization": "日本海洋塾",
-    "title": "日本海洋塾",
-    "description": "test3",
+    "sourceLocationId": "04",
+    "organization": "",
+    "title": "試乗会集合場所",
+    "description": "試乗会集合場所",
     "area": "",
-    "location": "日本海洋塾",
+    "location": "試乗会集合場所",
     "coordinates": [
-      35.667776,
-      139.7907338
+      35.6661613,
+      139.7919166
     ],
     "image": "shops/placeholder.png",
-    "category": "experience",
+    "category": "facility",
     "id": 4
   },
   {
-    "sourceLocationId": "LC-005",
-    "organization": "日本海事代理士会",
-    "title": "日本海事代理士会",
-    "description": "ブースでは、海事代理士による無料法令相談を行います。 模擬店では、軽食提供等を行います。 どなたでもお気軽にお立ち寄りください。",
-    "area": "",
-    "location": "日本海事代理士会",
-    "coordinates": [
-      35.6677303,
-      139.7906747
-    ],
-    "image": "shops/placeholder.png",
-    "category": "experience",
-    "id": 5
-  },
-  {
-    "sourceLocationId": "LC-006",
-    "organization": "ナカシマプロペラ株式会社",
-    "title": "ナカシマプロペラ株式会社",
-    "description": "船を動かす“プロペラ”がキャンドルに！？ 世界にひとつだけのプロペラキャンドルをつくりませんか？ 楽しく体験しながら、本物のプロペラの“製造方法”も学べます。",
-    "area": "",
-    "location": "ナカシマプロペラ株式会社",
-    "coordinates": [
-      35.6676801,
-      139.7906077
-    ],
-    "image": "shops/placeholder.png",
-    "category": "experience",
-    "id": 6
-  },
-  {
-    "sourceLocationId": "LC-007",
-    "organization": "今治造船株式会社",
-    "title": "今治造船株式会社",
-    "description": "VRゴーグルを装着することで、まるで造船所にいるかのような没入感のある見学体験が可能です。普段はなかなか見ることができない建造中の船を歩いたり飛んだり･･･とご自身が操作することで、自由に体感することができます。",
-    "area": "",
-    "location": "今治造船株式会社",
-    "coordinates": [
-      35.6676289,
-      139.790538
-    ],
-    "image": "shops/placeholder.png",
-    "category": "experience",
-    "id": 7
-  },
-  {
-    "sourceLocationId": "LC-008",
+    "sourceLocationId": "mogi_01",
     "organization": "海洋会",
     "title": "海洋会",
     "description": "素敵なオリジナルグッズや明治丸グッズを販売します。公式「明治丸　御船印」も登場、来場記念にどうぞ！",
@@ -116,11 +71,11 @@
       139.7909335
     ],
     "image": "shops/placeholder.png",
-    "category": "experience",
-    "id": 8
+    "category": "food",
+    "id": 5
   },
   {
-    "sourceLocationId": "LC-009",
+    "sourceLocationId": "mogi_02",
     "organization": "株式会社日本海事新聞社",
     "title": "株式会社日本海事新聞社",
     "description": "学生の皆さんに電子版無料ログインID&PWを配布するほか、来場者に発行日前の新聞(6月16日付)を無料配布いたします！",
@@ -131,11 +86,86 @@
       139.7909872
     ],
     "image": "shops/placeholder.png",
-    "category": "experience",
+    "category": "food",
+    "id": 6
+  },
+  {
+    "sourceLocationId": "mogi_03",
+    "organization": "日本海洋塾",
+    "title": "日本海洋塾",
+    "description": "日本海洋塾",
+    "area": "",
+    "location": "日本海洋塾",
+    "coordinates": [
+      35.667776,
+      139.7907338
+    ],
+    "image": "shops/placeholder.png",
+    "category": "food",
+    "id": 7
+  },
+  {
+    "sourceLocationId": "mogi_04",
+    "organization": "日本海事代理士会",
+    "title": "日本海事代理士会",
+    "description": "ブースでは、海事代理士による無料法令相談を行います。 模擬店では、軽食提供等を行います。 どなたでもお気軽にお立ち寄りください。",
+    "area": "",
+    "location": "日本海事代理士会",
+    "coordinates": [
+      35.6677303,
+      139.7906747
+    ],
+    "image": "shops/placeholder.png",
+    "category": "food",
+    "id": 8
+  },
+  {
+    "sourceLocationId": "mogi_05",
+    "organization": "ナカシマプロペラ株式会社",
+    "title": "ナカシマプロペラ株式会社",
+    "description": "船を動かす“プロペラ”がキャンドルに！？ 世界にひとつだけのプロペラキャンドルをつくりませんか？ 楽しく体験しながら、本物のプロペラの“製造方法”も学べます。",
+    "area": "",
+    "location": "ナカシマプロペラ株式会社",
+    "coordinates": [
+      35.6676801,
+      139.7906077
+    ],
+    "image": "shops/placeholder.png",
+    "category": "food",
     "id": 9
   },
   {
-    "sourceLocationId": "LC-010",
+    "sourceLocationId": "mogi_06",
+    "organization": "今治造船株式会社",
+    "title": "今治造船株式会社",
+    "description": "VRゴーグルを装着することで、まるで造船所にいるかのような没入感のある見学体験が可能です。普段はなかなか見ることができない建造中の船を歩いたり飛んだり･･･とご自身が操作することで、自由に体感することができます。",
+    "area": "",
+    "location": "今治造船株式会社",
+    "coordinates": [
+      35.6676289,
+      139.790538
+    ],
+    "image": "shops/placeholder.png",
+    "category": "food",
+    "id": 10
+  },
+  {
+    "sourceLocationId": "mogi_07",
+    "organization": "海王祭実行委員会",
+    "title": "海王祭実行委員会ブース",
+    "description": "海王祭実行委員会ブース",
+    "area": "",
+    "location": "海王祭実行委員会ブース",
+    "coordinates": [
+      35.66738266,
+      139.7910868
+    ],
+    "image": "shops/placeholder.png",
+    "category": "food",
+    "id": 11
+  },
+  {
+    "sourceLocationId": "mogi_08",
     "organization": "総合創作誌発行企画",
     "title": "総合創作誌発行企画",
     "description": "創作誌の販売と活動紹介をいたします！ さまざまな作品をぜひご覧ください。",
@@ -147,10 +177,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 10
+    "id": 12
   },
   {
-    "sourceLocationId": "LC-011",
+    "sourceLocationId": "mogi_09",
     "organization": "ダンス部EXSEAD",
     "title": "食飯とダンス公演",
     "description": "屋外ステージでダンス公演を行います！各ジャンルの発表に加え、さまざまな有志も見どころです   ぜひご覧ください！また、模擬店ブースではたこ焼きの販売も行います！",
@@ -162,25 +192,25 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 11
+    "id": 13
   },
   {
-    "sourceLocationId": "LC-012",
+    "sourceLocationId": "mogi_10",
     "organization": "軽音楽部",
-    "title": "軽音楽部",
+    "title": "からあげ",
     "description": "揚げ立てのからあげを販売いたします！ また、バンド発表も行います！",
     "area": "",
-    "location": "軽音楽部",
+    "location": "からあげ",
     "coordinates": [
       35.6675385,
       139.7912031
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 12
+    "id": 14
   },
   {
-    "sourceLocationId": "LC-013",
+    "sourceLocationId": "mogi_11",
     "organization": "東洋海洋大学合気道部",
     "title": "串だんご",
     "description": "合気道部は屋外テントにてお団子を販売しています！お好きな生地のお団子とお好きな餡・たれを選んで、ぜひおいしい串団子を片手に海王祭をお楽しみください！！",
@@ -192,10 +222,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 13
+    "id": 15
   },
   {
-    "sourceLocationId": "LC-014",
+    "sourceLocationId": "mogi_12",
     "organization": "越中島硬式テニス部",
     "title": "ホットドッグ、フランクフルト",
     "description": "パリッとジューシーなフランクフルトとそれをバンズでサンドして熱々に仕上げたホットドッグです！",
@@ -207,10 +237,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 14
+    "id": 16
   },
   {
-    "sourceLocationId": "LC-015",
+    "sourceLocationId": "mogi_13",
     "organization": "男子バレーボール部",
     "title": "チョコバナナ",
     "description": "毎年人気のチョコバナナを今年も販売します！暑い日にぴったりなバナナスムージーも販売するのでぜひご賞味ください！",
@@ -222,10 +252,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 15
+    "id": 17
   },
   {
-    "sourceLocationId": "LC-016",
+    "sourceLocationId": "mogi_14",
     "organization": "山岳部",
     "title": "山名物！！ポテトフライ",
     "description": "カリッカリに揚がってます！",
@@ -237,10 +267,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 16
+    "id": 18
   },
   {
-    "sourceLocationId": "LC-017",
+    "sourceLocationId": "mogi_15",
     "organization": "バスケットボール部",
     "title": "チュロス",
     "description": "外はサクサク，中はもちっと。 海を感じる特別なチュロスにしました！",
@@ -252,10 +282,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 17
+    "id": 19
   },
   {
-    "sourceLocationId": "LC-018",
+    "sourceLocationId": "mogi_16",
     "organization": "木曜会",
     "title": "本格パエリア",
     "description": "スペインの味を500円で楽しめる！海の幸や鶏肉の旨味が、お米一粒一粒に閉じ込められた贅沢パエリア♪",
@@ -267,10 +297,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 18
+    "id": 20
   },
   {
-    "sourceLocationId": "LC-019",
+    "sourceLocationId": "mogi_17",
     "organization": "ネットボール部",
     "title": "揚げアイス",
     "description": "ネットボール部にかける思いのようにひんやりアイスをサクッと揚げます！ ぜひご賞味あれ！",
@@ -282,10 +312,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 19
+    "id": 21
   },
   {
-    "sourceLocationId": "LC-020",
+    "sourceLocationId": "mogi_18",
     "organization": "東京海洋大学・水泳部",
     "title": "特性スタミナ油そば",
     "description": "いつもは大会等があり、参加を見送ることが多かった我々水泳部ですが、今回の海王祭りでは満を持して出店させていただきます。水泳部が一丸となって作った油そば食べてみたくなりませんか！？",
@@ -297,10 +327,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 20
+    "id": 22
   },
   {
-    "sourceLocationId": "LC-021",
+    "sourceLocationId": "mogi_19",
     "organization": "お嬢様部&ピューロランド部",
     "title": "輸血パックドリンク",
     "description": "お嬢様部とピューロランド部のコラボ！ワクワク満点の輸血パックドリンク！",
@@ -312,10 +342,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 21
+    "id": 23
   },
   {
-    "sourceLocationId": "LC-022",
+    "sourceLocationId": "mogi_20",
     "organization": "空手道部",
     "title": "空手部のお好み焼き",
     "description": "広島出身の部員監修によるお好み焼きです！こだわった一品をぜひ。",
@@ -327,10 +357,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 22
+    "id": 24
   },
   {
-    "sourceLocationId": "LC-023",
+    "sourceLocationId": "mogi_21",
     "organization": "芝浦祭実行委員会",
     "title": "最適解ワッフル",
     "description": "ミックスベリーを乗せた最適解ワッフルを 販売いたします！ ソースはチョコ、イチゴ、ブルーベリー、 メープルをご用意しております。",
@@ -342,10 +372,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 23
+    "id": 25
   },
   {
-    "sourceLocationId": "LC-024",
+    "sourceLocationId": "mogi_22",
     "organization": "ネクトンカフェ",
     "title": "カニレース",
     "description": "カニレース",
@@ -357,10 +387,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 24
+    "id": 26
   },
   {
-    "sourceLocationId": "LC-025",
+    "sourceLocationId": "mogi_23",
     "organization": "あさり会",
     "title": "魚介ラーメン",
     "description": "品川キャンパスから来ました、あさり会です。品川キャンパスらしく魚介料理を提供します。品川キャンパス自治委員会委員長推奨のおいしい料理をぜひご賞味ください。",
@@ -372,10 +402,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 25
+    "id": 27
   },
   {
-    "sourceLocationId": "LC-026",
+    "sourceLocationId": "mogi_24",
     "organization": "門仲晃一",
     "title": "門仲晃一",
     "description": "クリームチーズが入ったライスコロッケ！！チキンライスとカレーピラフの２種類あります！！門仲晃一定番、特製唐揚げもご用意！！",
@@ -387,10 +417,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 26
+    "id": 28
   },
   {
-    "sourceLocationId": "LC-027",
+    "sourceLocationId": "mogi_25",
     "organization": "剣道部",
     "title": "クジラ肉の唐揚げ",
     "description": "珍しいクジラ肉の唐揚げを販売いたします！ 香ばしく揚げた一品を、ぜひご賞味ください。",
@@ -402,10 +432,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 27
+    "id": 29
   },
   {
-    "sourceLocationId": "LC-028",
+    "sourceLocationId": "mogi_26",
     "organization": "カヌー部",
     "title": "シェイク",
     "description": "カヌー部では、いちご・抹茶・キャラメル・ コーヒー・オレオから選べるシェイクを 販売しています。 ぜひお越しください！",
@@ -417,10 +447,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 28
+    "id": 30
   },
   {
-    "sourceLocationId": "LC-029",
+    "sourceLocationId": "mogi_27",
     "organization": "東京海洋大学ヨット部",
     "title": "海鮮焼そば",
     "description": "海鮮のうまみがたっぷり入った焼きそばを 販売いたします！",
@@ -432,10 +462,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 29
+    "id": 31
   },
   {
-    "sourceLocationId": "LC-030",
+    "sourceLocationId": "mogi_28",
     "organization": "東京海洋大学・共立薬科大学管弦楽団",
     "title": "焼きグソクムシ販売・アンサンブル他",
     "description": "オーケストラ部です！テントにて焼きグソクムシ、焼き鳥、ラムネの販売、ス ーパーボールすくい、教室にてアンサンブルおよびグッズ販売をいたしま す！ぜひお越しください！",
@@ -447,10 +477,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 30
+    "id": 32
   },
   {
-    "sourceLocationId": "LC-031",
+    "sourceLocationId": "mogi_29",
     "organization": "東京海洋大学越中島生協学生委員会",
     "title": "生協学生委員会海王祭模擬店",
     "description": "生協学生委員会では、海洋大グッズ、瓶飲料の販売と水風船釣りを行います！ぜひ一度覗いてみてください！！",
@@ -462,10 +492,10 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 31
+    "id": 33
   },
   {
-    "sourceLocationId": "LC-032",
+    "sourceLocationId": "mogi_30",
     "organization": "海事普及会",
     "title": "ベビーカステラ",
     "description": "ふんわり甘いベビーカステラを販売します。 食べ歩きにぜひどうぞ！ トッピングもございます！",
@@ -477,6 +507,6 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 32
+    "id": 34
   }
 ]

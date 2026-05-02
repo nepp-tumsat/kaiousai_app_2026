@@ -39,6 +39,100 @@
   color: var(--bg);
 }
 
+.map-top-bar {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: min(100%, 560px);
+  padding: 0 12px;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.map-top-bar > * {
+  pointer-events: auto;
+}
+
+.map-top-bar .map-mode-toggle {
+  position: static;
+  transform: none;
+}
+
+.indoor-map-selector {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background-color: color-mix(in srgb, var(--bg) 94%, transparent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(8px);
+}
+
+.indoor-map-selector__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.indoor-map-selector__row + .indoor-map-selector__row {
+  margin-top: 8px;
+}
+
+.indoor-map-selector__hint {
+  flex-shrink: 0;
+  margin-top: 5px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.indoor-map-selector__tabs {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.indoor-map-selector__tabs--primary .indoor-map-tab {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.82rem;
+}
+
+.indoor-map-selector__tabs--secondary .indoor-map-tab {
+  padding: 0.28rem 0.55rem;
+  font-size: 0.72rem;
+}
+
+.indoor-map-tab {
+  border: 1px solid color-mix(in srgb, var(--text-muted) 35%, transparent);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.indoor-map-tab:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.indoor-map-tab.active {
+  border-color: var(--primary);
+  background-color: var(--primary);
+  color: var(--bg);
+}
+
+.indoor-map-tab--secondary:not(.active) {
+  opacity: 0.92;
+}
+
 .current-location-button {
   position: absolute;
   bottom: calc(16px + env(safe-area-inset-bottom, 0));
@@ -287,6 +381,11 @@
   border-radius: 50%;
   border: 2px solid var(--bg);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+/** 施設: 模擬店（円）と形で区別 */
+.category-marker-dot--facility {
+  border-radius: 6px;
 }
 
 .event-location-marker-icon {
