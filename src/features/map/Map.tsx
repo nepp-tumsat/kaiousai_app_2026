@@ -10,6 +10,7 @@ import {
   Marker,
   Popup,
   TileLayer,
+  Tooltip,
   useMap,
   useMapEvents,
 } from 'react-leaflet'
@@ -26,6 +27,9 @@ L.Icon.Default.mergeOptions({
   iconUrl: assetUrl('/images/map/leaflet/marker-icon.png'),
   shadowUrl: assetUrl('/images/map/leaflet/marker-shadow.png'),
 })
+
+/** 店舗・イベント会場ピン: このズーム未満はピンのみ、以上で Leaflet 吹き出し */
+const SHOP_EVENT_POPUP_MIN_ZOOM = 21
 
 function CurrentLocationButton({
   onLocationUpdate,
@@ -155,6 +159,77 @@ function DevMapRightClickCoords() {
 }
 
 type MarkerRefMap = Record<string, L.Marker | null>
+type PinKind = 'shop' | 'eventLocation' | 'area'
+type LatLngTuple = [number, number]
+
+type DevPinMove = {
+  key: string
+  kind: PinKind
+  id: string | number
+  csvId: string
+  label: string
+  coordinates: LatLngTuple
+}
+
+type DevPinSaveState = 'idle' | 'saving' | 'saved' | 'error'
+
+function buildPinKey(kind: PinKind, id: string | number): string {
+  return `${kind}:${String(id)}`
+}
+
+function DevPinAdjustPanel({
+  latestMove,
+  saveState,
+  saveMessage,
+  onClear,
+}: {
+  latestMove: DevPinMove | null
+  saveState: DevPinSaveState
+  saveMessage: string
+  onClear: () => void
+}) {
+  if (process.env.NODE_ENV !== 'development' || latestMove === null) return null
+
+  const [lat, lng] = latestMove.coordinates
+  const latText = lat.toFixed(7)
+  const lngText = lng.toFixed(7)
+  const csvLine = `${latestMove.kind},${latestMove.id},${latText},${lngText}`
+
+  return (
+    <div className="map-dev-pin-adjust-panel" role="status">
+      <div className="map-dev-pin-adjust-panel__title">ピン調整（DEV）</div>
+      <div className="map-dev-pin-adjust-panel__meta">
+        <code>{latestMove.kind}</code>
+        <code>{latestMove.id}</code>
+      </div>
+      <div className="map-dev-pin-adjust-panel__label">{latestMove.label}</div>
+      <div className="map-dev-pin-adjust-panel__row">
+        <span>lat</span>
+        <code>{latText}</code>
+      </div>
+      <div className="map-dev-pin-adjust-panel__row">
+        <span>lng</span>
+        <code>{lngText}</code>
+      </div>
+      <div className="map-dev-pin-adjust-panel__actions">
+        <button
+          type="button"
+          onClick={() => {
+            void navigator.clipboard?.writeText(csvLine)
+          }}
+        >
+          CSV行コピー
+        </button>
+        <button type="button" onClick={onClear} aria-label="閉じる">
+          ×
+        </button>
+      </div>
+      <div className={`map-dev-pin-adjust-panel__status map-dev-pin-adjust-panel__status--${saveState}`}>
+        {saveMessage}
+      </div>
+    </div>
+  )
+}
 
 function MapZoomAndMarkers({
   shops,
@@ -162,21 +237,38 @@ function MapZoomAndMarkers({
   markerRefs,
   setSelectedShop,
   getCategoryColor,
+  devPinAdjustEnabled,
+  devPinOverrides,
+  onDevPinMove,
+  onZoomChange,
 }: {
   shops: Shop[]
   isMapReady: boolean
   markerRefs: MutableRefObject<MarkerRefMap>
   setSelectedShop: (shop: Shop) => void
   getCategoryColor: (category: ShopCategory) => string
+  devPinAdjustEnabled: boolean
+  devPinOverrides: Record<string, LatLngTuple>
+  onDevPinMove: (move: DevPinMove) => void
+  onZoomChange?: (zoom: number) => void
 }) {
   const map = useMap()
   const [zoom, setZoom] = useState(() => map.getZoom())
   const [mapPayload] = useState(() => getMapAreas())
   /** areas があるとき: zoom < shopPinsMinZoom でエリア、zoom >= で店舗（location）。既定 20 → 19 までエリア */
   const showShopPins = mapPayload.areas.length === 0 || zoom >= mapPayload.shopPinsMinZoom
+  /** 店舗・イベントピンは zoom 21 未満では吹き出しなし（ピンのみ） */
+  const showShopEventPopups = zoom >= SHOP_EVENT_POPUP_MIN_ZOOM
+  /** zoom 20: 店舗ピンに加え、地区名（エリア）の吹き出しを重ねる */
+  const showAreaDistrictOverlay =
+    showShopPins && !showShopEventPopups && mapPayload.areas.length > 0
   /** ズーム 17 以下ではエリア代表ピンは「正門」のみ（遠景のノイズ低減） */
   const areaPinsForZoom =
     zoom <= 17 ? mapPayload.areas.filter((a) => a.name === '正門') : mapPayload.areas
+
+  useEffect(() => {
+    onZoomChange?.(zoom)
+  }, [zoom, onZoomChange])
 
   useMapEvents({
     zoomend(e) {
@@ -187,18 +279,34 @@ function MapZoomAndMarkers({
     },
   })
 
-  /** 初期表示・エリア／店舗の切替後に、すべてのマーカーで Popup を開く */
+  /**
+   * エリアのみ表示: 全エリア吹き出しを開く。
+   * 店舗表示かつ zoom 21+: 店舗・イベントの吹き出しを開く。
+   * 店舗表示かつ zoom 20: 店舗はピンのみ、地区名はエリア重ねピンのみ開く。
+   */
   useEffect(() => {
     if (!isMapReady) return
     let timeoutId: number | undefined
-    const openAllPopups = () => {
+    const syncPopups = () => {
       timeoutId = window.setTimeout(() => {
-        Object.values(markerRefs.current).forEach((marker) => {
-          marker?.openPopup()
-        })
+        const entries = Object.entries(markerRefs.current)
+        if (showShopPins) {
+          if (showShopEventPopups) {
+            entries.forEach(([, marker]) => marker?.openPopup())
+          } else if (showAreaDistrictOverlay) {
+            entries.forEach(([, marker]) => marker?.closePopup())
+            entries.forEach(([key, marker]) => {
+              if (key.startsWith('area-')) marker?.openPopup()
+            })
+          } else {
+            entries.forEach(([, marker]) => marker?.closePopup())
+          }
+        } else {
+          entries.forEach(([, marker]) => marker?.openPopup())
+        }
       }, 120)
     }
-    map.whenReady(openAllPopups)
+    map.whenReady(syncPopups)
     return () => {
       if (timeoutId !== undefined) window.clearTimeout(timeoutId)
     }
@@ -206,8 +314,12 @@ function MapZoomAndMarkers({
     isMapReady,
     map,
     showShopPins,
+    showShopEventPopups,
+    showAreaDistrictOverlay,
+    devPinAdjustEnabled,
     areaPinsForZoom.length,
     mapPayload.eventLocationPins.length,
+    mapPayload.areas.length,
     markerRefs,
   ])
 
@@ -219,7 +331,8 @@ function MapZoomAndMarkers({
           {shops.map((shop) => (
             <Marker
               key={`shop-${shop.id}`}
-              position={shop.coordinates}
+              position={devPinOverrides[buildPinKey('shop', shop.id)] ?? shop.coordinates}
+              draggable={devPinAdjustEnabled}
               ref={(marker) => {
                 const key = `shop-${shop.id}`
                 if (marker) markerRefs.current[key] = marker
@@ -227,6 +340,19 @@ function MapZoomAndMarkers({
               }}
               eventHandlers={{
                 click: () => setSelectedShop(shop),
+                dragend: (e) => {
+                  if (!devPinAdjustEnabled) return
+                  const marker = e.target as L.Marker
+                  const next = marker.getLatLng()
+                  onDevPinMove({
+                    key: buildPinKey('shop', shop.id),
+                    kind: 'shop',
+                    id: shop.id,
+                    csvId: shop.sourceLocationId ?? '',
+                    label: shop.title,
+                    coordinates: [next.lat, next.lng],
+                  })
+                },
               }}
               icon={L.divIcon({
                 className: 'category-marker-icon',
@@ -235,33 +361,51 @@ function MapZoomAndMarkers({
                 iconAnchor: [11, 11],
               })}
             >
-              <Popup
-                className={`map-popup--shop map-popup--shop-${shop.category}`}
-                autoPan={false}
-                autoClose={false}
-                closeOnClick={false}
-                offset={[0, -10]}
-              >
-                <div
-                  style={{ cursor: 'pointer' }}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setSelectedShop(shop)
-                  }}
+              {showShopEventPopups && (
+                <Popup
+                  className={`map-popup--shop map-popup--shop-${shop.category}`}
+                  autoPan={false}
+                  autoClose={false}
+                  closeOnClick={false}
+                  offset={[0, -10]}
                 >
-                  {shop.title}
-                </div>
-              </Popup>
+                  <div
+                    style={{ cursor: 'pointer' }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelectedShop(shop)
+                    }}
+                  >
+                    {shop.title}
+                  </div>
+                </Popup>
+              )}
             </Marker>
           ))}
           {mapPayload.eventLocationPins.map((pin) => (
             <Marker
               key={`evloc-${pin.id}`}
-              position={pin.coordinates}
+              position={devPinOverrides[buildPinKey('eventLocation', pin.id)] ?? pin.coordinates}
+              draggable={devPinAdjustEnabled}
               ref={(marker) => {
                 const key = `evloc-${pin.id}`
                 if (marker) markerRefs.current[key] = marker
                 else delete markerRefs.current[key]
+              }}
+              eventHandlers={{
+                dragend: (e) => {
+                  if (!devPinAdjustEnabled) return
+                  const marker = e.target as L.Marker
+                  const next = marker.getLatLng()
+                  onDevPinMove({
+                    key: buildPinKey('eventLocation', pin.id),
+                    kind: 'eventLocation',
+                    id: pin.id,
+                    csvId: pin.id,
+                    label: pin.label,
+                    coordinates: [next.lat, next.lng],
+                  })
+                },
               }}
               icon={L.divIcon({
                 className: 'event-location-marker-icon',
@@ -270,28 +414,136 @@ function MapZoomAndMarkers({
                 iconAnchor: [11, 11],
               })}
             >
-              <Popup
-                className="map-popup--event-location"
-                autoPan={false}
-                autoClose={false}
-                closeOnClick={false}
-                offset={[0, -10]}
-              >
-                <div className="event-location-marker-popup">{pin.label}</div>
-              </Popup>
+              {showShopEventPopups && (
+                <Popup
+                  className="map-popup--event-location"
+                  autoPan={false}
+                  autoClose={false}
+                  closeOnClick={false}
+                  offset={[0, -10]}
+                >
+                  <div className="event-location-marker-popup">{pin.label}</div>
+                </Popup>
+              )}
             </Marker>
           ))}
+          {showAreaDistrictOverlay &&
+            areaPinsForZoom.map((area) => (
+              <Marker
+                key={`area-overlay-${area.id}`}
+                position={devPinOverrides[buildPinKey('area', area.id)] ?? area.coordinates}
+                zIndexOffset={devPinAdjustEnabled ? 800 : -400}
+                interactive={devPinAdjustEnabled}
+                draggable={devPinAdjustEnabled}
+                ref={(marker) => {
+                  const key = `area-${area.id}`
+                  if (marker) markerRefs.current[key] = marker
+                  else delete markerRefs.current[key]
+                }}
+                eventHandlers={{
+                  dragend: (e) => {
+                    if (!devPinAdjustEnabled) return
+                    const marker = e.target as L.Marker
+                    const next = marker.getLatLng()
+                    onDevPinMove({
+                      key: buildPinKey('area', area.id),
+                      kind: 'area',
+                      id: area.id,
+                      csvId: area.id,
+                      label: area.name,
+                      coordinates: [next.lat, next.lng],
+                    })
+                  },
+                }}
+                icon={L.divIcon({
+                  className: 'area-marker-icon',
+                  html: '<div class="area-marker-disc"></div>',
+                  iconSize: [28, 28],
+                  iconAnchor: [14, 14],
+                })}
+              >
+                <Popup
+                  autoPan={false}
+                  autoClose={false}
+                  closeButton={false}
+                  closeOnClick={false}
+                  offset={[0, -10]}
+                >
+                  <div className="area-marker-popup">{area.name}</div>
+                </Popup>
+              </Marker>
+            ))}
+          {devPinAdjustEnabled &&
+            showShopPins &&
+            showShopEventPopups &&
+            mapPayload.areas.length > 0 &&
+            mapPayload.areas.map((area) => (
+              <Marker
+                key={`area-dev-${area.id}`}
+                position={devPinOverrides[buildPinKey('area', area.id)] ?? area.coordinates}
+                zIndexOffset={900}
+                interactive
+                draggable
+                ref={(marker) => {
+                  const key = `area-${area.id}`
+                  if (marker) markerRefs.current[key] = marker
+                  else delete markerRefs.current[key]
+                }}
+                eventHandlers={{
+                  dragend: (e) => {
+                    const marker = e.target as L.Marker
+                    const next = marker.getLatLng()
+                    onDevPinMove({
+                      key: buildPinKey('area', area.id),
+                      kind: 'area',
+                      id: area.id,
+                      csvId: area.id,
+                      label: area.name,
+                      coordinates: [next.lat, next.lng],
+                    })
+                  },
+                }}
+                icon={L.divIcon({
+                  className: 'area-marker-icon',
+                  html: '<div class="area-marker-disc"></div>',
+                  iconSize: [28, 28],
+                  iconAnchor: [14, 14],
+                })}
+              >
+                <Tooltip permanent direction="top" offset={[0, -10]} opacity={0.92}>
+                  {area.name}
+                </Tooltip>
+              </Marker>
+            ))}
         </>
       ) : (
         <>
           {areaPinsForZoom.map((area) => (
             <Marker
               key={`area-${area.id}`}
-              position={area.coordinates}
+              position={devPinOverrides[buildPinKey('area', area.id)] ?? area.coordinates}
+              zIndexOffset={devPinAdjustEnabled ? 800 : 0}
+              interactive
+              draggable={devPinAdjustEnabled}
               ref={(marker) => {
                 const key = `area-${area.id}`
                 if (marker) markerRefs.current[key] = marker
                 else delete markerRefs.current[key]
+              }}
+              eventHandlers={{
+                dragend: (e) => {
+                  if (!devPinAdjustEnabled) return
+                  const marker = e.target as L.Marker
+                  const next = marker.getLatLng()
+                  onDevPinMove({
+                    key: buildPinKey('area', area.id),
+                    kind: 'area',
+                    id: area.id,
+                    csvId: area.id,
+                    label: area.name,
+                    coordinates: [next.lat, next.lng],
+                  })
+                },
               }}
               icon={L.divIcon({
                 className: 'area-marker-icon',
@@ -323,14 +575,27 @@ export default function MapFeature() {
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
   const [viewMode, setViewMode] = useState<'outdoor' | 'indoor'>('outdoor')
+  const [devPinAdjustEnabled, setDevPinAdjustEnabled] = useState(false)
+  const [devPinOverrides, setDevPinOverrides] = useState<Record<string, LatLngTuple>>({})
+  const [latestPinMove, setLatestPinMove] = useState<DevPinMove | null>(null)
+  const [devPinSaveState, setDevPinSaveState] = useState<DevPinSaveState>('idle')
+  const [devPinSaveMessage, setDevPinSaveMessage] = useState('ドラッグすると output_*.csv に保存します')
   const markerRefs = useRef<MarkerRefMap>({})
+  const mapZoomRef = useRef(18)
+  const isDev = process.env.NODE_ENV === 'development'
+
+  const handleMapZoomChange = useCallback((z: number) => {
+    mapZoomRef.current = z
+  }, [])
 
   /** 店舗詳細を開いても Leaflet の既定クリックで吹き出しが閉じないよう、直後に再オープンする */
   const openShopDetail = useCallback((shop: Shop) => {
     setSelectedShop(shop)
     const key = `shop-${shop.id}`
     queueMicrotask(() => {
-      markerRefs.current[key]?.openPopup()
+      if (mapZoomRef.current >= SHOP_EVENT_POPUP_MIN_ZOOM) {
+        markerRefs.current[key]?.openPopup()
+      }
     })
   }, [])
 
@@ -371,6 +636,17 @@ export default function MapFeature() {
         >
           屋内マップ
         </button>
+        {isDev && (
+          <button
+            type="button"
+            className={`map-mode-button ${devPinAdjustEnabled ? 'active' : ''}`}
+            onClick={() => {
+              setDevPinAdjustEnabled((prev) => !prev)
+            }}
+          >
+            ピン調整
+          </button>
+        )}
       </div>
       {isMapReady && (
         <MapContainer
@@ -386,8 +662,60 @@ export default function MapFeature() {
             markerRefs={markerRefs}
             setSelectedShop={openShopDetail}
             getCategoryColor={getCategoryColor}
+            onZoomChange={handleMapZoomChange}
+            devPinAdjustEnabled={isDev && devPinAdjustEnabled}
+            devPinOverrides={devPinOverrides}
+            onDevPinMove={(move) => {
+              setDevPinOverrides((prev) => ({
+                ...prev,
+                [move.key]: move.coordinates,
+              }))
+              setLatestPinMove(move)
+              if (!isDev) return
+              if (move.csvId.trim() === '') {
+                setDevPinSaveState('error')
+                setDevPinSaveMessage('このピンは source id がないため CSV 保存できません')
+                return
+              }
+              setDevPinSaveState('saving')
+              setDevPinSaveMessage('保存中...')
+              void fetch('/api/dev/pin-adjustments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  adjustment: {
+                    kind: move.kind,
+                    id: move.csvId,
+                    lat: move.coordinates[0],
+                    lng: move.coordinates[1],
+                  },
+                }),
+              })
+                .then(async (res) => {
+                  if (!res.ok) {
+                    const payload = (await res.json().catch(() => null)) as { error?: string } | null
+                    throw new Error(payload?.error ?? `HTTP ${res.status}`)
+                  }
+                  setDevPinSaveState('saved')
+                  setDevPinSaveMessage(`保存済み: ${move.kind} ${move.csvId}`)
+                })
+                .catch((error) => {
+                  setDevPinSaveState('error')
+                  setDevPinSaveMessage(
+                    `保存失敗: ${error instanceof Error ? error.message : String(error)}`,
+                  )
+                })
+            }}
           />
           <DevMapRightClickCoords />
+          <DevPinAdjustPanel
+            latestMove={latestPinMove}
+            saveState={devPinSaveState}
+            saveMessage={devPinSaveMessage}
+            onClear={() => {
+              setLatestPinMove(null)
+            }}
+          />
           {viewMode === 'outdoor' && (
             <>
               <TileLayer
@@ -443,7 +771,9 @@ export default function MapFeature() {
             const id = selectedShop.id
             setSelectedShop(null)
             queueMicrotask(() => {
-              markerRefs.current[`shop-${id}`]?.openPopup()
+              if (mapZoomRef.current >= SHOP_EVENT_POPUP_MIN_ZOOM) {
+                markerRefs.current[`shop-${id}`]?.openPopup()
+              }
             })
           }}
         />

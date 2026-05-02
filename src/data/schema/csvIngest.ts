@@ -506,6 +506,7 @@ export function csvRowsToShopSources(areas: CsvAreaRow[], locations: CsvLocation
         : 'shops/placeholder.png'
 
     const row = {
+      sourceLocationId: loc.id,
       organization: loc.organization,
       title,
       description: loc.description.trim() !== '' ? loc.description : title,

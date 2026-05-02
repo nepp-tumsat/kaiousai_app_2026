@@ -3,6 +3,7 @@ import { z } from 'zod'
 export const shopCategorySchema = z.enum(['food', 'stage', 'facility', 'experience'])
 
 const shopFieldsSchema = z.object({
+  sourceLocationId: z.string().optional(),
   organization: z.string().default(''),
   title: z.string(),
   description: z.string(),

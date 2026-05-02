@@ -151,6 +151,115 @@
   color: var(--text);
 }
 
+.map-dev-pin-adjust-panel {
+  position: absolute;
+  right: 8px;
+  bottom: calc(64px + env(safe-area-inset-bottom, 0));
+  z-index: 1001;
+  min-width: 220px;
+  max-width: min(92vw, 320px);
+  padding: 8px 10px;
+  background-color: var(--bg);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.8rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.map-dev-pin-adjust-panel__title {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.map-dev-pin-adjust-panel__meta {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.map-dev-pin-adjust-panel__meta code {
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.map-dev-pin-adjust-panel__label {
+  font-weight: 600;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.map-dev-pin-adjust-panel__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.map-dev-pin-adjust-panel__row code {
+  font-size: 0.78rem;
+}
+
+.map-dev-pin-adjust-panel__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.map-dev-pin-adjust-panel__actions button {
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.map-dev-pin-adjust-panel__actions button:first-child {
+  background-color: var(--primary);
+  color: var(--bg);
+}
+
+.map-dev-pin-adjust-panel__actions button:first-child:hover {
+  background-color: var(--accent);
+}
+
+.map-dev-pin-adjust-panel__actions button:last-child {
+  margin-left: auto;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.map-dev-pin-adjust-panel__actions button:last-child:hover {
+  color: var(--text);
+}
+
+.map-dev-pin-adjust-panel__status {
+  margin-top: 6px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  word-break: break-word;
+}
+
+.map-dev-pin-adjust-panel__status--saving {
+  color: #9e9d24;
+}
+
+.map-dev-pin-adjust-panel__status--saved {
+  color: #2e7d32;
+}
+
+.map-dev-pin-adjust-panel__status--error {
+  color: #c62828;
+}
+
 .category-marker-icon,
 .area-marker-icon {
   display: flex;
