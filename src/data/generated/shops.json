@@ -150,21 +150,6 @@
     "id": 10
   },
   {
-    "sourceLocationId": "mogi_07",
-    "organization": "海王祭実行委員会",
-    "title": "海王祭実行委員会ブース",
-    "description": "海王祭実行委員会ブース",
-    "area": "",
-    "location": "海王祭実行委員会ブース",
-    "coordinates": [
-      35.66738266,
-      139.7910868
-    ],
-    "image": "shops/placeholder.png",
-    "category": "food",
-    "id": 11
-  },
-  {
     "sourceLocationId": "mogi_08",
     "organization": "総合創作誌発行企画",
     "title": "総合創作誌発行企画",
@@ -177,7 +162,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 12
+    "id": 11
   },
   {
     "sourceLocationId": "mogi_09",
@@ -192,7 +177,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 13
+    "id": 12
   },
   {
     "sourceLocationId": "mogi_10",
@@ -207,7 +192,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 14
+    "id": 13
   },
   {
     "sourceLocationId": "mogi_11",
@@ -222,7 +207,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 15
+    "id": 14
   },
   {
     "sourceLocationId": "mogi_12",
@@ -237,7 +222,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 16
+    "id": 15
   },
   {
     "sourceLocationId": "mogi_13",
@@ -252,7 +237,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 17
+    "id": 16
   },
   {
     "sourceLocationId": "mogi_14",
@@ -267,7 +252,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 18
+    "id": 17
   },
   {
     "sourceLocationId": "mogi_15",
@@ -282,7 +267,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 19
+    "id": 18
   },
   {
     "sourceLocationId": "mogi_16",
@@ -297,7 +282,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 20
+    "id": 19
   },
   {
     "sourceLocationId": "mogi_17",
@@ -312,7 +297,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 21
+    "id": 20
   },
   {
     "sourceLocationId": "mogi_18",
@@ -327,7 +312,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 22
+    "id": 21
   },
   {
     "sourceLocationId": "mogi_19",
@@ -342,7 +327,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 23
+    "id": 22
   },
   {
     "sourceLocationId": "mogi_20",
@@ -357,7 +342,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 24
+    "id": 23
   },
   {
     "sourceLocationId": "mogi_21",
@@ -372,7 +357,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 25
+    "id": 24
   },
   {
     "sourceLocationId": "mogi_22",
@@ -387,7 +372,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 26
+    "id": 25
   },
   {
     "sourceLocationId": "mogi_23",
@@ -402,7 +387,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 27
+    "id": 26
   },
   {
     "sourceLocationId": "mogi_24",
@@ -417,7 +402,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 28
+    "id": 27
   },
   {
     "sourceLocationId": "mogi_25",
@@ -432,7 +417,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 29
+    "id": 28
   },
   {
     "sourceLocationId": "mogi_26",
@@ -447,7 +432,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 30
+    "id": 29
   },
   {
     "sourceLocationId": "mogi_27",
@@ -462,7 +447,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 31
+    "id": 30
   },
   {
     "sourceLocationId": "mogi_28",
@@ -477,7 +462,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 32
+    "id": 31
   },
   {
     "sourceLocationId": "mogi_29",
@@ -492,7 +477,7 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 33
+    "id": 32
   },
   {
     "sourceLocationId": "mogi_30",
@@ -507,6 +492,6 @@
     ],
     "image": "shops/placeholder.png",
     "category": "food",
-    "id": 34
+    "id": 33
   }
 ]

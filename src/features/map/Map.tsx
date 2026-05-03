@@ -1,6 +1,7 @@
 'use client'
 
 import './Map.css'
+import { useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { MutableRefObject } from 'react'
 import {
@@ -11,18 +12,12 @@ import {
   Popup,
   TileLayer,
   Tooltip,
+  ZoomControl,
   useMap,
   useMapEvents,
 } from 'react-leaflet'
 import L from 'leaflet'
-import {
-  getIndoorMaps,
-  getMapAreas,
-  getShops,
-  type IndoorFloor,
-  type Shop,
-  type ShopCategory,
-} from '../../data/loaders'
+import { getMapAreas, getShops, type MapAreaPin, type MapCatalogEntry, type Shop, type ShopCategory } from '../../data/loaders'
 import { assetUrl } from '../../lib/assetUrl'
 import ShopPopup from './ShopPopup'
 
@@ -37,6 +32,65 @@ L.Icon.Default.mergeOptions({
 
 /** 店舗・イベント会場ピン: このズーム未満はピンのみ、以上で Leaflet 吹き出し */
 const SHOP_EVENT_POPUP_MIN_ZOOM = 21
+
+const DEFAULT_MAP_CENTER: [number, number] = [35.6672324, 139.791702]
+/** 屋内平面図の緯度方向スパン（度）。経度幅は画像アスペクト比から算出する */
+const INDOOR_PLAN_LAT_SPAN = 0.00105
+
+type IndoorPlanGroup = {
+  relatedAreaId: string
+  floors: MapCatalogEntry[]
+}
+
+/** `maps` シート由来の mapCatalog から、屋内用に `related_area` 付きの行だけ建物別にまとめる */
+function groupIndoorMapCatalogRows(catalog: MapCatalogEntry[]): IndoorPlanGroup[] {
+  const by = new Map<string, MapCatalogEntry[]>()
+  const order: string[] = []
+  for (const row of catalog) {
+    const aid = row.relatedAreaId.trim()
+    if (aid === '') continue
+    if (row.id.trim().toLowerCase() === 'campus') continue
+    if (!by.has(aid)) {
+      order.push(aid)
+      by.set(aid, [])
+    }
+    by.get(aid)!.push(row)
+  }
+  return order.map((relatedAreaId) => ({
+    relatedAreaId,
+    floors: by.get(relatedAreaId)!,
+  }))
+}
+
+function buildingLabelFromPins(areaPins: MapAreaPin[], relatedAreaId: string): string {
+  const pin = areaPins.find((a) => a.id === relatedAreaId)
+  return pin?.name ?? `エリア ${relatedAreaId}`
+}
+
+function centerForRelatedArea(areaPins: MapAreaPin[], relatedAreaId: string): [number, number] {
+  const pin = areaPins.find((a) => a.id === relatedAreaId)
+  return pin?.coordinates ?? DEFAULT_MAP_CENTER
+}
+
+function boundsForImageAspect(
+  center: [number, number],
+  aspectWidthOverHeight: number,
+  latSpan: number,
+): [[number, number], [number, number]] {
+  const [lat0, lng0] = center
+  const cosLat = Math.cos((lat0 * Math.PI) / 180)
+  const metersPerDegLat = 111_320
+  const metersPerDegLng = 111_320 * Math.max(0.2, cosLat)
+  const heightM = latSpan * metersPerDegLat
+  const widthM = aspectWidthOverHeight * heightM
+  const lngSpan = widthM / metersPerDegLng
+  const halfLat = latSpan / 2
+  const halfLng = lngSpan / 2
+  return [
+    [lat0 - halfLat, lng0 - halfLng],
+    [lat0 + halfLat, lng0 + halfLng],
+  ]
+}
 
 function CurrentLocationButton({
   onLocationUpdate,
@@ -74,7 +128,8 @@ function CampusSvgOverlay() {
     [35.669875, 139.796872],
   ]
 
-  const imageUrl = assetUrl('/images/map/campus-map.png')
+  const { outdoorMapImage } = getMapAreas()
+  const imageUrl = assetUrl(`/images/${outdoorMapImage}`)
 
   return (
     <ImageOverlay
@@ -86,24 +141,100 @@ function CampusSvgOverlay() {
   )
 }
 
-/** 屋内フロア平面図（ImageOverlay） */
-function IndoorFloorImageOverlay({
-  floor,
+type IndoorPlaneDisplay = {
+  /** この平面図が属する建物（`related_area`）。表示と entry が一致するときだけ fitBounds 等を適用 */
+  buildingId: string
+  image: string
+  bounds: [[number, number], [number, number]]
+}
+
+/** 屋内: 画像の縦横比に合わせた地理 bounds で ImageOverlay（歪みなし） */
+function IndoorMapPlanLayer({
+  entry,
+  areaPins,
 }: {
-  floor: IndoorFloor
+  entry: MapCatalogEntry
+  areaPins: MapAreaPin[]
 }) {
-  const bounds: L.LatLngBoundsExpression = [
-    [floor.bounds[0][0], floor.bounds[0][1]],
-    [floor.bounds[1][0], floor.bounds[1][1]],
-  ]
+  const map = useMap()
+  const [plane, setPlane] = useState<IndoorPlaneDisplay | null>(null)
+  const [planeOpacity, setPlaneOpacity] = useState(1)
+  const lastFitBuildingRef = useRef<string | null>(null)
+  const prevRelatedAreaRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    const buildingId = entry.relatedAreaId
+    const prevBuilding = prevRelatedAreaRef.current
+    if (prevBuilding !== null && prevBuilding !== buildingId) {
+      setPlaneOpacity(0)
+    }
+    prevRelatedAreaRef.current = buildingId
+
+    let cancelled = false
+    const url = assetUrl(`/images/${entry.image}`)
+    const center = centerForRelatedArea(areaPins, buildingId)
+    const img = new Image()
+    img.onload = () => {
+      if (cancelled) return
+      const w = img.naturalWidth
+      const h = img.naturalHeight
+      if (w <= 0 || h <= 0) return
+      const aspect = w / h
+      const bounds = boundsForImageAspect(center, aspect, INDOOR_PLAN_LAT_SPAN)
+      setPlane({ buildingId, image: entry.image, bounds })
+      requestAnimationFrame(() => {
+        if (!cancelled) setPlaneOpacity(1)
+      })
+    }
+    img.onerror = () => {
+      if (!cancelled) setPlaneOpacity(1)
+    }
+    img.src = url
+    return () => {
+      cancelled = true
+    }
+  }, [entry.id, entry.image, entry.relatedAreaId, areaPins])
+
+  useEffect(() => {
+    if (!plane) return
+    if (plane.buildingId !== entry.relatedAreaId) return
+    const sw = plane.bounds[0]
+    const ne = plane.bounds[1]
+    const b = L.latLngBounds(L.latLng(sw[0], sw[1]), L.latLng(ne[0], ne[1]))
+    if (!b.isValid()) return
+    const buildingId = plane.buildingId
+    const sameBuildingAsLastFit = lastFitBuildingRef.current === buildingId
+
+    const id = window.setTimeout(() => {
+      map.invalidateSize()
+      if (!sameBuildingAsLastFit) {
+        map.fitBounds(b, { padding: [20, 20], maxZoom: 21, animate: false })
+        lastFitBuildingRef.current = buildingId
+      }
+    }, 60)
+    return () => window.clearTimeout(id)
+  }, [map, plane, entry.relatedAreaId])
+
+  if (!plane) return null
   return (
     <ImageOverlay
-      url={assetUrl(`/images/${floor.image}`)}
-      bounds={bounds}
-      opacity={1}
-      zIndex={550}
+      key="indoor-floor-plan"
+      url={assetUrl(`/images/${plane.image}`)}
+      bounds={plane.bounds}
+      opacity={planeOpacity}
+      zIndex={400}
+      interactive={false}
     />
   )
+}
+
+function MapViewResizeSync({ viewMode }: { viewMode: 'outdoor' | 'indoor' }) {
+  const map = useMap()
+  useEffect(() => {
+    const t = window.setTimeout(() => map.invalidateSize(), 0)
+    return () => window.clearTimeout(t)
+  }, [map, viewMode])
+  return null
 }
 
 /** 開発時のみ: 地図を右クリックした位置の lat / lng を表示（本番ビルドでは無効） */
@@ -256,6 +387,45 @@ function DevPinAdjustPanel({
       </div>
     </div>
   )
+}
+
+/** `/map?shop=` から該当ピンへズームし詳細を開く */
+function MapFocusShopFromQuery({
+  shops,
+  openShopDetail,
+  enabled,
+}: {
+  shops: Shop[]
+  openShopDetail: (shop: Shop) => void
+  /** 屋外マップで店舗ピンが有効なときのみ実行 */
+  enabled: boolean
+}) {
+  const searchParams = useSearchParams()
+  const map = useMap()
+  const doneForShopParamRef = useRef('')
+
+  useEffect(() => {
+    if (!enabled) return
+    const raw = searchParams.get('shop') ?? ''
+    if (!raw) {
+      doneForShopParamRef.current = ''
+      return
+    }
+    if (doneForShopParamRef.current === raw) return
+    const id = Number.parseInt(raw, 10)
+    if (!Number.isFinite(id)) return
+    const shop = shops.find((s) => s.id === id)
+    if (!shop) return
+    doneForShopParamRef.current = raw
+    const z = Math.max(map.getZoom(), SHOP_EVENT_POPUP_MIN_ZOOM)
+    map.setView(shop.coordinates, z, { animate: true })
+    const t = window.setTimeout(() => {
+      openShopDetail(shop)
+    }, 450)
+    return () => window.clearTimeout(t)
+  }, [enabled, searchParams, shops, map, openShopDetail])
+
+  return null
 }
 
 function MapZoomAndMarkers({
@@ -607,13 +777,19 @@ function MapZoomAndMarkers({
 }
 
 export default function MapFeature() {
+  const searchParams = useSearchParams()
   const [isMapReady, setIsMapReady] = useState(false)
   const [shops] = useState<Shop[]>(() => getShops())
-  const indoorMapsConfig = useMemo(() => getIndoorMaps(), [])
-  const [indoorAreaId, setIndoorAreaId] = useState(() => indoorMapsConfig.areas[0]?.id ?? '')
-  const [indoorFloorId, setIndoorFloorId] = useState(
-    () => indoorMapsConfig.areas[0]?.floors[0]?.id ?? '',
+  const mapPayload = useMemo(() => getMapAreas(), [])
+  const indoorPlanGroups = useMemo(
+    () => groupIndoorMapCatalogRows(mapPayload.mapCatalog),
+    [mapPayload],
   )
+  const indoorAvailable = indoorPlanGroups.length > 0
+  const [indoorBuildingKey, setIndoorBuildingKey] = useState(
+    () => indoorPlanGroups[0]?.relatedAreaId ?? '',
+  )
+  const [indoorMapRowId, setIndoorMapRowId] = useState(() => indoorPlanGroups[0]?.floors[0]?.id ?? '')
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
   const [viewMode, setViewMode] = useState<'outdoor' | 'indoor'>('outdoor')
@@ -624,6 +800,7 @@ export default function MapFeature() {
   const [devPinSaveMessage, setDevPinSaveMessage] = useState('ドラッグすると output_*.csv に保存します')
   const markerRefs = useRef<MarkerRefMap>({})
   const mapZoomRef = useRef(18)
+  const mapModeToggleRef = useRef<HTMLDivElement>(null)
   const isDev = process.env.NODE_ENV === 'development'
 
   const handleMapZoomChange = useCallback((z: number) => {
@@ -645,6 +822,16 @@ export default function MapFeature() {
     setIsMapReady(true)
   }, [])
 
+  useEffect(() => {
+    const raw = searchParams.get('shop')
+    if (!raw) return
+    const id = Number.parseInt(raw, 10)
+    if (!Number.isFinite(id)) return
+    if (shops.some((s) => s.id === id)) {
+      setViewMode('outdoor')
+    }
+  }, [searchParams, shops])
+
   const getCategoryColor = (category: ShopCategory) => {
     switch (category) {
       case 'food':
@@ -661,89 +848,135 @@ export default function MapFeature() {
 
   const filteredShops = shops
 
-  const selectedIndoorArea = indoorMapsConfig.areas.find((a) => a.id === indoorAreaId)
-  const selectedIndoorFloor =
-    selectedIndoorArea?.floors.find((f) => f.id === indoorFloorId) ?? selectedIndoorArea?.floors[0]
+  const selectedIndoorGroup = indoorPlanGroups.find((g) => g.relatedAreaId === indoorBuildingKey)
+  const selectedPlanEntry = useMemo(() => {
+    const g = selectedIndoorGroup ?? indoorPlanGroups[0]
+    if (!g) return null
+    return g.floors.find((f) => f.id === indoorMapRowId) ?? g.floors[0] ?? null
+  }, [selectedIndoorGroup, indoorPlanGroups, indoorMapRowId])
 
-  const selectIndoorArea = useCallback(
-    (areaId: string) => {
-      setIndoorAreaId(areaId)
-      const next = indoorMapsConfig.areas.find((a) => a.id === areaId)
-      if (next?.floors[0]) setIndoorFloorId(next.floors[0].id)
+  const selectIndoorBuilding = useCallback(
+    (relatedAreaId: string) => {
+      setIndoorBuildingKey(relatedAreaId)
+      const g = indoorPlanGroups.find((x) => x.relatedAreaId === relatedAreaId)
+      setIndoorMapRowId(g?.floors[0]?.id ?? '')
     },
-    [indoorMapsConfig.areas],
+    [indoorPlanGroups],
   )
 
+  useEffect(() => {
+    if (!indoorAvailable) return
+    if (!indoorPlanGroups.some((g) => g.relatedAreaId === indoorBuildingKey)) {
+      const g0 = indoorPlanGroups[0]
+      setIndoorBuildingKey(g0.relatedAreaId)
+      setIndoorMapRowId(g0.floors[0]?.id ?? '')
+      return
+    }
+    const g = indoorPlanGroups.find((x) => x.relatedAreaId === indoorBuildingKey)
+    if (g && !g.floors.some((f) => f.id === indoorMapRowId)) {
+      setIndoorMapRowId(g.floors[0]?.id ?? '')
+    }
+  }, [indoorAvailable, indoorPlanGroups, indoorBuildingKey, indoorMapRowId])
+
+  useEffect(() => {
+    const root = mapModeToggleRef.current
+    if (!root) return
+    const active = root.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')
+    if (!active) return
+    active.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' })
+  }, [viewMode])
+
   return (
-    <div className="map-container">
+    <div className={`map-container${viewMode === 'indoor' ? ' map-container--indoor' : ''}`}>
       <div className="map-top-bar">
-        <div className="map-mode-toggle">
-          <button
-            type="button"
-            className={`map-mode-button ${viewMode === 'outdoor' ? 'active' : ''}`}
-            onClick={() => setViewMode('outdoor')}
+        <div className="map-mode-bar">
+          <div
+            ref={mapModeToggleRef}
+            className="map-mode-toggle"
+            role="tablist"
+            aria-label="マップの種類"
           >
-            屋外マップ
-          </button>
-          <button
-            type="button"
-            className={`map-mode-button ${viewMode === 'indoor' ? 'active' : ''}`}
-            onClick={() => setViewMode('indoor')}
-          >
-            屋内マップ
-          </button>
-          {isDev && (
             <button
               type="button"
-              className={`map-mode-button ${devPinAdjustEnabled ? 'active' : ''}`}
+              role="tab"
+              id="map-tab-outdoor"
+              aria-selected={viewMode === 'outdoor'}
+              tabIndex={viewMode === 'outdoor' ? 0 : -1}
+              className={`map-mode-button ${viewMode === 'outdoor' ? 'active' : ''}`}
+              onClick={() => setViewMode('outdoor')}
+            >
+              屋外マップ
+            </button>
+            <button
+              type="button"
+              role="tab"
+              id="map-tab-indoor"
+              aria-selected={viewMode === 'indoor'}
+              tabIndex={viewMode === 'indoor' ? 0 : -1}
+              className={`map-mode-button ${viewMode === 'indoor' ? 'active' : ''}`}
+              disabled={!indoorAvailable}
+              title={!indoorAvailable ? '屋内用の maps データがありません' : undefined}
               onClick={() => {
-                setDevPinAdjustEnabled((prev) => !prev)
+                if (indoorAvailable) setViewMode('indoor')
               }}
             >
-              ピン調整
+              屋内マップ
             </button>
+          </div>
+          {isDev && (
+            <div className="map-mode-dev">
+              <button
+                type="button"
+                className={`map-mode-button ${devPinAdjustEnabled ? 'active' : ''}`}
+                onClick={() => {
+                  setDevPinAdjustEnabled((prev) => !prev)
+                }}
+              >
+                ピン調整
+              </button>
+            </div>
           )}
         </div>
-        {viewMode === 'indoor' && (
+        {viewMode === 'indoor' && indoorAvailable && (
           <div className="indoor-map-selector" role="navigation" aria-label="屋内マップの建物と階">
             <div className="indoor-map-selector__row">
               <span className="indoor-map-selector__hint">建物</span>
               <div className="indoor-map-selector__tabs indoor-map-selector__tabs--primary" role="tablist">
-                {indoorMapsConfig.areas.map((area) => (
+                {indoorPlanGroups.map((group) => (
                   <button
-                    key={area.id}
+                    key={group.relatedAreaId}
                     type="button"
                     role="tab"
-                    aria-selected={indoorAreaId === area.id}
+                    aria-selected={indoorBuildingKey === group.relatedAreaId}
                     className={`indoor-map-tab indoor-map-tab--primary ${
-                      indoorAreaId === area.id ? 'active' : ''
+                      indoorBuildingKey === group.relatedAreaId ? 'active' : ''
                     }`}
-                    onClick={() => selectIndoorArea(area.id)}
+                    onClick={() => selectIndoorBuilding(group.relatedAreaId)}
                   >
-                    {area.label}
+                    {buildingLabelFromPins(mapPayload.areas, group.relatedAreaId)}
                   </button>
                 ))}
               </div>
             </div>
-            {selectedIndoorArea && (
+            {selectedIndoorGroup && (
               <div className="indoor-map-selector__row">
                 <span className="indoor-map-selector__hint">階</span>
                 <div
                   className="indoor-map-selector__tabs indoor-map-selector__tabs--secondary"
                   role="tablist"
                 >
-                  {selectedIndoorArea.floors.map((floor) => (
+                  {selectedIndoorGroup.floors.map((row) => (
                     <button
-                      key={`${selectedIndoorArea.id}-${floor.id}`}
+                      key={row.id}
                       type="button"
                       role="tab"
-                      aria-selected={selectedIndoorFloor?.id === floor.id}
+                      aria-selected={selectedPlanEntry?.id === row.id}
                       className={`indoor-map-tab indoor-map-tab--secondary ${
-                        selectedIndoorFloor?.id === floor.id ? 'active' : ''
+                        selectedPlanEntry?.id === row.id ? 'active' : ''
                       }`}
-                      onClick={() => setIndoorFloorId(floor.id)}
+                      onClick={() => setIndoorMapRowId(row.id)}
                     >
-                      {floor.label}
+                      {row.name}
                     </button>
                   ))}
                 </div>
@@ -757,9 +990,15 @@ export default function MapFeature() {
           center={[35.6672324, 139.791702]}
           zoom={18}
           maxZoom={21}
-          style={{ height: '100%', width: '100%' }}
+          style={
+            viewMode === 'indoor'
+              ? { flex: '1 1 0', minHeight: 0, width: '100%', height: 'auto' }
+              : { height: '100%', width: '100%' }
+          }
           closePopupOnClick={false}
+          zoomControl={false}
         >
+          <ZoomControl position="bottomright" />
           <MapZoomAndMarkers
             pinsEnabled={viewMode === 'outdoor'}
             shops={filteredShops}
@@ -812,6 +1051,12 @@ export default function MapFeature() {
                 })
             }}
           />
+          <MapFocusShopFromQuery
+            shops={filteredShops}
+            openShopDetail={openShopDetail}
+            enabled={viewMode === 'outdoor'}
+          />
+          <MapViewResizeSync viewMode={viewMode} />
           <DevMapRightClickCoords />
           <DevPinAdjustPanel
             latestMove={latestPinMove}
@@ -833,17 +1078,8 @@ export default function MapFeature() {
               <CampusSvgOverlay />
             </>
           )}
-          {viewMode === 'indoor' && selectedIndoorFloor && (
-            <>
-              <TileLayer
-                attribution="&copy; OpenStreetMap"
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                maxNativeZoom={19}
-                maxZoom={21}
-                opacity={0.22}
-              />
-              <IndoorFloorImageOverlay floor={selectedIndoorFloor} />
-            </>
+          {viewMode === 'indoor' && selectedPlanEntry && (
+            <IndoorMapPlanLayer entry={selectedPlanEntry} areaPins={mapPayload.areas} />
           )}
           {viewMode === 'outdoor' && userLocation && (
             <>

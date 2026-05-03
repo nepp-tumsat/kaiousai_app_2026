@@ -15,6 +15,21 @@ export const mapEventLocationPinSchema = z.object({
   coordinates: z.tuple([z.number(), z.number()]),
 })
 
+/** マスター `maps` シート由来の1枚（屋内フロア図など将来用・参照用） */
+export const mapCatalogEntrySchema = z.object({
+  id: z.string().min(1),
+  name: z.string().default(''),
+  relatedAreaId: z.string().default(''),
+  image: z.string().regex(/^map\/[a-z0-9/_-]+\.(png|jpg|jpeg|webp)$/i),
+})
+
+export type MapCatalogEntry = z.infer<typeof mapCatalogEntrySchema>
+
+const outdoorMapImageSchema = z
+  .string()
+  .regex(/^map\/[a-z0-9/_-]+\.(png|jpg|jpeg|webp)$/i)
+  .default('map/campus-map.png')
+
 export const mapAreasPayloadSchema = z.object({
   /**
    * Leaflet の zoom がこの値**以上**のとき店舗（location）ピン、**未満**のときエリアピン。
@@ -23,13 +38,22 @@ export const mapAreasPayloadSchema = z.object({
   shopPinsMinZoom: z.number(),
   areas: z.array(mapAreaPinSchema),
   eventLocationPins: z.array(mapEventLocationPinSchema).default([]),
+  /** 屋外 OSM 上の学内図 ImageOverlay（`public/images/` からの相対パス） */
+  outdoorMapImage: outdoorMapImageSchema,
+  /** `maps` シートの掲載行（ingest 時に xlsx から埋まる） */
+  mapCatalog: z.array(mapCatalogEntrySchema).default([]),
 })
 
 export type MapAreaPin = z.infer<typeof mapAreaPinSchema>
 export type MapEventLocationPin = z.infer<typeof mapEventLocationPinSchema>
 export type MapAreasPayload = z.infer<typeof mapAreasPayloadSchema>
 
-const DEFAULT_SHOP_PINS_MIN_ZOOM = 20
+export type BuildMapAreasExtras = {
+  outdoorMapImage?: string
+  mapCatalog?: MapCatalogEntry[]
+}
+
+export const DEFAULT_SHOP_PINS_MIN_ZOOM = 20
 
 function centroidForArea(
   areaId: string,
@@ -73,6 +97,7 @@ export function buildMapAreasPayload(
   areas: CsvAreaRow[],
   locations: CsvLocationRow[],
   shopPinsMinZoom: number = DEFAULT_SHOP_PINS_MIN_ZOOM,
+  extras?: BuildMapAreasExtras,
 ): MapAreasPayload {
   const pins: MapAreaPin[] = []
   for (const a of areas) {
@@ -107,15 +132,25 @@ export function buildMapAreasPayload(
     })
   }
 
-  return {
+  const outdoorMapImage =
+    extras?.outdoorMapImage !== undefined && String(extras.outdoorMapImage).trim() !== ''
+      ? String(extras.outdoorMapImage).trim()
+      : 'map/campus-map.png'
+  const mapCatalog = extras?.mapCatalog ?? []
+
+  return mapAreasPayloadSchema.parse({
     shopPinsMinZoom,
     areas: pins,
     eventLocationPins,
-  }
+    outdoorMapImage,
+    mapCatalog,
+  })
 }
 
 export const emptyMapAreasPayload: MapAreasPayload = {
   shopPinsMinZoom: DEFAULT_SHOP_PINS_MIN_ZOOM,
   areas: [],
   eventLocationPins: [],
+  outdoorMapImage: 'map/campus-map.png',
+  mapCatalog: [],
 }

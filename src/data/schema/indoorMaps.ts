@@ -18,8 +18,9 @@ export const indoorMapAreaSchema = z.object({
   floors: z.array(indoorFloorSchema).min(1),
 })
 
+/** `areas` が空のときは屋内 UI は `map-areas.json` の `mapCatalog`（maps シート）のみを使う */
 export const indoorMapsPayloadSchema = z.object({
-  areas: z.array(indoorMapAreaSchema).min(1),
+  areas: z.array(indoorMapAreaSchema).default([]),
 })
 
 export type IndoorFloor = z.infer<typeof indoorFloorSchema>

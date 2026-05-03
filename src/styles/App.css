@@ -104,6 +104,13 @@
   text-overflow: ellipsis;
 }
 
+/* スマホでは画面領域が狭いため下部のフッターメニューを非表示 */
+@media (max-width: 640px) {
+  .app-footer {
+    display: none;
+  }
+}
+
 .home-menu {
   padding: 1.5rem 1rem;
   background-color: var(--bg);

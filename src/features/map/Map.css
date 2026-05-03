@@ -12,6 +12,29 @@
   background-color: var(--bg);
 }
 
+.map-mode-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.map-mode-bar .map-mode-toggle {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.map-mode-dev {
+  display: inline-flex;
+  flex-shrink: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  background-color: var(--bg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
 .map-mode-toggle {
   position: absolute;
   top: 12px;
@@ -39,6 +62,24 @@
   color: var(--bg);
 }
 
+.map-mode-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.map-container.map-container--indoor {
+  display: flex;
+  flex-direction: column;
+}
+
+.map-container.map-container--indoor .leaflet-container {
+  background-color: var(--bg);
+}
+
+.map-container.map-container--indoor .leaflet-image-layer {
+  transition: opacity 0.14s ease-out;
+}
+
 .map-top-bar {
   position: absolute;
   top: 12px;
@@ -55,8 +96,23 @@
   pointer-events: none;
 }
 
+/* 屋内モードでは画像と被らないように通常フローへ */
+.map-container.map-container--indoor > .map-top-bar {
+  position: static;
+  transform: none;
+  align-self: center;
+  flex: 0 0 auto;
+  padding: 8px 12px 6px;
+  pointer-events: auto;
+}
+
 .map-top-bar > * {
   pointer-events: auto;
+}
+
+.map-top-bar .map-mode-bar {
+  position: static;
+  transform: none;
 }
 
 .map-top-bar .map-mode-toggle {
@@ -102,6 +158,108 @@
 .indoor-map-selector__tabs--primary .indoor-map-tab {
   padding: 0.45rem 0.85rem;
   font-size: 0.82rem;
+}
+
+/* スマホ: タブは横スクロール＋余白は safe center / ブロック中央で目立ちにくく */
+@media (max-width: 640px) {
+  .map-top-bar {
+    width: 100%;
+    max-width: 100%;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .map-mode-bar {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .map-mode-toggle {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    border-radius: 14px;
+    padding-bottom: 2px;
+    box-sizing: border-box;
+  }
+
+  /* 収まるなら幅いっぱいに広げ、収まらなければ自然な幅で横スクロール */
+  .map-mode-toggle > .map-mode-button {
+    flex: 1 0 auto;
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .indoor-map-selector {
+    width: auto;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    align-self: center;
+    padding: 10px 14px;
+  }
+
+  .indoor-map-selector__row {
+    min-width: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .indoor-map-selector__hint {
+    flex-shrink: 0;
+    margin-top: 0;
+  }
+
+  .indoor-map-selector__tabs {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .indoor-map-selector__tabs--primary,
+  .indoor-map-selector__tabs--secondary {
+    min-width: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    padding-bottom: 2px;
+  }
+
+  /* 収まるなら全幅に広がり、収まらなければ横スクロールへ動的に切替 */
+  .indoor-map-selector__tabs--primary > .indoor-map-tab,
+  .indoor-map-selector__tabs--secondary > .indoor-map-tab {
+    flex: 1 0 auto;
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .map-mode-toggle::-webkit-scrollbar,
+  .indoor-map-selector__tabs--primary::-webkit-scrollbar,
+  .indoor-map-selector__tabs--secondary::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .map-mode-toggle::-webkit-scrollbar-thumb,
+  .indoor-map-selector__tabs--primary::-webkit-scrollbar-thumb,
+  .indoor-map-selector__tabs--secondary::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--text-muted) 45%, transparent);
+  }
 }
 
 .indoor-map-selector__tabs--secondary .indoor-map-tab {
@@ -150,6 +308,11 @@
 
 .current-location-button:hover {
   background-color: var(--accent);
+}
+
+/* Leaflet のズーム +/- が現在地ボタンと被らないよう右下のコーナーを持ち上げる */
+.map-container .leaflet-bottom.leaflet-right {
+  bottom: calc(80px + env(safe-area-inset-bottom, 0));
 }
 
 .zoom-indicator {

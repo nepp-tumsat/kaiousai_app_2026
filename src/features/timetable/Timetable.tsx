@@ -2,7 +2,8 @@
 
 import './Timetable.css'
 import Image from 'next/image'
-import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { getEvents, type FestivalEvent } from '../../data/loaders'
 import { assetUrl } from '../../lib/assetUrl'
 
@@ -130,7 +131,11 @@ function getCurrentLineIndex(
 }
 
 export default function TimetableFeature() {
+  const searchParams = useSearchParams()
   const events: FestivalEvent[] = getEvents()
+  const appliedDayFromUrl = useRef(false)
+  const scrollTargetHandledRef = useRef<number | null>(null)
+  const prevEventParamRef = useRef<string | null>(null)
   const [currentMinutes, setCurrentMinutes] = useState<number>(() => nowInJstMinutes())
   const [selectedDay, setSelectedDay] = useState<string>(() =>
     getDefaultSelectedDay(getEvents().map((e) => e.day)),
@@ -148,6 +153,15 @@ export default function TimetableFeature() {
       setSelectedDay(getDefaultSelectedDay(festivalDayList))
     }
   }, [festivalDayList, selectedDay])
+
+  useEffect(() => {
+    if (appliedDayFromUrl.current) return
+    const dayParam = searchParams.get('day')
+    if (dayParam && festivalDayList.includes(dayParam)) {
+      setSelectedDay(dayParam)
+    }
+    appliedDayFromUrl.current = true
+  }, [searchParams, festivalDayList])
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -239,6 +253,25 @@ export default function TimetableFeature() {
     currentMinutes >= RED_LINE_START_MINUTES &&
     currentMinutes <= RED_LINE_END_MINUTES
 
+  useEffect(() => {
+    const raw = searchParams.get('event')
+    if (raw !== prevEventParamRef.current) {
+      prevEventParamRef.current = raw
+      scrollTargetHandledRef.current = null
+    }
+    if (!raw) return
+    const id = Number.parseInt(raw, 10)
+    if (!Number.isFinite(id)) return
+    if (scrollTargetHandledRef.current === id) return
+    const el = document.getElementById(`timetable-event-${id}`)
+    if (!el) return
+    scrollTargetHandledRef.current = id
+    const t = window.setTimeout(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 200)
+    return () => window.clearTimeout(t)
+  }, [searchParams, selectedDay, filteredEvents])
+
   return (
     <div className="timetable-container">
       <h2>タイムテーブル</h2>
@@ -310,7 +343,10 @@ export default function TimetableFeature() {
                               <span>{currentTimeLabel}</span>
                             </div>
                           )}
-                          <div className={`timetable-item ${currentEventId === event.id ? 'now' : ''}`}>
+                          <div
+                            id={`timetable-event-${event.id}`}
+                            className={`timetable-item ${currentEventId === event.id ? 'now' : ''}`}
+                          >
                             <Image
                               src={assetUrl(`/images/${event.image}`)}
                               alt={event.title}

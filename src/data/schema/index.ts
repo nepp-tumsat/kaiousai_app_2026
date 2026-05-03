@@ -28,12 +28,16 @@ export {
 export type { IndoorFloor, IndoorMapArea, IndoorMapsPayload } from './indoorMaps'
 export {
   buildMapAreasPayload,
+  DEFAULT_SHOP_PINS_MIN_ZOOM,
   emptyMapAreasPayload,
   mapAreaPinSchema,
   mapAreasPayloadSchema,
+  mapCatalogEntrySchema,
   mapEventLocationPinSchema,
   resolveEventLocationPinCoordinates,
+  type BuildMapAreasExtras,
   type MapAreaPin,
   type MapAreasPayload,
+  type MapCatalogEntry,
   type MapEventLocationPin,
 } from './mapAreas'

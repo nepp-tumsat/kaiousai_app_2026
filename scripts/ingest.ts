@@ -23,7 +23,11 @@ import {
   parseCsvLocationRows,
 } from '../src/data/schema/csvIngest'
 import { indoorMapsPayloadSchema } from '../src/data/schema/indoorMaps'
-import { buildMapAreasPayload, emptyMapAreasPayload } from '../src/data/schema/mapAreas'
+import {
+  buildMapAreasPayload,
+  emptyMapAreasPayload,
+  DEFAULT_SHOP_PINS_MIN_ZOOM,
+} from '../src/data/schema/mapAreas'
 import { buildShopsFromSources, shopSourceListSchema, type ShopSource } from '../src/data/schema/shop'
 import { readCsvFile } from './lib/parseCsv'
 import { MASTER_XLSX_FILENAME, readMasterXlsx } from './lib/readMasterXlsx'
@@ -71,7 +75,10 @@ if (masterXlsxPresent) {
   const eventRows = parseCsvEventRows(xlsx.events)
   eventSources = csvRowsToFestivalEventSources(areas, locations, eventRows)
   shopSources = csvRowsToShopSources(areas, locations)
-  mapAreasPayload = buildMapAreasPayload(areas, locations)
+  mapAreasPayload = buildMapAreasPayload(areas, locations, DEFAULT_SHOP_PINS_MIN_ZOOM, {
+    outdoorMapImage: xlsx.outdoorMapImage,
+    mapCatalog: xlsx.mapCatalog,
+  })
   console.log(`ingest: source=xlsx (scripts/sources/${MASTER_XLSX_FILENAME})`)
 } else if (allCsvPresent) {
   const areas = parseCsvAreaRows(readCsvFile(csvPaths[0]))
@@ -79,7 +86,7 @@ if (masterXlsxPresent) {
   const eventRows = parseCsvEventRows(readCsvFile(csvPaths[2]))
   eventSources = csvRowsToFestivalEventSources(areas, locations, eventRows)
   shopSources = csvRowsToShopSources(areas, locations)
-  mapAreasPayload = buildMapAreasPayload(areas, locations)
+  mapAreasPayload = buildMapAreasPayload(areas, locations, DEFAULT_SHOP_PINS_MIN_ZOOM)
   console.log('ingest: source=csv (scripts/sources/csv/)')
 } else {
   const shopsRaw = readJson(join(sourcesDir, 'shops.json'))
