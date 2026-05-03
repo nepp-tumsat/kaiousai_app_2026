@@ -1,0 +1,242 @@
+{
+  "shopPinsMinZoom": 20,
+  "areas": [
+    {
+      "id": "AR-00",
+      "name": "正門",
+      "coordinates": [
+        35.668622,
+        139.7906191
+      ]
+    },
+    {
+      "id": "AR-01",
+      "name": "体育館側地区入口",
+      "coordinates": [
+        35.6682315,
+        139.7924611
+      ]
+    },
+    {
+      "id": "AR-02",
+      "name": "本部",
+      "coordinates": [
+        35.66742024,
+        139.7911257
+      ]
+    },
+    {
+      "id": "AR-03",
+      "name": "避難場所(第2グランド)",
+      "coordinates": [
+        35.6656558,
+        139.7936171
+      ]
+    },
+    {
+      "id": "AR-04",
+      "name": "ステージ",
+      "coordinates": [
+        35.6673204,
+        139.7904736
+      ]
+    },
+    {
+      "id": "AR-05",
+      "name": "模擬店テントエリア",
+      "coordinates": [
+        35.66718218,
+        139.7915601
+      ]
+    },
+    {
+      "id": "AR-06",
+      "name": "明治丸前広場",
+      "coordinates": [
+        35.6675603,
+        139.7907203
+      ]
+    },
+    {
+      "id": "03",
+      "name": "1号館",
+      "coordinates": [
+        35.66821282,
+        139.7911122
+      ]
+    },
+    {
+      "id": "04",
+      "name": "百周年記念会館",
+      "coordinates": [
+        35.6677954,
+        139.7902858
+      ]
+    },
+    {
+      "id": "05",
+      "name": "明治丸",
+      "coordinates": [
+        35.6674469,
+        139.7901919
+      ]
+    },
+    {
+      "id": "06",
+      "name": "第1実験棟",
+      "coordinates": [
+        35.6679242,
+        139.7917745
+      ]
+    },
+    {
+      "id": "10",
+      "name": "第3実験棟",
+      "coordinates": [
+        35.6672573,
+        139.7917852
+      ]
+    },
+    {
+      "id": "13",
+      "name": "2号館",
+      "coordinates": [
+        35.667034,
+        139.7926167
+      ]
+    },
+    {
+      "id": "14",
+      "name": "越中島会館(講堂)",
+      "coordinates": [
+        35.6665416,
+        139.7929962
+      ]
+    },
+    {
+      "id": "15",
+      "name": "ワールドマリン・カフェ(休憩所)",
+      "coordinates": [
+        35.6661886,
+        139.7931866
+      ]
+    },
+    {
+      "id": "16",
+      "name": "第4実験棟(大教室)",
+      "coordinates": [
+        35.66636313,
+        139.7923586
+      ]
+    },
+    {
+      "id": "19",
+      "name": "ポンド(試乗会受付)",
+      "coordinates": [
+        35.6661613,
+        139.7919166
+      ]
+    },
+    {
+      "id": "26",
+      "name": "体育館",
+      "coordinates": [
+        35.6679591,
+        139.7930163
+      ]
+    },
+    {
+      "id": "30",
+      "name": "明治丸記念館",
+      "coordinates": [
+        35.6679567,
+        139.7900578
+      ]
+    }
+  ],
+  "eventLocationPins": [
+    {
+      "id": "03",
+      "label": "ステージ",
+      "coordinates": [
+        35.6673204,
+        139.7904736
+      ]
+    }
+  ],
+  "outdoorMapImage": "map/campus-map.png",
+  "mapCatalog": [
+    {
+      "id": "campus",
+      "name": "キャンパスマップ",
+      "relatedAreaId": "",
+      "image": "map/campus-map.png"
+    },
+    {
+      "id": "1-1",
+      "name": "1号館1F",
+      "relatedAreaId": "03",
+      "image": "map/1-1-map.png"
+    },
+    {
+      "id": "1-2",
+      "name": "1号館2F",
+      "relatedAreaId": "03",
+      "image": "map/1-2-map.png"
+    },
+    {
+      "id": "2-1",
+      "name": "2号館1F",
+      "relatedAreaId": "13",
+      "image": "map/2-1-map.png"
+    },
+    {
+      "id": "2-2",
+      "name": "2号館2F",
+      "relatedAreaId": "13",
+      "image": "map/2-2-map.png"
+    },
+    {
+      "id": "ettyu-1",
+      "name": "越中島会館1F",
+      "relatedAreaId": "14",
+      "image": "map/ettyu-1-map.png"
+    },
+    {
+      "id": "ettyu-2",
+      "name": "越中島会館2F",
+      "relatedAreaId": "14",
+      "image": "map/ettyu-2-map.png"
+    },
+    {
+      "id": "exp-1-1",
+      "name": "第1実験棟1F",
+      "relatedAreaId": "06",
+      "image": "map/exp-1-1-map.png"
+    },
+    {
+      "id": "exp-1-3",
+      "name": "第1実験棟3F",
+      "relatedAreaId": "06",
+      "image": "map/exp-1-3-map.png"
+    },
+    {
+      "id": "exp-3-5",
+      "name": "第3実験棟5F",
+      "relatedAreaId": "10",
+      "image": "map/exp-3-5-map.png"
+    },
+    {
+      "id": "exp-3-6",
+      "name": "第3実験棟6F",
+      "relatedAreaId": "10",
+      "image": "map/exp-3-6-map.png"
+    },
+    {
+      "id": "exp-4-5",
+      "name": "第4実験棟5F",
+      "relatedAreaId": "16",
+      "image": "map/exp-4-5-map.png"
+    }
+  ]
+}

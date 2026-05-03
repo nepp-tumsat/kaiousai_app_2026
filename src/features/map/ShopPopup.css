@@ -53,6 +53,12 @@
   margin-bottom: 0.75rem;
 }
 
+.shop-popup-venue {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: -0.35rem 0 0.35rem;
+}
+
 .shop-popup-info p {
   color: var(--text);
   line-height: 1.6;

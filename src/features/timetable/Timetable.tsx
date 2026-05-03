@@ -1,18 +1,11 @@
 'use client'
 
 import './Timetable.css'
-import { useEffect, useMemo, useState } from 'react'
+import Image from 'next/image'
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { getEvents, type FestivalEvent } from '../../data/loaders'
-
-const FESTIVAL_DATE_BY_DAY: Record<'day1' | 'day2', string> = {
-  day1: '2026-05-16',
-  day2: '2026-05-17',
-}
-
-const dayLabels: Record<'day1' | 'day2', string> = {
-  day1: '1日目 (05/16)',
-  day2: '2日目 (05/17)',
-}
+import { assetUrl } from '../../lib/assetUrl'
 
 const weatherLabels: Record<'sunny' | 'rainy', string> = {
   sunny: '青天',
@@ -52,10 +45,18 @@ function todayInJstIsoDate(): string {
   }).format(new Date())
 }
 
-function getDefaultSelectedDay(): 'day1' | 'day2' {
+/** 今日が開催日ならその日、それ以外は開催日の先頭 */
+function getDefaultSelectedDay(festivalDays: string[]): string {
+  const sorted = [...new Set(festivalDays)].sort()
+  if (sorted.length === 0) return ''
   const today = todayInJstIsoDate()
-  if (today === FESTIVAL_DATE_BY_DAY.day2) return 'day2'
-  return 'day1'
+  if (sorted.includes(today)) return today
+  return sorted[0]
+}
+
+function formatFestivalDayButtonLabel(isoDate: string, index: number): string {
+  const [, month, day] = isoDate.split('-')
+  return `${index + 1}日目 (${month}/${day})`
 }
 
 function formatMinutesAsTime(minutes: number): string {
@@ -65,12 +66,49 @@ function formatMinutesAsTime(minutes: number): string {
   return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
 }
 
+function eventMatchesWeather(event: FestivalEvent, selectedWeather: 'sunny' | 'rainy'): boolean {
+  return event.weatherMode === '' || event.weatherMode === selectedWeather
+}
+
+function eventDisplayArea(
+  event: FestivalEvent,
+  selectedWeather: 'sunny' | 'rainy',
+): string {
+  if (selectedWeather === 'rainy' && event.areaRainy.trim() !== '') {
+    return event.areaRainy
+  }
+  return event.area
+}
+
+function eventDisplayLocation(
+  event: FestivalEvent,
+  selectedWeather: 'sunny' | 'rainy',
+): string {
+  if (selectedWeather === 'rainy' && event.locationRainy.trim() !== '') {
+    return event.locationRainy
+  }
+  return event.location
+}
+
+function resolveEndMinutes(
+  event: { startMinutes: number; endMinutes: number | null },
+  nextStartMinutes: number | undefined,
+): number {
+  if (event.endMinutes !== null) return event.endMinutes
+  if (nextStartMinutes !== undefined) return nextStartMinutes
+  return event.startMinutes + 60
+}
+
 function getCurrentLineIndex(
-  locationEvents: Array<{ startMinutes: number | null }>,
+  locationEvents: Array<{
+    startMinutes: number | null
+    endMinutes: number | null
+  }>,
   currentMinutes: number,
 ): number | null {
   const timedEvents = locationEvents.filter(
-    (event): event is { startMinutes: number } => event.startMinutes !== null,
+    (event): event is { startMinutes: number; endMinutes: number | null } =>
+      event.startMinutes !== null,
   )
   if (timedEvents.length === 0) return null
 
@@ -79,8 +117,12 @@ function getCurrentLineIndex(
 
   for (let i = 0; i < timedEvents.length; i += 1) {
     const start = timedEvents[i].startMinutes
-    const nextStart = timedEvents[i + 1]?.startMinutes ?? start + 60
-    if (currentMinutes >= start && currentMinutes < nextStart) {
+    const nextStart = timedEvents[i + 1]?.startMinutes
+    const end = resolveEndMinutes(
+      { startMinutes: start, endMinutes: timedEvents[i].endMinutes },
+      nextStart,
+    )
+    if (currentMinutes >= start && currentMinutes < end) {
       return i + 1
     }
   }
@@ -89,11 +131,37 @@ function getCurrentLineIndex(
 }
 
 export default function TimetableFeature() {
+  const searchParams = useSearchParams()
   const events: FestivalEvent[] = getEvents()
+  const appliedDayFromUrl = useRef(false)
+  const scrollTargetHandledRef = useRef<number | null>(null)
+  const prevEventParamRef = useRef<string | null>(null)
   const [currentMinutes, setCurrentMinutes] = useState<number>(() => nowInJstMinutes())
-  const [selectedDay, setSelectedDay] = useState<'day1' | 'day2'>(() => getDefaultSelectedDay())
+  const [selectedDay, setSelectedDay] = useState<string>(() =>
+    getDefaultSelectedDay(getEvents().map((e) => e.day)),
+  )
   const [selectedWeather, setSelectedWeather] = useState<'sunny' | 'rainy'>('sunny')
-  const [selectedLocation, setSelectedLocation] = useState<string>('all')
+  const [selectedArea, setSelectedArea] = useState<string>('all')
+
+  const festivalDayList = useMemo(
+    () => [...new Set(events.map((e) => e.day))].sort(),
+    [events],
+  )
+
+  useEffect(() => {
+    if (festivalDayList.length > 0 && !festivalDayList.includes(selectedDay)) {
+      setSelectedDay(getDefaultSelectedDay(festivalDayList))
+    }
+  }, [festivalDayList, selectedDay])
+
+  useEffect(() => {
+    if (appliedDayFromUrl.current) return
+    const dayParam = searchParams.get('day')
+    if (dayParam && festivalDayList.includes(dayParam)) {
+      setSelectedDay(dayParam)
+    }
+    appliedDayFromUrl.current = true
+  }, [searchParams, festivalDayList])
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -107,7 +175,8 @@ export default function TimetableFeature() {
       events
         .map((event) => ({
           ...event,
-          startMinutes: parseTimeToMinutes(event.time),
+          startMinutes: parseTimeToMinutes(event.startTime),
+          endMinutes: parseTimeToMinutes(event.endTime),
         }))
         .sort((a, b) => {
           const aMinutes = a.startMinutes ?? Number.MAX_SAFE_INTEGER
@@ -120,28 +189,33 @@ export default function TimetableFeature() {
   const dayWeatherEvents = useMemo(
     () =>
       eventsWithMinutes.filter(
-        (event) => event.day === selectedDay && event.weatherMode === selectedWeather,
+        (event) => event.day === selectedDay && eventMatchesWeather(event, selectedWeather),
       ),
     [eventsWithMinutes, selectedDay, selectedWeather],
   )
 
-  const locations = useMemo(
-    () => Array.from(new Set(dayWeatherEvents.map((event) => event.location))),
-    [dayWeatherEvents],
+  const areas = useMemo(
+    () =>
+      Array.from(
+        new Set(dayWeatherEvents.map((e) => eventDisplayArea(e, selectedWeather))),
+      ),
+    [dayWeatherEvents, selectedWeather],
   )
 
   useEffect(() => {
-    if (selectedLocation !== 'all' && !locations.includes(selectedLocation)) {
-      setSelectedLocation('all')
+    if (selectedArea !== 'all' && !areas.includes(selectedArea)) {
+      setSelectedArea('all')
     }
-  }, [locations, selectedLocation])
+  }, [areas, selectedArea])
 
   const filteredEvents = useMemo(
     () =>
-      selectedLocation === 'all'
+      selectedArea === 'all'
         ? dayWeatherEvents
-        : dayWeatherEvents.filter((event) => event.location === selectedLocation),
-    [dayWeatherEvents, selectedLocation],
+        : dayWeatherEvents.filter(
+            (e) => eventDisplayArea(e, selectedWeather) === selectedArea,
+          ),
+    [dayWeatherEvents, selectedArea, selectedWeather],
   )
 
   const currentEventId = useMemo(() => {
@@ -149,7 +223,10 @@ export default function TimetableFeature() {
       const event = filteredEvents[i]
       if (event.startMinutes === null) continue
       const next = filteredEvents[i + 1]
-      const end = next?.startMinutes ?? event.startMinutes + 60
+      const end = resolveEndMinutes(
+        { startMinutes: event.startMinutes, endMinutes: event.endMinutes },
+        next?.startMinutes ?? undefined,
+      )
       if (currentMinutes >= event.startMinutes && currentMinutes < end) {
         return event.id
       }
@@ -157,15 +234,16 @@ export default function TimetableFeature() {
     return null
   }, [currentMinutes, filteredEvents])
 
-  const groupedByLocation = useMemo(() => {
+  const groupedByArea = useMemo(() => {
     const grouped = new Map<string, typeof filteredEvents>()
     filteredEvents.forEach((event) => {
-      const list = grouped.get(event.location) ?? []
+      const a = eventDisplayArea(event, selectedWeather)
+      const list = grouped.get(a) ?? []
       list.push(event)
-      grouped.set(event.location, list)
+      grouped.set(a, list)
     })
     return grouped
-  }, [filteredEvents])
+  }, [filteredEvents, selectedWeather])
 
   const currentTimeLabel = useMemo(
     () => formatMinutesAsTime(currentMinutes),
@@ -175,20 +253,39 @@ export default function TimetableFeature() {
     currentMinutes >= RED_LINE_START_MINUTES &&
     currentMinutes <= RED_LINE_END_MINUTES
 
+  useEffect(() => {
+    const raw = searchParams.get('event')
+    if (raw !== prevEventParamRef.current) {
+      prevEventParamRef.current = raw
+      scrollTargetHandledRef.current = null
+    }
+    if (!raw) return
+    const id = Number.parseInt(raw, 10)
+    if (!Number.isFinite(id)) return
+    if (scrollTargetHandledRef.current === id) return
+    const el = document.getElementById(`timetable-event-${id}`)
+    if (!el) return
+    scrollTargetHandledRef.current = id
+    const t = window.setTimeout(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 200)
+    return () => window.clearTimeout(t)
+  }, [searchParams, selectedDay, filteredEvents])
+
   return (
     <div className="timetable-container">
       <h2>タイムテーブル</h2>
       <p className="timetable-current-time">現在時刻: {currentTimeLabel}</p>
       <div className="timetable-controls">
         <div className="timetable-filter-row">
-          {(['day1', 'day2'] as const).map((day) => (
+          {festivalDayList.map((day, index) => (
             <button
               key={day}
               type="button"
               className={`timetable-filter-button ${selectedDay === day ? 'active' : ''}`}
               onClick={() => setSelectedDay(day)}
             >
-              {dayLabels[day]}
+              {formatFestivalDayButtonLabel(day, index)}
             </button>
           ))}
         </div>
@@ -207,31 +304,31 @@ export default function TimetableFeature() {
         <div className="timetable-filter-row timetable-location-row">
           <button
             type="button"
-            className={`timetable-filter-button ${selectedLocation === 'all' ? 'active' : ''}`}
-            onClick={() => setSelectedLocation('all')}
+            className={`timetable-filter-button ${selectedArea === 'all' ? 'active' : ''}`}
+            onClick={() => setSelectedArea('all')}
           >
-            すべての場所
+            すべてのエリア
           </button>
-          {locations.map((location) => (
+          {areas.map((area) => (
             <button
-              key={location}
+              key={area}
               type="button"
-              className={`timetable-filter-button ${selectedLocation === location ? 'active' : ''}`}
-              onClick={() => setSelectedLocation(location)}
+              className={`timetable-filter-button ${selectedArea === area ? 'active' : ''}`}
+              onClick={() => setSelectedArea(area)}
             >
-              {location}
+              {area}
             </button>
           ))}
         </div>
       </div>
 
-      {groupedByLocation.size === 0 ? (
+      {groupedByArea.size === 0 ? (
         <p className="timetable-empty">該当する企画はありません。</p>
       ) : (
         <div className="timetable-group-list">
-          {Array.from(groupedByLocation.entries()).map(([location, locationEvents]) => (
-            <section key={location} className="timetable-location-group">
-              <h3 className="timetable-location-title">{location}</h3>
+          {Array.from(groupedByArea.entries()).map(([area, locationEvents]) => (
+            <section key={area} className="timetable-location-group">
+              <h3 className="timetable-location-title">{area}</h3>
               <div className="timetable-list">
                 {(() => {
                   const currentLineIndex = shouldShowNowLine
@@ -246,12 +343,34 @@ export default function TimetableFeature() {
                               <span>{currentTimeLabel}</span>
                             </div>
                           )}
-                          <div className={`timetable-item ${currentEventId === event.id ? 'now' : ''}`}>
-                            <div className="timetable-time">{event.time}</div>
-                            <div className="timetable-content">
-                              <h3>{event.title}</h3>
-                              {currentEventId === event.id && <span className="now-badge">開催中 (NOW)</span>}
-                              <p>{event.description}</p>
+                          <div
+                            id={`timetable-event-${event.id}`}
+                            className={`timetable-item ${currentEventId === event.id ? 'now' : ''}`}
+                          >
+                            <Image
+                              src={assetUrl(`/images/${event.image}`)}
+                              alt={event.title}
+                              width={88}
+                              height={56}
+                              className="timetable-event-thumb"
+                              unoptimized
+                            />
+                            <div className="timetable-item-text">
+                              <div className="timetable-time">
+                                {event.startTime}–{event.endTime}
+                              </div>
+                              <div className="timetable-content">
+                                <h3>{event.title}</h3>
+                                {currentEventId === event.id && <span className="now-badge">開催中 (NOW)</span>}
+                                <p className="timetable-venue">
+                                  {eventDisplayLocation(event, selectedWeather)}
+                                  {event.organization ? ` ・ ${event.organization}` : ''}
+                                  {selectedWeather === 'rainy' && event.needTicketWhenRainy ? (
+                                    <span className="timetable-need-ticket">（雨天は整理券が必要です）</span>
+                                  ) : null}
+                                </p>
+                                <p>{event.description}</p>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -272,4 +391,3 @@ export default function TimetableFeature() {
     </div>
   )
 }
-

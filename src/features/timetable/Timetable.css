@@ -76,11 +76,29 @@
 }
 
 .timetable-item {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.75rem;
   background-color: var(--bg);
   border-radius: 8px;
   padding: 1rem;
   border-left: 4px solid transparent;
   border: 1px solid var(--surface);
+}
+
+.timetable-event-thumb {
+  flex-shrink: 0;
+  width: 88px;
+  height: 56px;
+  border-radius: 6px;
+  object-fit: cover;
+  background-color: var(--surface);
+}
+
+.timetable-item-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .timetable-item.now {
@@ -122,6 +140,17 @@
   margin-bottom: 0.5rem;
 }
 
+.timetable-venue {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.timetable-need-ticket {
+  margin-left: 0.35em;
+  font-size: 0.8em;
+  white-space: nowrap;
+}
+
 .timetable-content h3 {
   margin: 0 0 0.5rem 0;
   color: var(--text);
@@ -129,6 +158,8 @@
 
 .timetable-item.now .timetable-content h3,
 .timetable-item.now .timetable-content p,
+.timetable-item.now .timetable-venue,
+.timetable-item.now .timetable-need-ticket,
 .timetable-item.now .timetable-time {
   color: var(--bg);
 }
