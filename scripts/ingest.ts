@@ -78,6 +78,7 @@ if (masterXlsxPresent) {
   mapAreasPayload = buildMapAreasPayload(areas, locations, DEFAULT_SHOP_PINS_MIN_ZOOM, {
     outdoorMapImage: xlsx.outdoorMapImage,
     mapCatalog: xlsx.mapCatalog,
+    amenities: xlsx.amenities,
   })
   console.log(`ingest: source=xlsx (scripts/sources/${MASTER_XLSX_FILENAME})`)
 } else if (allCsvPresent) {

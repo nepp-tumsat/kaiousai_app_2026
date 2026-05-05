@@ -122,6 +122,16 @@ export type MasterXlsxMapCatalogEntry = {
   image: string
 }
 
+export type MasterXlsxAmenityKind = 'toilet' | 'smoking' | 'aed'
+
+export type MasterXlsxAmenity = {
+  kind: MasterXlsxAmenityKind
+  id: string
+  /** `areas` シートの建物・エリア名（吹き出しの主表示） */
+  buildingName: string
+  coordinates: [number, number]
+}
+
 export type MasterXlsxRows = {
   areas: Record<string, string>[]
   locations: Record<string, string>[]
@@ -130,6 +140,8 @@ export type MasterXlsxRows = {
   outdoorMapImage?: string
   /** `maps` シートの掲載行（屋外キャンパス＋屋内フロア図など） */
   mapCatalog: MasterXlsxMapCatalogEntry[]
+  /** 付帯設備ピン（areas シートの has_toilet / 喫煙所等から組み立て） */
+  amenities: MasterXlsxAmenity[]
 }
 
 /**
@@ -152,6 +164,60 @@ function normalizeMapsSheetImage(raw: unknown): string {
     throw new Error(`maps シート img_name が不正（英数字・._- と拡張子のみ）: ${cellToString(raw)}`)
   }
   return `map/${t}`
+}
+
+/**
+ * `areas` シートの生データから付帯設備ピン（amenities）を抽出する。
+ * - `has_toilet=TRUE` のエリア座標 → トイレピン
+ * - `has_aed=TRUE` のエリア座標 → AED ピン
+ * - `name` に「喫煙」を含む（AR_07 喫煙所など） → 喫煙所ピン
+ *
+ * 喫煙所は `publish_status=not_published` でも採用する（チェックボックスで明示表示するため）。
+ * AED は緊急設備のため `has_aed=TRUE` なら `publish_status` に関係なく採用する（例: 先端科学技術研究センター）。
+ * トイレは `publish_status` を尊重する（非公開エリアの設備は出さない）。
+ */
+function readAmenitiesFromAreas(
+  areasRaw: Record<string, unknown>[],
+): MasterXlsxAmenity[] {
+  const out: MasterXlsxAmenity[] = []
+  for (const row of areasRaw) {
+    const id = normalizeAreaId(cellToString(row.id))
+    const name = cellToString(row.name)
+    if (id === '' || name === '') continue
+    const lat = Number(cellToString(row.lat))
+    const lng = Number(cellToString(row.lng))
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue
+    const isPublished = isTruthyPublishStatus(cellToString(row.publish_status))
+    const hasToilet = String(cellToString(row.has_toilet)).toLowerCase() === 'true'
+    const hasAed = String(cellToString(row.has_aed)).toLowerCase() === 'true'
+    const isSmoking = name.includes('喫煙')
+
+    if (isSmoking) {
+      out.push({
+        kind: 'smoking',
+        id: `${id}-smoking`,
+        buildingName: name,
+        coordinates: [lat, lng],
+      })
+    }
+    if (hasToilet && isPublished) {
+      out.push({
+        kind: 'toilet',
+        id: `${id}-toilet`,
+        buildingName: name,
+        coordinates: [lat, lng],
+      })
+    }
+    if (hasAed) {
+      out.push({
+        kind: 'aed',
+        id: `${id}-aed`,
+        buildingName: name,
+        coordinates: [lat, lng],
+      })
+    }
+  }
+  return out
 }
 
 function readMapsSheet(wb: XLSX.WorkBook): {
@@ -204,6 +270,7 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
     defval: '',
     raw: true,
   })
+  const amenities = readAmenitiesFromAreas(areasRaw)
   const areas: Record<string, string>[] = []
   for (const row of areasRaw) {
     const id = normalizeAreaId(cellToString(row.id))
@@ -336,5 +403,5 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
     })
   }
 
-  return { areas, locations, events, outdoorMapImage, mapCatalog }
+  return { areas, locations, events, outdoorMapImage, mapCatalog, amenities }
 }

@@ -25,6 +25,25 @@ export const mapCatalogEntrySchema = z.object({
 
 export type MapCatalogEntry = z.infer<typeof mapCatalogEntrySchema>
 
+/** 付帯設備ピン（フィルターで種類を 1 つ選ぶと表示）。`areas` シートのフラグから ingest 時に作る */
+export const mapAmenityKindSchema = z.enum(['toilet', 'smoking', 'aed'])
+export const mapAmenityPinSchema = z.object({
+  kind: mapAmenityKindSchema,
+  /** 一意 ID（例: `AR-07-smoking` / `13-toilet`） */
+  id: z.string().min(1),
+  /** 建物・エリア名（吹き出しの主表示） */
+  buildingName: z.string().default(''),
+  /**
+   * 旧データ互換: `buildingName` が無い JSON ではここを建物名として使う。
+   * 新規 ingest では `buildingName` のみ出力する。
+   */
+  name: z.string().optional(),
+  coordinates: z.tuple([z.number(), z.number()]),
+})
+
+export type MapAmenityKind = z.infer<typeof mapAmenityKindSchema>
+export type MapAmenityPin = z.infer<typeof mapAmenityPinSchema>
+
 const outdoorMapImageSchema = z
   .string()
   .regex(/^map\/[a-z0-9/_-]+\.(png|jpg|jpeg|webp)$/i)
@@ -42,6 +61,8 @@ export const mapAreasPayloadSchema = z.object({
   outdoorMapImage: outdoorMapImageSchema,
   /** `maps` シートの掲載行（ingest 時に xlsx から埋まる） */
   mapCatalog: z.array(mapCatalogEntrySchema).default([]),
+  /** 付帯設備（トイレ／喫煙所等）ピン。フィルタチェック時のみ描画 */
+  amenities: z.array(mapAmenityPinSchema).default([]),
 })
 
 export type MapAreaPin = z.infer<typeof mapAreaPinSchema>
@@ -51,6 +72,7 @@ export type MapAreasPayload = z.infer<typeof mapAreasPayloadSchema>
 export type BuildMapAreasExtras = {
   outdoorMapImage?: string
   mapCatalog?: MapCatalogEntry[]
+  amenities?: MapAmenityPin[]
 }
 
 export const DEFAULT_SHOP_PINS_MIN_ZOOM = 20
@@ -137,6 +159,7 @@ export function buildMapAreasPayload(
       ? String(extras.outdoorMapImage).trim()
       : 'map/campus-map.png'
   const mapCatalog = extras?.mapCatalog ?? []
+  const amenities = extras?.amenities ?? []
 
   return mapAreasPayloadSchema.parse({
     shopPinsMinZoom,
@@ -144,6 +167,7 @@ export function buildMapAreasPayload(
     eventLocationPins,
     outdoorMapImage,
     mapCatalog,
+    amenities,
   })
 }
 
@@ -153,4 +177,5 @@ export const emptyMapAreasPayload: MapAreasPayload = {
   eventLocationPins: [],
   outdoorMapImage: 'map/campus-map.png',
   mapCatalog: [],
+  amenities: [],
 }
