@@ -12,6 +12,8 @@ export type {
   IndoorFloor,
   IndoorMapArea,
   IndoorMapsPayload,
+  MapAmenityKind,
+  MapAmenityPin,
   MapAreaPin,
   MapAreasPayload,
   MapCatalogEntry,

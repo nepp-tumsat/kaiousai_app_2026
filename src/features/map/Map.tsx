@@ -17,8 +17,19 @@ import {
   useMapEvents,
 } from 'react-leaflet'
 import L from 'leaflet'
-import { getMapAreas, getShops, type MapAreaPin, type MapCatalogEntry, type Shop, type ShopCategory } from '../../data/loaders'
+import {
+  getMapAreas,
+  getShops,
+  type MapAmenityKind,
+  type MapAmenityPin,
+  type MapAreaPin,
+  type MapCatalogEntry,
+  type Shop,
+  type ShopCategory,
+} from '../../data/loaders'
+import { isStakeholderShopId } from '../../data/stakeholderShops'
 import { assetUrl } from '../../lib/assetUrl'
+import MapFilterPanel from './MapFilterPanel'
 import ShopPopup from './ShopPopup'
 
 // Leaflet デフォルトアイコン（バンドラ用パッチ）
@@ -320,6 +331,114 @@ type MarkerRefMap = Record<string, L.Marker | null>
 type PinKind = 'shop' | 'eventLocation' | 'area'
 type LatLngTuple = [number, number]
 
+/** 店舗ピンの吹き出しに表示するテキストの種類 */
+type ShopLabelMode = 'title' | 'organization'
+
+const SHOP_LABEL_MODE_STORAGE_KEY = 'map.shopLabelMode'
+
+function isShopLabelMode(value: unknown): value is ShopLabelMode {
+  return value === 'title' || value === 'organization'
+}
+
+const SHOP_CATEGORIES_ALL: readonly ShopCategory[] = [
+  'food',
+  'stage',
+  'experience',
+  'facility',
+]
+
+function isShopCategory(value: unknown): value is ShopCategory {
+  return (
+    value === 'food' ||
+    value === 'stage' ||
+    value === 'experience' ||
+    value === 'facility'
+  )
+}
+
+function isMapAmenityKind(value: unknown): value is MapAmenityKind {
+  return value === 'toilet' || value === 'smoking' || value === 'aed'
+}
+
+const AMENITY_KIND_LABEL: Record<MapAmenityKind, string> = {
+  smoking: '喫煙所',
+  toilet: 'トイレ',
+  aed: 'AED',
+}
+
+/** 吹き出し用の建物名（新 `buildingName` / 旧 `name` の「…のトイレ」等） */
+function amenityBuildingLabel(pin: MapAmenityPin): string {
+  const b = pin.buildingName.trim()
+  if (b !== '') return b
+  const legacy = (pin.name ?? '').trim()
+  if (legacy === '') return ''
+  return legacy.replace(/\s*の\s*(トイレ|AED)\s*$/, '').trim() || legacy
+}
+
+const MAP_FILTERS_STORAGE_KEY = 'map.filters'
+
+type MapFiltersState = {
+  shopCategories: ReadonlySet<ShopCategory>
+  /** 付帯設備: 1 種類のみ。`null` のとき付帯設備ピンは出さない */
+  selectedAmenityKind: MapAmenityKind | null
+}
+
+const DEFAULT_FILTERS: MapFiltersState = {
+  shopCategories: new Set<ShopCategory>(SHOP_CATEGORIES_ALL),
+  selectedAmenityKind: null,
+}
+
+function loadStoredFilters(): MapFiltersState | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = window.localStorage.getItem(MAP_FILTERS_STORAGE_KEY)
+    if (raw === null) return null
+    const parsed: unknown = JSON.parse(raw)
+    if (typeof parsed !== 'object' || parsed === null) return null
+    const obj = parsed as Record<string, unknown>
+    const shops = Array.isArray(obj.shopCategories)
+      ? obj.shopCategories.filter(isShopCategory)
+      : SHOP_CATEGORIES_ALL
+    let selectedAmenityKind: MapAmenityKind | null = null
+    if (obj.selectedAmenity !== undefined && obj.selectedAmenity !== null) {
+      if (isMapAmenityKind(obj.selectedAmenity)) selectedAmenityKind = obj.selectedAmenity
+    } else if (Array.isArray(obj.amenities)) {
+      const legacy = obj.amenities.filter(isMapAmenityKind)
+      if (legacy.length === 1) selectedAmenityKind = legacy[0]!
+    }
+    return {
+      shopCategories: new Set<ShopCategory>(shops),
+      selectedAmenityKind,
+    }
+  } catch {
+    return null
+  }
+}
+
+function persistFilters(filters: MapFiltersState): void {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(
+      MAP_FILTERS_STORAGE_KEY,
+      JSON.stringify({
+        shopCategories: Array.from(filters.shopCategories),
+        selectedAmenity: filters.selectedAmenityKind,
+      }),
+    )
+  } catch {
+    /* 永続化失敗は致命的ではない */
+  }
+}
+
+/** 選択モードに応じて店舗ピンの吹き出し文言を返す（団体名が空なら表示名へフォールバック） */
+function shopPopupLabelFor(shop: Shop, mode: ShopLabelMode): string {
+  if (mode === 'organization') {
+    const org = shop.organization.trim()
+    if (org !== '') return org
+  }
+  return shop.title
+}
+
 type DevPinMove = {
   key: string
   kind: PinKind
@@ -439,6 +558,9 @@ function MapZoomAndMarkers({
   onDevPinMove,
   onZoomChange,
   pinsEnabled = true,
+  shopLabelMode,
+  amenityPins,
+  amenityFocusMode,
 }: {
   shops: Shop[]
   isMapReady: boolean
@@ -451,6 +573,12 @@ function MapZoomAndMarkers({
   onZoomChange?: (zoom: number) => void
   /** 屋外マップのときのみ店舗・エリアピンを描画（屋内は平面図のみ） */
   pinsEnabled?: boolean
+  /** 店舗ピンの吹き出しに表示するテキスト種別 */
+  shopLabelMode: ShopLabelMode
+  /** 表示中の付帯設備ピン（フィルタで選ばれた kind のみ） */
+  amenityPins: MapAmenityPin[]
+  /** 付帯設備が選択されている間は他カテゴリの吹き出しを出さない */
+  amenityFocusMode: boolean
 }) {
   const map = useMap()
   const [zoom, setZoom] = useState(() => map.getZoom())
@@ -490,6 +618,10 @@ function MapZoomAndMarkers({
     const syncPopups = () => {
       timeoutId = window.setTimeout(() => {
         const entries = Object.entries(markerRefs.current)
+        if (amenityFocusMode) {
+          entries.forEach(([, marker]) => marker?.closePopup())
+          return
+        }
         if (showShopPins) {
           if (showShopEventPopups) {
             entries.forEach(([, marker]) => marker?.openPopup())
@@ -513,6 +645,7 @@ function MapZoomAndMarkers({
   }, [
     pinsEnabled,
     isMapReady,
+    amenityFocusMode,
     map,
     showShopPins,
     showShopEventPopups,
@@ -560,17 +693,29 @@ function MapZoomAndMarkers({
                 },
               }}
               icon={L.divIcon({
-                className: 'category-marker-icon',
+                className: `category-marker-icon${
+                  isStakeholderShopId(shop.sourceLocationId)
+                    ? ' category-marker-icon--stakeholder'
+                    : ''
+                }`,
                 html: `<div class="category-marker-dot${
                   shop.category === 'facility' ? ' category-marker-dot--facility' : ''
+                }${
+                  isStakeholderShopId(shop.sourceLocationId)
+                    ? ' category-marker-dot--stakeholder'
+                    : ''
                 }" style="background-color:${getCategoryColor(shop.category)}"></div>`,
                 iconSize: [22, 22],
                 iconAnchor: [11, 11],
               })}
             >
-              {showShopEventPopups && (
+              {showShopEventPopups && !amenityFocusMode && (
                 <Popup
-                  className={`map-popup--shop map-popup--shop-${shop.category}`}
+                  className={`map-popup--shop map-popup--shop-${shop.category}${
+                    isStakeholderShopId(shop.sourceLocationId)
+                      ? ' map-popup--stakeholder'
+                      : ''
+                  }`}
                   autoPan={false}
                   autoClose={false}
                   closeOnClick={false}
@@ -583,7 +728,7 @@ function MapZoomAndMarkers({
                       setSelectedShop(shop)
                     }}
                   >
-                    {shop.title}
+                    {shopPopupLabelFor(shop, shopLabelMode)}
                   </div>
                 </Popup>
               )}
@@ -621,7 +766,7 @@ function MapZoomAndMarkers({
                 iconAnchor: [11, 11],
               })}
             >
-              {showShopEventPopups && (
+              {showShopEventPopups && !amenityFocusMode && (
                 <Popup
                   className="map-popup--event-location"
                   autoPan={false}
@@ -669,6 +814,7 @@ function MapZoomAndMarkers({
                   iconAnchor: [14, 14],
                 })}
               >
+                {!amenityFocusMode && (
                 <Popup
                   autoPan={false}
                   autoClose={false}
@@ -678,6 +824,7 @@ function MapZoomAndMarkers({
                 >
                   <div className="area-marker-popup">{area.name}</div>
                 </Popup>
+                )}
               </Marker>
             ))}
           {devPinAdjustEnabled &&
@@ -759,6 +906,7 @@ function MapZoomAndMarkers({
                 iconAnchor: [14, 14],
               })}
             >
+              {!amenityFocusMode && (
               <Popup
                 autoPan={false}
                 autoClose={false}
@@ -768,10 +916,43 @@ function MapZoomAndMarkers({
               >
                 <div className="area-marker-popup">{area.name}</div>
               </Popup>
+              )}
             </Marker>
           ))}
         </>
       )}
+      {amenityPins.map((pin) => {
+        const glyph =
+          pin.kind === 'smoking' ? '🚬' : pin.kind === 'toilet' ? '🚻' : '＋'
+        return (
+        <Marker
+          key={`amenity-${pin.kind}-${pin.id}`}
+          position={pin.coordinates}
+          zIndexOffset={700}
+          icon={L.divIcon({
+            className: `amenity-marker-icon amenity-marker-icon--${pin.kind}`,
+            html: `<div class="amenity-marker-badge amenity-marker-badge--${pin.kind}">${glyph}</div>`,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
+          })}
+        >
+          <Tooltip
+            permanent
+            direction="top"
+            offset={[0, -10]}
+            opacity={0.98}
+            className={`amenity-popup amenity-popup--${pin.kind}`}
+          >
+            <div className={`amenity-marker-popup amenity-marker-popup--${pin.kind}`}>
+              <div className="amenity-marker-popup__building">{amenityBuildingLabel(pin)}</div>
+              {amenityBuildingLabel(pin) !== AMENITY_KIND_LABEL[pin.kind] && (
+                <div className="amenity-marker-popup__kind">{AMENITY_KIND_LABEL[pin.kind]}</div>
+              )}
+            </div>
+          </Tooltip>
+        </Marker>
+        )
+      })}
     </>
   )
 }
@@ -793,6 +974,8 @@ export default function MapFeature() {
   const [selectedShop, setSelectedShop] = useState<Shop | null>(null)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
   const [viewMode, setViewMode] = useState<'outdoor' | 'indoor'>('outdoor')
+  const [shopLabelMode, setShopLabelMode] = useState<ShopLabelMode>('title')
+  const [filters, setFilters] = useState<MapFiltersState>(DEFAULT_FILTERS)
   const [devPinAdjustEnabled, setDevPinAdjustEnabled] = useState(false)
   const [devPinOverrides, setDevPinOverrides] = useState<Record<string, LatLngTuple>>({})
   const [latestPinMove, setLatestPinMove] = useState<DevPinMove | null>(null)
@@ -823,6 +1006,53 @@ export default function MapFeature() {
   }, [])
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      const saved = window.localStorage.getItem(SHOP_LABEL_MODE_STORAGE_KEY)
+      if (isShopLabelMode(saved)) setShopLabelMode(saved)
+    } catch {
+      /* localStorage が使えない環境はデフォルトのまま */
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      window.localStorage.setItem(SHOP_LABEL_MODE_STORAGE_KEY, shopLabelMode)
+    } catch {
+      /* 永続化失敗は致命的ではないので無視 */
+    }
+  }, [shopLabelMode])
+
+  useEffect(() => {
+    const saved = loadStoredFilters()
+    if (saved) setFilters(saved)
+  }, [])
+
+  useEffect(() => {
+    persistFilters(filters)
+  }, [filters])
+
+  const toggleShopCategory = useCallback((category: ShopCategory) => {
+    setFilters((prev) => {
+      const next = new Set(prev.shopCategories)
+      if (next.has(category)) next.delete(category)
+      else next.add(category)
+      return { ...prev, shopCategories: next }
+    })
+  }, [])
+
+  const selectAmenityKind = useCallback((kind: MapAmenityKind | null) => {
+    setFilters((prev) => ({ ...prev, selectedAmenityKind: kind }))
+  }, [])
+
+  const availableAmenities = useMemo(() => {
+    const set = new Set<MapAmenityKind>()
+    for (const a of mapPayload.amenities) set.add(a.kind)
+    return set
+  }, [mapPayload])
+
+  useEffect(() => {
     const raw = searchParams.get('shop')
     if (!raw) return
     const id = Number.parseInt(raw, 10)
@@ -846,7 +1076,16 @@ export default function MapFeature() {
     }
   }
 
-  const filteredShops = shops
+  const filteredShops = useMemo(
+    () => shops.filter((s) => filters.shopCategories.has(s.category)),
+    [shops, filters.shopCategories],
+  )
+
+  const visibleAmenityPins = useMemo(() => {
+    const k = filters.selectedAmenityKind
+    if (k === null) return []
+    return mapPayload.amenities.filter((a) => a.kind === k)
+  }, [mapPayload, filters.selectedAmenityKind])
 
   const selectedIndoorGroup = indoorPlanGroups.find((g) => g.relatedAreaId === indoorBuildingKey)
   const selectedPlanEntry = useMemo(() => {
@@ -937,6 +1176,34 @@ export default function MapFeature() {
             </div>
           )}
         </div>
+        {viewMode === 'outdoor' && (
+          <div
+            className="map-shop-label-toggle"
+            role="tablist"
+            aria-label="店舗ピンの吹き出し表示"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={shopLabelMode === 'title'}
+              tabIndex={shopLabelMode === 'title' ? 0 : -1}
+              className={`map-mode-button ${shopLabelMode === 'title' ? 'active' : ''}`}
+              onClick={() => setShopLabelMode('title')}
+            >
+              企画
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={shopLabelMode === 'organization'}
+              tabIndex={shopLabelMode === 'organization' ? 0 : -1}
+              className={`map-mode-button ${shopLabelMode === 'organization' ? 'active' : ''}`}
+              onClick={() => setShopLabelMode('organization')}
+            >
+              団体名
+            </button>
+          </div>
+        )}
         {viewMode === 'indoor' && indoorAvailable && (
           <div className="indoor-map-selector" role="navigation" aria-label="屋内マップの建物と階">
             <div className="indoor-map-selector__row">
@@ -1007,6 +1274,9 @@ export default function MapFeature() {
             setSelectedShop={openShopDetail}
             getCategoryColor={getCategoryColor}
             onZoomChange={handleMapZoomChange}
+            shopLabelMode={shopLabelMode}
+            amenityPins={viewMode === 'outdoor' ? visibleAmenityPins : []}
+            amenityFocusMode={filters.selectedAmenityKind !== null}
             devPinAdjustEnabled={isDev && devPinAdjustEnabled}
             devPinOverrides={devPinOverrides}
             onDevPinMove={(move) => {
@@ -1115,6 +1385,15 @@ export default function MapFeature() {
             />
           )}
         </MapContainer>
+      )}
+      {viewMode === 'outdoor' && (
+        <MapFilterPanel
+          shopCategories={filters.shopCategories}
+          selectedAmenityKind={filters.selectedAmenityKind}
+          availableAmenities={availableAmenities}
+          onToggleShopCategory={toggleShopCategory}
+          onSelectAmenityKind={selectAmenityKind}
+        />
       )}
       {selectedShop && (
         <ShopPopup

@@ -48,6 +48,17 @@
   overflow: hidden;
 }
 
+.map-shop-label-toggle {
+  display: inline-flex;
+  background-color: var(--bg);
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  align-self: center;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
 .map-mode-button {
   border: none;
   background: transparent;
@@ -199,6 +210,18 @@
     white-space: nowrap;
   }
 
+  .map-shop-label-toggle {
+    width: auto;
+    max-width: 100%;
+  }
+
+  .map-shop-label-toggle > .map-mode-button {
+    flex: 1 0 auto;
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+  }
+
   .indoor-map-selector {
     width: auto;
     max-width: 100%;
@@ -308,6 +331,240 @@
 
 .current-location-button:hover {
   background-color: var(--accent);
+}
+
+/* === マップフィルター（左下 FAB ＋ 展開パネル） === */
+.map-filter-root {
+  position: absolute;
+  left: 12px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0));
+  z-index: 1001;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.map-filter-fab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 999px;
+  background-color: var(--primary);
+  color: var(--bg);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.28);
+}
+
+.map-filter-fab:hover {
+  background-color: var(--accent);
+}
+
+.map-filter-fab--open {
+  background-color: var(--accent);
+}
+
+.map-filter-fab__icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.map-filter-panel {
+  width: min(260px, 80vw);
+  padding: 12px 12px 10px;
+  background-color: var(--bg);
+  border: 1px solid color-mix(in srgb, var(--text-muted) 20%, transparent);
+  border-radius: 12px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.22);
+  color: var(--text);
+}
+
+.map-filter-panel__group + .map-filter-panel__group {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed color-mix(in srgb, var(--text-muted) 30%, transparent);
+}
+
+.map-filter-panel__group-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.map-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 2px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.map-filter-row input[type='checkbox'],
+.map-filter-row input[type='radio'] {
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.map-filter-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.map-filter-row--amenity-none .map-filter-row__label {
+  color: var(--text-muted);
+  font-size: 0.84rem;
+}
+
+.map-filter-row__label {
+  font-size: 0.88rem;
+  flex: 1;
+}
+
+.map-filter-swatch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  font-size: 0.85rem;
+}
+
+.map-filter-swatch--shop-food {
+  background-color: #ff7043;
+}
+
+.map-filter-swatch--shop-stage {
+  background-color: #ab47bc;
+}
+
+.map-filter-swatch--shop-experience {
+  background-color: #66bb6a;
+}
+
+.map-filter-swatch--shop-facility {
+  background-color: #42a5f5;
+  border-radius: 4px;
+}
+
+.map-filter-swatch--amenity-smoking,
+.map-filter-swatch--amenity-toilet,
+.map-filter-swatch--amenity-aed {
+  background-color: var(--bg);
+  border-color: color-mix(in srgb, var(--text-muted) 35%, transparent);
+}
+
+.map-filter-swatch--amenity-aed {
+  background-color: #c62828;
+  color: var(--bg);
+  font-weight: 700;
+  border-color: var(--bg);
+}
+
+@media (max-width: 640px) {
+  .map-filter-root {
+    left: 10px;
+  }
+
+  .map-filter-panel {
+    width: min(240px, 78vw);
+  }
+}
+
+/* === 付帯設備ピン === */
+.amenity-marker-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.amenity-marker-badge {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  font-size: 0.95rem;
+  background-color: var(--bg);
+}
+
+.amenity-marker-badge--toilet {
+  background-color: #1e88e5;
+  color: var(--bg);
+}
+
+.amenity-marker-badge--smoking {
+  background-color: #6d4c41;
+  color: var(--bg);
+}
+
+.amenity-marker-badge--aed {
+  background-color: #c62828;
+  color: var(--bg);
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.amenity-marker-popup {
+  text-align: center;
+  min-width: 0;
+}
+
+.amenity-marker-popup__building {
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.amenity-marker-popup__kind {
+  margin-top: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  opacity: 0.88;
+}
+
+.amenity-marker-popup--toilet .amenity-marker-popup__building {
+  color: #1565c0;
+}
+
+.amenity-marker-popup--toilet .amenity-marker-popup__kind {
+  color: #1565c0;
+}
+
+.amenity-marker-popup--smoking .amenity-marker-popup__building {
+  color: #4e342e;
+}
+
+.amenity-marker-popup--smoking .amenity-marker-popup__kind {
+  color: #4e342e;
+}
+
+.amenity-marker-popup--aed .amenity-marker-popup__building {
+  color: #b71c1c;
+}
+
+.amenity-marker-popup--aed .amenity-marker-popup__kind {
+  color: #b71c1c;
+}
+
+.map-container .leaflet-popup.amenity-popup .leaflet-popup-content {
+  text-align: center;
 }
 
 /* Leaflet のズーム +/- が現在地ボタンと被らないよう右下のコーナーを持ち上げる */
@@ -551,6 +808,46 @@
   border-radius: 6px;
 }
 
+/**
+ * ステークホルダー店舗: ふんわり光るゴールドのハロー。
+ * 既存のドロップシャドウは末尾に温存し、パルスのリングだけを 1 番手前に重ねる。
+ */
+@keyframes shop-stakeholder-pulse {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(255, 193, 7, 0.7),
+      0 0 6px 2px rgba(255, 193, 7, 0.45),
+      0 1px 4px rgba(0, 0, 0, 0.35);
+  }
+  70% {
+    box-shadow:
+      0 0 0 14px rgba(255, 193, 7, 0),
+      0 0 6px 2px rgba(255, 193, 7, 0.35),
+      0 1px 4px rgba(0, 0, 0, 0.35);
+  }
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(255, 193, 7, 0),
+      0 0 6px 2px rgba(255, 193, 7, 0.35),
+      0 1px 4px rgba(0, 0, 0, 0.35);
+  }
+}
+
+.category-marker-dot--stakeholder {
+  border-color: #ffd54f;
+  animation: shop-stakeholder-pulse 1.8s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-marker-dot--stakeholder {
+    animation: none;
+    box-shadow:
+      0 0 0 4px rgba(255, 193, 7, 0.55),
+      0 0 6px 2px rgba(255, 193, 7, 0.4),
+      0 1px 4px rgba(0, 0, 0, 0.35);
+  }
+}
+
 .event-location-marker-icon {
   display: flex;
   align-items: center;
@@ -630,4 +927,66 @@
 
 .map-container .leaflet-popup.map-popup--shop-experience .leaflet-popup-tip {
   background: color-mix(in srgb, #66bb6a 26%, var(--bg));
+}
+
+/**
+ * ステークホルダー店舗の吹き出し: ゴールドの halo パルス + テキストのグロー。
+ * 既存のカテゴリ別ボーダー / 背景は維持し、外周のリングと文字のシャイニングを重ねる。
+ */
+@keyframes shop-stakeholder-popup-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 2px rgba(255, 193, 7, 0.55),
+      0 0 12px 2px rgba(255, 193, 7, 0.45),
+      0 3px 14px rgba(0, 0, 0, 0.4);
+  }
+  50% {
+    box-shadow:
+      0 0 0 4px rgba(255, 193, 7, 0.78),
+      0 0 22px 6px rgba(255, 193, 7, 0.65),
+      0 3px 14px rgba(0, 0, 0, 0.4);
+  }
+}
+
+@keyframes shop-stakeholder-text-glow {
+  0%,
+  100% {
+    text-shadow: 0 0 4px rgba(255, 213, 79, 0.45);
+  }
+  50% {
+    text-shadow:
+      0 0 8px rgba(255, 213, 79, 1),
+      0 0 14px rgba(255, 213, 79, 0.75),
+      0 0 3px rgba(255, 255, 255, 0.65);
+  }
+}
+
+.map-container .leaflet-popup.map-popup--stakeholder .leaflet-popup-content-wrapper {
+  border: 1px solid #ffd54f;
+  animation: shop-stakeholder-popup-pulse 1.8s ease-in-out infinite;
+}
+
+.map-container .leaflet-popup.map-popup--stakeholder .leaflet-popup-tip {
+  border: 1px solid #ffd54f;
+}
+
+.map-container .leaflet-popup.map-popup--stakeholder .leaflet-popup-content {
+  font-weight: 700;
+  animation: shop-stakeholder-text-glow 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-container .leaflet-popup.map-popup--stakeholder .leaflet-popup-content-wrapper {
+    animation: none;
+    box-shadow:
+      0 0 0 3px rgba(255, 193, 7, 0.6),
+      0 0 14px 3px rgba(255, 193, 7, 0.45),
+      0 3px 14px rgba(0, 0, 0, 0.4);
+  }
+
+  .map-container .leaflet-popup.map-popup--stakeholder .leaflet-popup-content {
+    animation: none;
+    text-shadow: 0 0 6px rgba(255, 213, 79, 0.7);
+  }
 }
