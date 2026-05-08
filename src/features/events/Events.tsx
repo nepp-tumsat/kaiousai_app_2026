@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { getEvents, getShops, type FestivalEvent, type Shop, type ShopCategory } from '../../data/loaders'
-import { assetUrl } from '../../lib/assetUrl'
+import { shopThumbUrl } from '../../lib/assetUrl'
 
 const shopCategoryLabels: Record<ShopCategory, string> = {
   food: '飲食・模擬店',
@@ -100,12 +100,13 @@ export default function EventsFeature() {
           <Link key={shop.id} href={`/map?shop=${shop.id}`} className="events-card">
             <div className="events-card-row">
               <Image
-                src={assetUrl(`/images/${shop.image}`)}
+                src={shopThumbUrl(shop.image)}
                 alt={shop.title}
                 width={72}
                 height={72}
                 className="events-shop-thumb"
                 unoptimized
+                loading="lazy"
               />
               <div className="events-card-body">
                 <p className="events-card-title">{shop.title}</p>

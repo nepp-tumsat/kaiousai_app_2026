@@ -29,6 +29,7 @@ import {
   DEFAULT_SHOP_PINS_MIN_ZOOM,
 } from '../src/data/schema/mapAreas'
 import { buildShopsFromSources, shopSourceListSchema, type ShopSource } from '../src/data/schema/shop'
+import { generateThumbnails } from './lib/generateThumbnails'
 import { readCsvFile } from './lib/parseCsv'
 import { MASTER_XLSX_FILENAME, readMasterXlsx } from './lib/readMasterXlsx'
 
@@ -114,4 +115,25 @@ writeJson('indoor-maps.json', indoorMapsPayload)
 
 console.log(
   'ingest: wrote src/data/generated/shops.json, events.json, map-areas.json, indoor-maps.json',
+)
+
+const shopsImageDir = join(root, 'public/images/shops')
+const shopsThumbDir = join(root, 'public/images/shops-thumb')
+const thumbResult = await generateThumbnails({
+  sourceDir: shopsImageDir,
+  outDir: shopsThumbDir,
+  maxEdge: 256,
+})
+console.log(
+  `ingest: shops-thumb (generated=${thumbResult.generated}, skipped=${thumbResult.skipped}, removed=${thumbResult.removed})`,
+)
+
+const mapImageDir = join(root, 'public/images/map')
+const mapWebpResult = await generateThumbnails({
+  sourceDir: mapImageDir,
+  outDir: mapImageDir,
+  quality: 85,
+})
+console.log(
+  `ingest: map-webp (generated=${mapWebpResult.generated}, skipped=${mapWebpResult.skipped})`,
 )

@@ -28,9 +28,11 @@ const ShopPopup: FC<ShopPopupProps> = ({ shop, onClose }) => {
   return (
     <div className="shop-popup-overlay" onClick={onClose}>
       <div className="shop-popup-content" onClick={(e) => e.stopPropagation()}>
-        <button className="shop-popup-close" onClick={onClose}>
-          ×
-        </button>
+        <div className="shop-popup-header">
+          <button className="shop-popup-close" onClick={onClose} aria-label="閉じる">
+            ×
+          </button>
+        </div>
         <Image
           src={currentSrc}
           alt={shop.title}

@@ -3,59 +3,59 @@
     "sourceLocationId": "00",
     "organization": "",
     "title": "本部",
-    "description": "本部",
+    "description": "第66回海王祭運営本部として案内や各種対応を行っております。分からないことやお困りのことがあれば、ぜひお気軽にお声がけください。スタンプラリーの景品受け渡し場所です。",
     "area": "",
     "location": "本部",
     "coordinates": [
       35.66742024,
       139.7911257
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/27-本部.png",
     "category": "facility",
     "id": 1
   },
   {
     "sourceLocationId": "01",
     "organization": "",
-    "title": "海王祭実行委員会ブース",
-    "description": "海王祭実行委員会ブース",
+    "title": "受付(正門)",
+    "description": "第66回海王祭紙パンフレット・スタンプラリー台紙の配布、不要となったパンフレットの回収を行います。また、ご質問等も受け付けておりますのでお気軽にお立ち寄りください。なお、ご案内は本部でも対応しております。",
     "area": "",
-    "location": "海王祭実行委員会ブース",
+    "location": "受付(正門)",
     "coordinates": [
-      35.66738266,
-      139.7910868
+      35.6684642371755,
+      139.790710636636
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/27-受付.png",
     "category": "facility",
     "id": 2
   },
   {
-    "sourceLocationId": "02",
+    "sourceLocationId": "03",
     "organization": "",
     "title": "ベビーカー置き場",
-    "description": "ベビーカー置き場",
+    "description": "ベビーカー置き場をご用意しています。ご自由にご利用ください。",
     "area": "",
     "location": "ベビーカー置き場",
     "coordinates": [
       35.66733145,
       139.7910231
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/27-ベビーカー置き場.png",
     "category": "facility",
     "id": 3
   },
   {
-    "sourceLocationId": "04",
+    "sourceLocationId": "05",
     "organization": "",
-    "title": "試乗会集合場所",
-    "description": "試乗会集合場所",
+    "title": "第一艇庫(試乗会集合場所)",
+    "description": "船舶試乗会の集合場所です。今年度の試乗会は事前抽選での当選者の方以外は乗船いただけませんのでご了承ください。乗船される方について、詳細は当選時の確認メールをご覧ください。",
     "area": "",
-    "location": "試乗会集合場所",
+    "location": "第一艇庫(試乗会集合場所)",
     "coordinates": [
       35.6661613,
       139.7919166
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/49-試乗会.png",
     "category": "facility",
     "id": 4
   },
@@ -70,7 +70,7 @@
       35.66776362,
       139.7909335
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/29-海洋会.png",
     "category": "food",
     "id": 5
   },
@@ -85,7 +85,7 @@
       35.6677205,
       139.7909872
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/29-株式会社日本海事新聞社.png",
     "category": "food",
     "id": 6
   },
@@ -93,14 +93,14 @@
     "sourceLocationId": "mogi_03",
     "organization": "日本海洋塾",
     "title": "日本海洋塾",
-    "description": "日本海洋塾",
+    "description": "ろうそくで走るポンポンと手作り制作キット （灯台視察船Ver.）の製作体験",
     "area": "",
     "location": "日本海洋塾",
     "coordinates": [
       35.667776,
       139.7907338
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/27-日本海洋塾.png",
     "category": "food",
     "id": 7
   },
@@ -115,7 +115,7 @@
       35.6677303,
       139.7906747
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/27-日本海事代理士会_関東支部.png",
     "category": "food",
     "id": 8
   },
@@ -130,7 +130,7 @@
       35.6676801,
       139.7906077
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/29-ナカシマプロペラ株式会社.png",
     "category": "food",
     "id": 9
   },
@@ -145,9 +145,24 @@
       35.6676289,
       139.790538
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/39-今治造船株式会社.png",
     "category": "food",
     "id": 10
+  },
+  {
+    "sourceLocationId": "mogi_07",
+    "organization": "海王祭実行委員会",
+    "title": "海王祭実行委員会ブース",
+    "description": "海王祭実行委員会の模擬店では ノンアルコールビール、海王祭グッズ、 船舶模型、ビンゴカードを 販売いたします！",
+    "area": "",
+    "location": "海王祭実行委員会ブース",
+    "coordinates": [
+      35.66738266,
+      139.7910868
+    ],
+    "image": "shops/27-海王祭実行委員会.png",
+    "category": "food",
+    "id": 11
   },
   {
     "sourceLocationId": "mogi_08",
@@ -160,9 +175,9 @@
       35.6676327,
       139.7910938
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/29-総合創作誌発行企画.png",
     "category": "food",
-    "id": 11
+    "id": 12
   },
   {
     "sourceLocationId": "mogi_09",
@@ -175,9 +190,9 @@
       35.6675843,
       139.7911495
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/29-ダンス部EXSEAD.png",
     "category": "food",
-    "id": 12
+    "id": 13
   },
   {
     "sourceLocationId": "mogi_10",
@@ -190,13 +205,13 @@
       35.6675385,
       139.7912031
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/29-越中島軽音部.png",
     "category": "food",
-    "id": 13
+    "id": 14
   },
   {
     "sourceLocationId": "mogi_11",
-    "organization": "東洋海洋大学合気道部",
+    "organization": "東京海洋大学合気道部",
     "title": "串だんご",
     "description": "合気道部は屋外テントにてお団子を販売しています！お好きな生地のお団子とお好きな餡・たれを選んで、ぜひおいしい串団子を片手に海王祭をお楽しみください！！",
     "area": "",
@@ -205,9 +220,9 @@
       35.6674927,
       139.7912581
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/31-合気道部.png",
     "category": "food",
-    "id": 14
+    "id": 15
   },
   {
     "sourceLocationId": "mogi_12",
@@ -220,9 +235,9 @@
       35.6673587,
       139.7912568
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/31-越中島硬式テニス部.png",
     "category": "food",
-    "id": 15
+    "id": 16
   },
   {
     "sourceLocationId": "mogi_13",
@@ -235,9 +250,9 @@
       35.6673293,
       139.7912923
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/31-男子バレー部.png",
     "category": "food",
-    "id": 16
+    "id": 17
   },
   {
     "sourceLocationId": "mogi_14",
@@ -250,9 +265,9 @@
       35.6673015,
       139.7913285
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/31-山岳部.png",
     "category": "food",
-    "id": 17
+    "id": 18
   },
   {
     "sourceLocationId": "mogi_15",
@@ -265,9 +280,9 @@
       35.6672748,
       139.791358
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/31-バスケットボール部.png",
     "category": "food",
-    "id": 18
+    "id": 19
   },
   {
     "sourceLocationId": "mogi_16",
@@ -280,9 +295,9 @@
       35.6672481,
       139.7913929
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/31-木曜会.png",
     "category": "food",
-    "id": 19
+    "id": 20
   },
   {
     "sourceLocationId": "mogi_17",
@@ -295,24 +310,24 @@
       35.6672182,
       139.7914325
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/33-ネットボール部.png",
     "category": "food",
-    "id": 20
+    "id": 21
   },
   {
     "sourceLocationId": "mogi_18",
     "organization": "東京海洋大学・水泳部",
-    "title": "特性スタミナ油そば",
+    "title": "特製スタミナ油そば",
     "description": "いつもは大会等があり、参加を見送ることが多かった我々水泳部ですが、今回の海王祭りでは満を持して出店させていただきます。水泳部が一丸となって作った油そば食べてみたくなりませんか！？",
     "area": "",
-    "location": "特性スタミナ油そば",
+    "location": "特製スタミナ油そば",
     "coordinates": [
       35.6671822,
       139.7914767
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/33-水泳部.png",
     "category": "food",
-    "id": 21
+    "id": 22
   },
   {
     "sourceLocationId": "mogi_19",
@@ -325,9 +340,9 @@
       35.6671501,
       139.7915176
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/33-お嬢様_ピューロランド部.png",
     "category": "food",
-    "id": 22
+    "id": 23
   },
   {
     "sourceLocationId": "mogi_20",
@@ -340,9 +355,9 @@
       35.6669785,
       139.7917228
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/33-空手道部.png",
     "category": "food",
-    "id": 23
+    "id": 24
   },
   {
     "sourceLocationId": "mogi_21",
@@ -355,24 +370,24 @@
       35.6671114,
       139.7915599
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/33-芝浦祭実行委員会.png",
     "category": "food",
-    "id": 24
+    "id": 25
   },
   {
     "sourceLocationId": "mogi_22",
     "organization": "ネクトンカフェ",
     "title": "カニレース",
-    "description": "カニレース",
+    "description": "サワガニ釣りとサワガニレースをします。 一位の方には景品をプレゼント！",
     "area": "",
     "location": "カニレース",
     "coordinates": [
       35.6670814,
       139.7915981
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/33-ネクトンカフェ.png",
     "category": "food",
-    "id": 25
+    "id": 26
   },
   {
     "sourceLocationId": "mogi_23",
@@ -385,9 +400,9 @@
       35.6670433,
       139.791641
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/35-あさり会.png",
     "category": "food",
-    "id": 26
+    "id": 27
   },
   {
     "sourceLocationId": "mogi_24",
@@ -400,9 +415,9 @@
       35.6670123,
       139.7916786
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/35-門仲晃一.png",
     "category": "food",
-    "id": 27
+    "id": 28
   },
   {
     "sourceLocationId": "mogi_25",
@@ -415,9 +430,9 @@
       35.6669469,
       139.7917631
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/35-剣道部.png",
     "category": "food",
-    "id": 28
+    "id": 29
   },
   {
     "sourceLocationId": "mogi_26",
@@ -430,9 +445,9 @@
       35.6669082,
       139.7918093
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/35-カヌー部.png",
     "category": "food",
-    "id": 29
+    "id": 30
   },
   {
     "sourceLocationId": "mogi_27",
@@ -445,9 +460,9 @@
       35.666875,
       139.7918502
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/35-ヨット部.png",
     "category": "food",
-    "id": 30
+    "id": 31
   },
   {
     "sourceLocationId": "mogi_28",
@@ -460,24 +475,24 @@
       35.6668396,
       139.7918925
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/35-オーケストラ部.png",
     "category": "food",
-    "id": 31
+    "id": 32
   },
   {
     "sourceLocationId": "mogi_29",
     "organization": "東京海洋大学越中島生協学生委員会",
-    "title": "生協学生委員会海王祭模擬店",
+    "title": "海洋大グッズ、瓶飲料、ヨーヨーつり",
     "description": "生協学生委員会では、海洋大グッズ、瓶飲料の販売と水風船釣りを行います！ぜひ一度覗いてみてください！！",
     "area": "",
-    "location": "生協学生委員会海王祭模擬店",
+    "location": "海洋大グッズ、瓶飲料、ヨーヨーつり",
     "coordinates": [
       35.6669616,
       139.7918931
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/37-越中島生協学生委員会.png",
     "category": "food",
-    "id": 32
+    "id": 33
   },
   {
     "sourceLocationId": "mogi_30",
@@ -490,8 +505,8 @@
       35.66690034,
       139.7919698
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/37-海事普及会.png",
     "category": "food",
-    "id": 33
+    "id": 34
   }
 ]

@@ -16,6 +16,10 @@ dist-ssr
 .next
 out
 
+# scripts/ingest.ts が自動生成する画像（元画像は別途あるので追跡不要）
+public/images/shops-thumb/
+public/images/map/*.webp
+
 # Local env files
 .env
 .env.*

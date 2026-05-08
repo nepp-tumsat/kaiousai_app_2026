@@ -10,8 +10,11 @@ const shopFieldsSchema = z.object({
   area: z.string().default(''),
   location: z.string(),
   coordinates: z.tuple([z.number(), z.number()]),
-  /** `image` は `public/images/` からの相対パス。模擬店写真は `shops/` 配下に置く。 */
-  image: z.string().regex(/^shops\/[a-z0-9/_-]+\.(jpg|jpeg|png|webp)$/i, {
+  /**
+   * `image` は `public/images/` からの相対パス。模擬店写真は `shops/` 配下に置く。
+   * 日本語や半角括弧・スペース等の Unicode を含むファイル名も許可する（パストラバーサル `/` `\` は禁止）。
+   */
+  image: z.string().regex(/^shops\/[^/\\]+\.(jpg|jpeg|png|webp)$/i, {
     message:
       'image must be a safe path under public/images/shops/ (e.g. shops/yakisoba.jpg)',
   }),

@@ -92,7 +92,7 @@
   width: 88px;
   height: 56px;
   border-radius: 6px;
-  object-fit: cover;
+  object-fit: contain;
   background-color: var(--surface);
 }
 
