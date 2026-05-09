@@ -26,7 +26,7 @@ export const mapCatalogEntrySchema = z.object({
 export type MapCatalogEntry = z.infer<typeof mapCatalogEntrySchema>
 
 /** 付帯設備ピン（フィルターで種類を 1 つ選ぶと表示）。`areas` シートのフラグから ingest 時に作る */
-export const mapAmenityKindSchema = z.enum(['toilet', 'smoking', 'aed'])
+export const mapAmenityKindSchema = z.enum(['toilet', 'smoking', 'aed', 'fire_extinguisher'])
 export const mapAmenityPinSchema = z.object({
   kind: mapAmenityKindSchema,
   /** 一意 ID（例: `AR-07-smoking` / `13-toilet`） */
@@ -47,7 +47,7 @@ export type MapAmenityPin = z.infer<typeof mapAmenityPinSchema>
 const outdoorMapImageSchema = z
   .string()
   .regex(/^map\/[a-z0-9/_-]+\.(png|jpg|jpeg|webp)$/i)
-  .default('map/campus-map.png')
+  .default('map/campus-map.webp')
 
 export const mapAreasPayloadSchema = z.object({
   /**
@@ -157,7 +157,7 @@ export function buildMapAreasPayload(
   const outdoorMapImage =
     extras?.outdoorMapImage !== undefined && String(extras.outdoorMapImage).trim() !== ''
       ? String(extras.outdoorMapImage).trim()
-      : 'map/campus-map.png'
+      : 'map/campus-map.webp'
   const mapCatalog = extras?.mapCatalog ?? []
   const amenities = extras?.amenities ?? []
 
@@ -175,7 +175,7 @@ export const emptyMapAreasPayload: MapAreasPayload = {
   shopPinsMinZoom: DEFAULT_SHOP_PINS_MIN_ZOOM,
   areas: [],
   eventLocationPins: [],
-  outdoorMapImage: 'map/campus-map.png',
+  outdoorMapImage: 'map/campus-map.webp',
   mapCatalog: [],
   amenities: [],
 }

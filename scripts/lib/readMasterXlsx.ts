@@ -65,6 +65,23 @@ function isTruthyPublishStatus(status: string): boolean {
   return false
 }
 
+/**
+ * 行の掲載可否を判定する。
+ * 新形式（`is_published`: boolean / 文字列）を優先し、無ければ旧形式（`publish_status`: 文字列）にフォールバック。
+ * どちらの列も存在しない行は互換のため掲載扱い。
+ */
+function isRowPublished(row: Record<string, unknown>): boolean {
+  if ('is_published' in row) {
+    const v = row.is_published
+    if (typeof v === 'boolean') return v
+    return isTruthyPublishStatus(cellToString(v))
+  }
+  if ('publish_status' in row) {
+    return isTruthyPublishStatus(cellToString(row.publish_status))
+  }
+  return true
+}
+
 function hasLatLng(lat: unknown, lng: unknown): boolean {
   const la = cellToString(lat)
   const ln = cellToString(lng)
@@ -122,7 +139,7 @@ export type MasterXlsxMapCatalogEntry = {
   image: string
 }
 
-export type MasterXlsxAmenityKind = 'toilet' | 'smoking' | 'aed'
+export type MasterXlsxAmenityKind = 'toilet' | 'smoking' | 'aed' | 'fire_extinguisher'
 
 export type MasterXlsxAmenity = {
   kind: MasterXlsxAmenityKind
@@ -154,7 +171,11 @@ function sheetByNameInsensitive(wb: XLSX.WorkBook, want: string): XLSX.WorkSheet
   return name ? wb.Sheets[name] : undefined
 }
 
-/** `img_name` → `public/images/` からの相対パス（例 `map/campus-map.png`） */
+/**
+ * `img_name` → `public/images/` からの相対パス（例 `map/campus-map.webp`）。
+ * 配信は WebP に統一しているので、xlsx 側が `.png` でも出力時に `.webp` 拡張子に正規化する。
+ * 実体は `scripts/lib/generateThumbnails.ts` が `public/images/map/` に WebP を生成する。
+ */
 function normalizeMapsSheetImage(raw: unknown): string {
   let t = cellToString(raw)
   if (t === '') return ''
@@ -163,7 +184,8 @@ function normalizeMapsSheetImage(raw: unknown): string {
   if (!/^[a-z0-9._-]+\.(png|jpg|jpeg|webp)$/i.test(t)) {
     throw new Error(`maps シート img_name が不正（英数字・._- と拡張子のみ）: ${cellToString(raw)}`)
   }
-  return `map/${t}`
+  const webp = t.replace(/\.(png|jpe?g|webp)$/i, '.webp')
+  return `map/${webp}`
 }
 
 /**
@@ -187,9 +209,10 @@ function readAmenitiesFromAreas(
     const lat = Number(cellToString(row.lat))
     const lng = Number(cellToString(row.lng))
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue
-    const isPublished = isTruthyPublishStatus(cellToString(row.publish_status))
+    const isPublished = isRowPublished(row)
     const hasToilet = String(cellToString(row.has_toilet)).toLowerCase() === 'true'
     const hasAed = String(cellToString(row.has_aed)).toLowerCase() === 'true'
+    const hasFireExtinguisher = String(cellToString(row.has_fire_extinguisher)).toLowerCase() === 'true'
     const isSmoking = name.includes('喫煙')
 
     if (isSmoking) {
@@ -212,6 +235,14 @@ function readAmenitiesFromAreas(
       out.push({
         kind: 'aed',
         id: `${id}-aed`,
+        buildingName: name,
+        coordinates: [lat, lng],
+      })
+    }
+    if (hasFireExtinguisher) {
+      out.push({
+        kind: 'fire_extinguisher',
+        id: `${id}-fire_extinguisher`,
         buildingName: name,
         coordinates: [lat, lng],
       })
@@ -239,7 +270,7 @@ function readMapsSheet(wb: XLSX.WorkBook): {
     const id = cellToString(row.id)
     const name = cellToString(row.name)
     if (id === '') continue
-    if (!isTruthyPublishStatus(cellToString(row.publish_status))) continue
+    if (!isRowPublished(row)) continue
     const image = normalizeMapsSheetImage(row.img_name)
     if (image === '') continue
     const relatedAreaId = cellToString(row.related_area)
@@ -276,7 +307,7 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
     const id = normalizeAreaId(cellToString(row.id))
     const name = cellToString(row.name)
     if (id === '' || name === '') continue
-    if (!isTruthyPublishStatus(cellToString(row.publish_status))) continue
+    if (!isRowPublished(row)) continue
     areas.push({
       id,
       name,
@@ -302,7 +333,7 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
     const id = cellToString(row.id)
     const name = cellToString(row.name)
     if (id === '' || name === '') continue
-    let pub = isTruthyPublishStatus(cellToString(row.publish_status))
+    let pub = isRowPublished(row)
     if (!hasLatLng(row.lat, row.lng)) pub = false
     const isStage = name.includes('ステージ')
     locations.push({
@@ -321,7 +352,7 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
       lng: cellToString(row.lng),
       indoor_x: cellToString(row.x_position),
       indoor_y: cellToString(row.y_position),
-      img_name: '',
+      img_name: cellToString(row.img_name),
     })
   }
 
@@ -329,7 +360,7 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
     const id = cellToString(row.id)
     const name = cellToString(row.name)
     if (id === '' || name === '') continue
-    let pub = isTruthyPublishStatus(cellToString(row.publish_status))
+    let pub = isRowPublished(row)
     if (!hasLatLng(row.lat, row.lng)) pub = false
     locations.push({
       public: pub ? 'TRUE' : 'FALSE',
@@ -347,7 +378,7 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
       lng: cellToString(row.lng),
       indoor_x: cellToString(row.x_position),
       indoor_y: cellToString(row.y_position),
-      img_name: '',
+      img_name: cellToString(row.img_name),
     })
   }
 
@@ -371,7 +402,7 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
     const id = cellToString(row.id)
     const title = cellToString(row.name)
     if (id === '' || title === '') continue
-    if (!isTruthyPublishStatus(cellToString(row.publish_status))) continue
+    if (!isRowPublished(row)) continue
 
     const day = dayCellToYmd(row.day)
     const start_time = excelTimeFractionToHm(row.start_time)

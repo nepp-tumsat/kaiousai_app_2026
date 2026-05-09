@@ -127,8 +127,10 @@ function CurrentLocationButton({
     )
   }
   return (
-    <button className="current-location-button" onClick={handleClick}>
-      📍 現在地取得
+    <button className="current-location-button" onClick={handleClick} aria-label="現在地を取得">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+      </svg>
     </button>
   )
 }
@@ -364,6 +366,7 @@ const AMENITY_KIND_LABEL: Record<MapAmenityKind, string> = {
   smoking: '喫煙所',
   toilet: 'トイレ',
   aed: 'AED',
+  fire_extinguisher: '消火器',
 }
 
 /** 吹き出し用の建物名（新 `buildingName` / 旧 `name` の「…のトイレ」等） */
@@ -590,9 +593,18 @@ function MapZoomAndMarkers({
   /** zoom 20: 店舗ピンに加え、地区名（エリア）の吹き出しを重ねる */
   const showAreaDistrictOverlay =
     showShopPins && !showShopEventPopups && mapPayload.areas.length > 0
-  /** ズーム 17 以下ではエリア代表ピンは「正門」のみ（遠景のノイズ低減） */
+  /**
+   * ズーム別エリア代表ピン:
+   * - 17 以下: 「正門」のみ（遠景のノイズ低減）
+   * - 18: 海王祭エリア（id が `AR-` で始まる）のみ。号館・建物（数字 id）は出さない。
+   * - 19 以上: 全エリア（建物含む）
+   */
   const areaPinsForZoom =
-    zoom <= 17 ? mapPayload.areas.filter((a) => a.name === '正門') : mapPayload.areas
+    zoom <= 17
+      ? mapPayload.areas.filter((a) => a.name === '正門')
+      : zoom === 18
+        ? mapPayload.areas.filter((a) => a.id.startsWith('AR-'))
+        : mapPayload.areas
 
   useEffect(() => {
     onZoomChange?.(zoom)
@@ -658,12 +670,12 @@ function MapZoomAndMarkers({
   ])
 
   if (!pinsEnabled) {
-    return <div className="zoom-indicator">{zoom}</div>
+    return process.env.NODE_ENV === 'development' ? <div className="zoom-indicator">{zoom}</div> : null
   }
 
   return (
     <>
-      <div className="zoom-indicator">{zoom}</div>
+      {process.env.NODE_ENV === 'development' && <div className="zoom-indicator">{zoom}</div>}
       {showShopPins ? (
         <>
           {shops.map((shop) => (
@@ -923,7 +935,10 @@ function MapZoomAndMarkers({
       )}
       {amenityPins.map((pin) => {
         const glyph =
-          pin.kind === 'smoking' ? '🚬' : pin.kind === 'toilet' ? '🚻' : '＋'
+          pin.kind === 'smoking' ? '🚬'
+          : pin.kind === 'toilet' ? '🚻'
+          : pin.kind === 'fire_extinguisher' ? '🧯'
+          : '＋'
         return (
         <Marker
           key={`amenity-${pin.kind}-${pin.id}`}
@@ -1044,6 +1059,11 @@ export default function MapFeature() {
 
   const selectAmenityKind = useCallback((kind: MapAmenityKind | null) => {
     setFilters((prev) => ({ ...prev, selectedAmenityKind: kind }))
+  }, [])
+
+  const resetFilters = useCallback(() => {
+    setFilters(DEFAULT_FILTERS)
+    setShopLabelMode('title')
   }, [])
 
   const availableAmenities = useMemo(() => {
@@ -1176,34 +1196,6 @@ export default function MapFeature() {
             </div>
           )}
         </div>
-        {viewMode === 'outdoor' && (
-          <div
-            className="map-shop-label-toggle"
-            role="tablist"
-            aria-label="店舗ピンの吹き出し表示"
-          >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={shopLabelMode === 'title'}
-              tabIndex={shopLabelMode === 'title' ? 0 : -1}
-              className={`map-mode-button ${shopLabelMode === 'title' ? 'active' : ''}`}
-              onClick={() => setShopLabelMode('title')}
-            >
-              企画
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={shopLabelMode === 'organization'}
-              tabIndex={shopLabelMode === 'organization' ? 0 : -1}
-              className={`map-mode-button ${shopLabelMode === 'organization' ? 'active' : ''}`}
-              onClick={() => setShopLabelMode('organization')}
-            >
-              団体名
-            </button>
-          </div>
-        )}
         {viewMode === 'indoor' && indoorAvailable && (
           <div className="indoor-map-selector" role="navigation" aria-label="屋内マップの建物と階">
             <div className="indoor-map-selector__row">
@@ -1393,6 +1385,9 @@ export default function MapFeature() {
           availableAmenities={availableAmenities}
           onToggleShopCategory={toggleShopCategory}
           onSelectAmenityKind={selectAmenityKind}
+          shopLabelMode={shopLabelMode}
+          onSetShopLabelMode={setShopLabelMode}
+          onReset={resetFilters}
         />
       )}
       {selectedShop && (

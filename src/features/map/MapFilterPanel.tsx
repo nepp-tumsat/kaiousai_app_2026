@@ -14,12 +14,14 @@ const AMENITY_LABELS: Record<MapAmenityKind, string> = {
   smoking: '喫煙所',
   toilet: 'トイレ',
   aed: 'AED',
+  fire_extinguisher: '消火器',
 }
 
 const AMENITY_ICONS: Record<MapAmenityKind, string> = {
   smoking: '🚬',
   toilet: '🚻',
   aed: '＋',
+  fire_extinguisher: '🧯',
 }
 
 const SHOP_CATEGORY_ORDER: readonly ShopCategory[] = [
@@ -29,7 +31,9 @@ const SHOP_CATEGORY_ORDER: readonly ShopCategory[] = [
   'facility',
 ]
 
-const AMENITY_ORDER: readonly MapAmenityKind[] = ['smoking', 'toilet', 'aed']
+const AMENITY_ORDER: readonly MapAmenityKind[] = ['toilet', 'smoking', 'aed', 'fire_extinguisher']
+
+type ShopLabelMode = 'title' | 'organization'
 
 interface MapFilterPanelProps {
   shopCategories: ReadonlySet<ShopCategory>
@@ -39,6 +43,9 @@ interface MapFilterPanelProps {
   onSelectAmenityKind: (kind: MapAmenityKind | null) => void
   /** 利用可能な amenity 種類（generated データに 1 つも該当が無い場合は出さない） */
   availableAmenities: ReadonlySet<MapAmenityKind>
+  shopLabelMode: ShopLabelMode
+  onSetShopLabelMode: (mode: ShopLabelMode) => void
+  onReset: () => void
 }
 
 const MapFilterPanel: FC<MapFilterPanelProps> = ({
@@ -47,7 +54,14 @@ const MapFilterPanel: FC<MapFilterPanelProps> = ({
   onToggleShopCategory,
   onSelectAmenityKind,
   availableAmenities,
+  shopLabelMode,
+  onSetShopLabelMode,
+  onReset,
 }) => {
+  const isFiltered =
+    shopCategories.size < SHOP_CATEGORY_ORDER.length ||
+    selectedAmenityKind !== null ||
+    shopLabelMode !== 'title'
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
 
@@ -76,7 +90,7 @@ const MapFilterPanel: FC<MapFilterPanelProps> = ({
     <div className="map-filter-root" ref={rootRef}>
       <button
         type="button"
-        className={`map-filter-fab${open ? ' map-filter-fab--open' : ''}`}
+        className={`map-filter-fab${open ? ' map-filter-fab--open' : ''}${isFiltered ? ' map-filter-fab--active' : ''}`}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label="マップの表示フィルター"
@@ -86,9 +100,34 @@ const MapFilterPanel: FC<MapFilterPanelProps> = ({
           ⚙
         </span>
         <span className="map-filter-fab__label">表示</span>
+        {isFiltered && <span className="map-filter-fab__dot" aria-hidden="true" />}
       </button>
       {open && (
         <div className="map-filter-panel" role="dialog" aria-label="表示フィルター">
+          {isFiltered && (
+            <div className="map-filter-panel__reset-row">
+              <button
+                type="button"
+                className="map-filter-reset"
+                onClick={() => { onReset(); setOpen(false) }}
+              >
+                フィルターをリセット
+              </button>
+            </div>
+          )}
+          <div className="map-filter-panel__group">
+            <div className="map-filter-panel__group-title">ピンの表示名</div>
+            <div className="map-filter-segment" role="radiogroup" aria-label="ピンの表示名">
+              <label className={`map-filter-segment__option${shopLabelMode === 'title' ? ' map-filter-segment__option--active' : ''}`}>
+                <input type="radio" name="map-shop-label-mode" checked={shopLabelMode === 'title'} onChange={() => onSetShopLabelMode('title')} />
+                企画名
+              </label>
+              <label className={`map-filter-segment__option${shopLabelMode === 'organization' ? ' map-filter-segment__option--active' : ''}`}>
+                <input type="radio" name="map-shop-label-mode" checked={shopLabelMode === 'organization'} onChange={() => onSetShopLabelMode('organization')} />
+                団体名
+              </label>
+            </div>
+          </div>
           <div className="map-filter-panel__group">
             <div className="map-filter-panel__group-title">模擬店カテゴリ</div>
             {SHOP_CATEGORY_ORDER.map((cat) => (
@@ -108,7 +147,7 @@ const MapFilterPanel: FC<MapFilterPanelProps> = ({
           </div>
           {visibleAmenities.length > 0 && (
             <div className="map-filter-panel__group">
-              <div className="map-filter-panel__group-title">付帯設備（いずれか 1 つ）</div>
+              <div className="map-filter-panel__group-title">設備を探す（いずれか 1 つ）</div>
               <div className="map-filter-radio-group" role="radiogroup" aria-label="付帯設備の表示">
                 <label className="map-filter-row map-filter-row--amenity-none">
                   <input

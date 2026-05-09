@@ -7,3 +7,16 @@ export function assetUrl(path: string): string {
   const normalized = path.startsWith('/') ? path : `/${path}`
   return `${base}${normalized}`
 }
+
+/**
+ * 模擬店サムネイル用 URL（`public/images/shops-thumb/` の WebP）。
+ * `shop.image` が `shops/<basename>.<ext>` の前提。それ以外（外部 URL や `events/` 等）はそのまま `assetUrl` で返す。
+ * `npm run ingest` が `scripts/lib/generateThumbnails.ts` 経由で生成する。
+ */
+export function shopThumbUrl(image: string): string {
+  if (image.startsWith('shops/')) {
+    const basename = image.slice('shops/'.length).replace(/\.(png|jpe?g|webp)$/i, '.webp')
+    return assetUrl(`/images/shops-thumb/${basename}`)
+  }
+  return assetUrl(`/images/${image}`)
+}

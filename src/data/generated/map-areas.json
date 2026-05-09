@@ -58,6 +58,14 @@
       ]
     },
     {
+      "id": "AR-07",
+      "name": "喫煙所",
+      "coordinates": [
+        35.6681137,
+        139.7904588
+      ]
+    },
+    {
       "id": "03",
       "name": "1号館",
       "coordinates": [
@@ -156,7 +164,7 @@
   ],
   "eventLocationPins": [
     {
-      "id": "03",
+      "id": "04",
       "label": "ステージ",
       "coordinates": [
         35.6673204,
@@ -164,79 +172,73 @@
       ]
     }
   ],
-  "outdoorMapImage": "map/campus-map.png",
+  "outdoorMapImage": "map/campus-map.webp",
   "mapCatalog": [
     {
       "id": "campus",
       "name": "キャンパスマップ",
       "relatedAreaId": "",
-      "image": "map/campus-map.png"
+      "image": "map/campus-map.webp"
     },
     {
       "id": "1-1",
       "name": "1号館1F",
       "relatedAreaId": "03",
-      "image": "map/1-1-map.png"
-    },
-    {
-      "id": "1-2",
-      "name": "1号館2F",
-      "relatedAreaId": "03",
-      "image": "map/1-2-map.png"
+      "image": "map/1-1-map.webp"
     },
     {
       "id": "2-1",
       "name": "2号館1F",
       "relatedAreaId": "13",
-      "image": "map/2-1-map.png"
+      "image": "map/2-1-map.webp"
     },
     {
       "id": "2-2",
       "name": "2号館2F",
       "relatedAreaId": "13",
-      "image": "map/2-2-map.png"
+      "image": "map/2-2-map.webp"
     },
     {
       "id": "ettyu-1",
       "name": "越中島会館1F",
       "relatedAreaId": "14",
-      "image": "map/ettyu-1-map.png"
+      "image": "map/ettyu-1-map.webp"
     },
     {
       "id": "ettyu-2",
       "name": "越中島会館2F",
       "relatedAreaId": "14",
-      "image": "map/ettyu-2-map.png"
+      "image": "map/ettyu-2-map.webp"
     },
     {
       "id": "exp-1-1",
       "name": "第1実験棟1F",
       "relatedAreaId": "06",
-      "image": "map/exp-1-1-map.png"
+      "image": "map/exp-1-1-map.webp"
     },
     {
       "id": "exp-1-3",
       "name": "第1実験棟3F",
       "relatedAreaId": "06",
-      "image": "map/exp-1-3-map.png"
+      "image": "map/exp-1-3-map.webp"
     },
     {
       "id": "exp-3-5",
       "name": "第3実験棟5F",
       "relatedAreaId": "10",
-      "image": "map/exp-3-5-map.png"
+      "image": "map/exp-3-5-map.webp"
     },
     {
       "id": "exp-3-6",
       "name": "第3実験棟6F",
       "relatedAreaId": "10",
-      "image": "map/exp-3-6-map.png"
+      "image": "map/exp-3-6-map.webp"
     },
     {
       "id": "exp-4-5",
       "name": "第4実験棟5F",
       "relatedAreaId": "16",
-      "image": "map/exp-4-5-map.png"
+      "image": "map/exp-4-5-map.webp"
     }
   ],
   "amenities": [
@@ -277,6 +279,15 @@
       ]
     },
     {
+      "kind": "fire_extinguisher",
+      "id": "04-fire_extinguisher",
+      "buildingName": "百周年記念会館",
+      "coordinates": [
+        35.6677954,
+        139.7902858
+      ]
+    },
+    {
       "kind": "toilet",
       "id": "06-toilet",
       "buildingName": "第1実験棟",
@@ -288,6 +299,15 @@
     {
       "kind": "toilet",
       "id": "13-toilet",
+      "buildingName": "2号館",
+      "coordinates": [
+        35.667034,
+        139.7926167
+      ]
+    },
+    {
+      "kind": "fire_extinguisher",
+      "id": "13-fire_extinguisher",
       "buildingName": "2号館",
       "coordinates": [
         35.667034,
@@ -313,8 +333,26 @@
       ]
     },
     {
+      "kind": "fire_extinguisher",
+      "id": "14-fire_extinguisher",
+      "buildingName": "越中島会館(講堂)",
+      "coordinates": [
+        35.6665416,
+        139.7929962
+      ]
+    },
+    {
       "kind": "toilet",
       "id": "16-toilet",
+      "buildingName": "第4実験棟(大教室)",
+      "coordinates": [
+        35.66636313,
+        139.7923586
+      ]
+    },
+    {
+      "kind": "fire_extinguisher",
+      "id": "16-fire_extinguisher",
       "buildingName": "第4実験棟(大教室)",
       "coordinates": [
         35.66636313,

@@ -30,8 +30,11 @@ const festivalEventFieldsSchema = z.object({
   organization: z.string().default(''),
   /** false のとき一覧・タイムテーブルに出さない（データには残す） */
   published: z.boolean().default(true),
-  /** `public/images/` からの相対パス（例: events/foo.jpg） */
-  image: z.string().regex(/^events\/[a-z0-9/_-]+\.(jpg|jpeg|png|webp)$/i, {
+  /**
+   * `public/images/` からの相対パス（例: events/foo.jpg）。
+   * 日本語などの Unicode を含むファイル名も許可（パストラバーサル `/` `\` は禁止）。
+   */
+  image: z.string().regex(/^events\/[^/\\]+\.(jpg|jpeg|png|webp)$/i, {
     message: 'image must be under public/images/events/ (e.g. events/opening.jpg)',
   }),
 })
