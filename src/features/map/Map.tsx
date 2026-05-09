@@ -41,8 +41,34 @@ L.Icon.Default.mergeOptions({
   shadowUrl: assetUrl('/images/map/leaflet/marker-shadow.png'),
 })
 
-/** 店舗・イベント会場ピン: このズーム未満はピンのみ、以上で Leaflet 吹き出し */
-const SHOP_EVENT_POPUP_MIN_ZOOM = 21
+/**
+ * 店舗・イベント会場ピン: このズーム未満はピンのみ、以上で Leaflet 吹き出し。
+ * スマホは情報量が薄くなりやすいので、デスクトップより 1 段早く（低いズームから）情報を出す。
+ * 同様に `mapPayload.shopPinsMinZoom` / エリアピン filter も `MOBILE_ZOOM_OFFSET` ぶんずらす。
+ */
+const SHOP_EVENT_POPUP_MIN_ZOOM_DESKTOP = 21
+const MOBILE_ZOOM_OFFSET = 1
+const MOBILE_BREAKPOINT_PX = 640
+
+function shopEventPopupMinZoom(isMobile: boolean): number {
+  return isMobile ? SHOP_EVENT_POPUP_MIN_ZOOM_DESKTOP - MOBILE_ZOOM_OFFSET : SHOP_EVENT_POPUP_MIN_ZOOM_DESKTOP
+}
+
+/** `(max-width: 640px)` メディアクエリと連動する mobile フラグ */
+function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false
+    return window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT_PX}px)`).matches
+  })
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT_PX}px)`)
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mql.addEventListener('change', handler)
+    return () => mql.removeEventListener('change', handler)
+  }, [])
+  return isMobile
+}
 
 const DEFAULT_MAP_CENTER: [number, number] = [35.6672324, 139.791702]
 /** 屋内平面図の緯度方向スパン（度）。経度幅は画像アスペクト比から算出する */
@@ -524,6 +550,7 @@ function MapFocusShopFromQuery({
 }) {
   const searchParams = useSearchParams()
   const map = useMap()
+  const isMobile = useIsMobile()
   const doneForShopParamRef = useRef('')
 
   useEffect(() => {
@@ -539,13 +566,13 @@ function MapFocusShopFromQuery({
     const shop = shops.find((s) => s.id === id)
     if (!shop) return
     doneForShopParamRef.current = raw
-    const z = Math.max(map.getZoom(), SHOP_EVENT_POPUP_MIN_ZOOM)
+    const z = Math.max(map.getZoom(), shopEventPopupMinZoom(isMobile))
     map.setView(shop.coordinates, z, { animate: true })
     const t = window.setTimeout(() => {
       openShopDetail(shop)
     }, 450)
     return () => window.clearTimeout(t)
-  }, [enabled, searchParams, shops, map, openShopDetail])
+  }, [enabled, searchParams, shops, map, openShopDetail, isMobile])
 
   return null
 }
@@ -586,23 +613,28 @@ function MapZoomAndMarkers({
   const map = useMap()
   const [zoom, setZoom] = useState(() => map.getZoom())
   const [mapPayload] = useState(() => getMapAreas())
-  /** areas があるとき: zoom < shopPinsMinZoom でエリア、zoom >= で店舗（location）。既定 20 → 19 までエリア */
-  const showShopPins = mapPayload.areas.length === 0 || zoom >= mapPayload.shopPinsMinZoom
-  /** 店舗・イベントピンは zoom 21 未満では吹き出しなし（ピンのみ） */
-  const showShopEventPopups = zoom >= SHOP_EVENT_POPUP_MIN_ZOOM
-  /** zoom 20: 店舗ピンに加え、地区名（エリア）の吹き出しを重ねる */
+  const isMobile = useIsMobile()
+  /** スマホは閾値を 1 段下げて、同じズームで PC より 1 段「進んだ」情報を出す */
+  const zoomOffset = isMobile ? MOBILE_ZOOM_OFFSET : 0
+  const effectiveShopPinsMinZoom = mapPayload.shopPinsMinZoom - zoomOffset
+  const effectiveShopEventPopupMinZoom = shopEventPopupMinZoom(isMobile)
+  /** areas があるとき: zoom < shopPinsMinZoom でエリア、zoom >= で店舗（location） */
+  const showShopPins = mapPayload.areas.length === 0 || zoom >= effectiveShopPinsMinZoom
+  /** 店舗・イベントピンは閾値未満では吹き出しなし（ピンのみ） */
+  const showShopEventPopups = zoom >= effectiveShopEventPopupMinZoom
+  /** 店舗ピン表示中・店舗吹き出し未表示の中間ズーム: 地区名（エリア）の吹き出しを重ねる */
   const showAreaDistrictOverlay =
     showShopPins && !showShopEventPopups && mapPayload.areas.length > 0
   /**
-   * ズーム別エリア代表ピン:
-   * - 17 以下: 「正門」のみ（遠景のノイズ低減）
-   * - 18: 海王祭エリア（id が `AR-` で始まる）のみ。号館・建物（数字 id）は出さない。
-   * - 19 以上: 全エリア（建物含む）
+   * ズーム別エリア代表ピン（モバイルは zoomOffset で 1 段早めに展開）:
+   * - 17 - offset 以下: 「正門」のみ（遠景のノイズ低減）
+   * - 18 - offset:     海王祭エリア（id が `AR-` で始まる）のみ。号館・建物（数字 id）は出さない。
+   * - それ以降:         全エリア（建物含む）
    */
   const areaPinsForZoom =
-    zoom <= 17
+    zoom <= 17 - zoomOffset
       ? mapPayload.areas.filter((a) => a.name === '正門')
-      : zoom === 18
+      : zoom === 18 - zoomOffset
         ? mapPayload.areas.filter((a) => a.id.startsWith('AR-'))
         : mapPayload.areas
 
@@ -1000,21 +1032,26 @@ export default function MapFeature() {
   const mapZoomRef = useRef(18)
   const mapModeToggleRef = useRef<HTMLDivElement>(null)
   const isDev = process.env.NODE_ENV === 'development'
+  const isMobile = useIsMobile()
+  const popupMinZoom = shopEventPopupMinZoom(isMobile)
 
   const handleMapZoomChange = useCallback((z: number) => {
     mapZoomRef.current = z
   }, [])
 
   /** 店舗詳細を開いても Leaflet の既定クリックで吹き出しが閉じないよう、直後に再オープンする */
-  const openShopDetail = useCallback((shop: Shop) => {
-    setSelectedShop(shop)
-    const key = `shop-${shop.id}`
-    queueMicrotask(() => {
-      if (mapZoomRef.current >= SHOP_EVENT_POPUP_MIN_ZOOM) {
-        markerRefs.current[key]?.openPopup()
-      }
-    })
-  }, [])
+  const openShopDetail = useCallback(
+    (shop: Shop) => {
+      setSelectedShop(shop)
+      const key = `shop-${shop.id}`
+      queueMicrotask(() => {
+        if (mapZoomRef.current >= popupMinZoom) {
+          markerRefs.current[key]?.openPopup()
+        }
+      })
+    },
+    [popupMinZoom],
+  )
 
   useEffect(() => {
     setIsMapReady(true)
@@ -1397,7 +1434,7 @@ export default function MapFeature() {
             const id = selectedShop.id
             setSelectedShop(null)
             queueMicrotask(() => {
-              if (mapZoomRef.current >= SHOP_EVENT_POPUP_MIN_ZOOM) {
+              if (mapZoomRef.current >= popupMinZoom) {
                 markerRefs.current[`shop-${id}`]?.openPopup()
               }
             })
