@@ -75,6 +75,14 @@ function pickFirstNonEmptyCell(r: Record<string, string>, keys: string[]): strin
   return ''
 }
 
+/** 列なし・空欄は「キャンパスにピン表示」（true）。明示の false のみ非表示 */
+function normalizeShowOnCampusMapCell(r: Record<string, string>): string {
+  if (!('show_on_campus_map' in r)) return 'true'
+  const v = sanitizeCsvCell(r.show_on_campus_map)
+  if (v === '') return 'true'
+  return parseBoolString(v) ? 'true' : 'false'
+}
+
 /** `img_name` がファイル名のみのとき `shops/` を付ける */
 function normalizeLocationImageField(raw: string): string {
   const t = sanitizeCsvCell(raw)
@@ -123,6 +131,8 @@ export function normalizeLocationCsvRow(raw: Record<string, string>): Record<str
       is_event_location: sanitizeCsvCell(r.is_event_location),
       is_facility: sanitizeCsvCell(r.is_facility),
       is_exhibit: sanitizeCsvCell(r.is_exhibit),
+      show_on_campus_map: normalizeShowOnCampusMapCell(r),
+      indoor_plan_map_id: sanitizeCsvCell(r.indoor_plan_map_id),
     }
   }
 
@@ -149,6 +159,8 @@ export function normalizeLocationCsvRow(raw: Record<string, string>): Record<str
     is_event_location: sanitizeCsvCell(r.is_event_location ?? 'false'),
     is_facility: 'false',
     is_exhibit: 'false',
+    show_on_campus_map: 'true',
+    indoor_plan_map_id: '',
   }
 }
 
@@ -178,6 +190,8 @@ export function areaDisplayLabel(area: Pick<CsvAreaRow, 'id' | 'name'>): string 
  * - **新形式**（`public` 列あり）: `public`→掲載/マップ,
  *   `is_event_location=true` のとき CSV `area_id` は **屋外 `areas.csv` の id**（マップピン座標用 `event_pin_area_id`）。それ以外の行では `area_id`→屋内用 `indoor_area_id`。
  *   屋外エリア（店舗ラベル等）は任意列 `outdoor_area_id` / `festival_area_id` / `map_area_id`
+ * - `show_on_campus_map`: 屋外キャンパス上の店舗ピン。屋内フロア専用なら false（省略時 true）
+ * - `indoor_plan_map_id`: 屋内ピンを置く `maps` の行 id（`1-1` 等）。屋外のみなら空
  */
 export const csvLocationRowSchema = z.object({
   id: z.string().min(1),
@@ -209,6 +223,8 @@ export const csvLocationRowSchema = z.object({
   is_event_location: boolFromCsv,
   is_facility: boolFromCsv,
   is_exhibit: boolFromCsv,
+  show_on_campus_map: boolFromCsv,
+  indoor_plan_map_id: z.string().default(''),
 })
 
 export type CsvLocationRow = z.infer<typeof csvLocationRowSchema>
@@ -519,6 +535,10 @@ export function csvRowsToShopSources(areas: CsvAreaRow[], locations: CsvLocation
       coordinates: [loc.lat, loc.lng] as [number, number],
       image,
       category: cats[0],
+      showOnCampusMap: loc.show_on_campus_map,
+      indoorPlanMapId: loc.indoor_plan_map_id.trim(),
+      indoorX: loc.indoor_x,
+      indoorY: loc.indoor_y,
     }
     out.push(shopSourceSchema.parse(row))
   }

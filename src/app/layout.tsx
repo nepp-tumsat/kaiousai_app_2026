@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { Viewport } from 'next'
 import '@/styles/globals.css'
 import '@/styles/App.css'
 import 'leaflet/dist/leaflet.css'
@@ -10,6 +11,13 @@ export const metadata = {
   description: '東京海洋大学 海王祭のインタラクティブマップとタイムテーブル',
   manifest: '/manifest.json',
   icons: { icon: '/favicon.ico' },
+}
+
+/** モバイル地図のピンチ／タッチとノッチ周りの挙動を安定させる */
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {

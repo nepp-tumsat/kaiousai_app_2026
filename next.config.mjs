@@ -5,6 +5,8 @@ const nextConfig = {
   reactStrictMode: false,
   output: 'export',
   trailingSlash: true,
+  /** API の pin-adjustments で XLSX を Node の fs 付きで読み込む（バンドルすると writeFile が壊れる） */
+  serverExternalPackages: ['xlsx'],
   images: {
     unoptimized: true,
   },

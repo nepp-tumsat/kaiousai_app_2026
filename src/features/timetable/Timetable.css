@@ -30,10 +30,6 @@
   gap: 0.5rem;
 }
 
-.timetable-location-row {
-  margin-top: 0.25rem;
-}
-
 .timetable-filter-button {
   border: 1px solid var(--surface);
   background-color: var(--bg);
@@ -87,10 +83,26 @@
   border: 1px solid var(--surface);
 }
 
+button.timetable-item {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+button.timetable-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .timetable-event-thumb {
   flex-shrink: 0;
-  width: 88px;
-  height: 56px;
+  width: 112px;
+  height: 72px;
   border-radius: 6px;
   object-fit: contain;
   background-color: var(--surface);

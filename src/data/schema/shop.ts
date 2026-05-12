@@ -19,6 +19,18 @@ const shopFieldsSchema = z.object({
       'image must be a safe path under public/images/shops/ (e.g. shops/yakisoba.jpg)',
   }),
   category: shopCategorySchema,
+  /**
+   * 屋外キャンパスマップにピンを出すか。屋内フロア用マスタ（Excel `map` が campus 以外）では false。
+   * 欠落時は true（旧 JSON / CSV 互換）。
+   */
+  showOnCampusMap: z.boolean().default(true),
+  /** `maps` シートのフロア id（例 `1-1`）。屋内ピン用。屋外のみの店は空 */
+  indoorPlanMapId: z.string().default(''),
+  /**
+   * 屋内平面図上の位置。画像左上原点。`0〜1` は正規化座標、いずれかが `1` 超ならピクセルとして img サイズで割る。
+   */
+  indoorX: z.number().optional(),
+  indoorY: z.number().optional(),
 })
 
 export const shopSourceSchema = shopFieldsSchema

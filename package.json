@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "ingest": "tsx scripts/ingest.ts",
+    "init-output-xlsx": "tsx scripts/init-output-master-xlsx.ts",
     "prebuild": "npm run ingest",
     "predev": "npm run ingest",
     "dev": "next dev",
