@@ -20,6 +20,9 @@ out
 public/images/shops-thumb/
 public/images/map/*.webp
 
+# DEV ピン調整で出力するマスター xlsx コピー（元 xlsx は変更しない）
+scripts/sources/output_*.xlsx
+
 # Local env files
 .env
 .env.*

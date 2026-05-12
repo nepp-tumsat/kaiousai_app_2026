@@ -164,6 +164,11 @@ export type MasterXlsxRows = {
 /**
  * 海王祭マスター Excel（シート: maps / areas / facilities / shops / stage_timetable）を
  * `parseCsv*` が受け取る行配列に変換する。
+ *
+ * - `facilities` / `shops` の **`map`**: `maps` シートの `id`（屋外は `campus`、屋内フロアは `1-1` 等）。
+ *   `related_area` と突き合わせて `outdoor_area_id` を埋める。座標が空ならそのエリアの代表 lat/lng にフォールバックする。
+ *   **`map` が `campus`（または空）以外**の行は `show_on_campus_map=false`（屋外キャンパスマップではピン非表示。一覧・詳細は従来どおり）。
+ *   **`x_position` / `y_position`**: 屋内マップのピン位置（画像左上原点）。`0〜1` は正規化、それを超える値はピクセルとして画像サイズで割る。
  */
 function sheetByNameInsensitive(wb: XLSX.WorkBook, want: string): XLSX.WorkSheet | undefined {
   const key = want.toLowerCase()
@@ -186,6 +191,54 @@ function normalizeMapsSheetImage(raw: unknown): string {
   }
   const webp = t.replace(/\.(png|jpe?g|webp)$/i, '.webp')
   return `map/${webp}`
+}
+
+/** `maps` シートの `id`（例 `1-1`, `campus`）→ `related_area` を正規化した屋外エリア id */
+function buildMapIdToOutdoorAreaId(catalog: MasterXlsxMapCatalogEntry[]): Map<string, string> {
+  const m = new Map<string, string>()
+  for (const e of catalog) {
+    const rid = e.relatedAreaId.trim()
+    if (e.id === '' || rid === '') continue
+    m.set(e.id, normalizeAreaId(rid))
+  }
+  return m
+}
+
+/**
+ * facilities / shops の `map` セルから屋外エリア id を求める。
+ * - 空・`campus`（大小無視）→ 屋外エリア紐付けなし
+ * - それ以外 → maps カタログの `related_area`
+ */
+function outdoorAreaIdFromMapCell(
+  mapRaw: unknown,
+  mapIdToOutdoorAreaId: Map<string, string>,
+  sheet: 'facilities' | 'shops',
+  rowId: string,
+): string {
+  const mapKey = cellToString(mapRaw).trim()
+  if (mapKey === '' || mapKey.toLowerCase() === 'campus') return ''
+  const resolved = mapIdToOutdoorAreaId.get(mapKey)
+  if (resolved === undefined) {
+    throw new Error(
+      `${sheet} シート: map が maps シートの id と一致しません (行 id=${rowId}, map="${mapKey}")`,
+    )
+  }
+  return resolved
+}
+
+/** `areas` シート上のエリア中心 lat/lng（屋内マップのみで座標が空の行のフォールバック用） */
+function outdoorAreaCenterFromAreasSheet(
+  areasRaw: Record<string, unknown>[],
+  outdoorAreaId: string,
+): { lat: string; lng: string } | null {
+  const want = normalizeAreaId(outdoorAreaId)
+  for (const row of areasRaw) {
+    const id = normalizeAreaId(cellToString(row.id))
+    if (id !== want) continue
+    if (!hasLatLng(row.lat, row.lng)) return null
+    return { lat: cellToString(row.lat), lng: cellToString(row.lng) }
+  }
+  return null
 }
 
 /**
@@ -273,7 +326,7 @@ function readMapsSheet(wb: XLSX.WorkBook): {
     if (!isRowPublished(row)) continue
     const image = normalizeMapsSheetImage(row.img_name)
     if (image === '') continue
-    const relatedAreaId = cellToString(row.related_area)
+    const relatedAreaId = normalizeAreaId(cellToString(row.related_area))
     mapCatalog.push({ id, name: name !== '' ? name : id, relatedAreaId, image })
     if (id.toLowerCase() === 'campus') {
       outdoorMapImage = image
@@ -296,6 +349,9 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
       `マスター xlsx に必須シートがありません（areas / facilities / shops / stage_timetable）。実際のシート: ${have}`,
     )
   }
+
+  const { outdoorMapImage, mapCatalog } = readMapsSheet(wb)
+  const mapIdToOutdoorAreaId = buildMapIdToOutdoorAreaId(mapCatalog)
 
   const areasRaw = XLSX.utils.sheet_to_json<Record<string, unknown>>(areasWs, {
     defval: '',
@@ -333,8 +389,20 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
     const id = cellToString(row.id)
     const name = cellToString(row.name)
     if (id === '' || name === '') continue
+    const mapKey = cellToString(row.map).trim()
+    const outdoor_area_id = outdoorAreaIdFromMapCell(row.map, mapIdToOutdoorAreaId, 'facilities', id)
+    const show_on_campus_map = mapKey === '' || mapKey.toLowerCase() === 'campus' ? 'true' : 'false'
+    let lat = cellToString(row.lat)
+    let lng = cellToString(row.lng)
+    if (!hasLatLng(lat, lng) && outdoor_area_id !== '') {
+      const fb = outdoorAreaCenterFromAreasSheet(areasRaw, outdoor_area_id)
+      if (fb) {
+        lat = fb.lat
+        lng = fb.lng
+      }
+    }
     let pub = isRowPublished(row)
-    if (!hasLatLng(row.lat, row.lng)) pub = false
+    if (!hasLatLng(lat, lng)) pub = false
     const isStage = name.includes('ステージ')
     locations.push({
       public: pub ? 'TRUE' : 'FALSE',
@@ -347,12 +415,16 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
       organization: '',
       department: '',
       description: cellToString(row.description),
+      outdoor_area_id,
       area_id: '',
-      lat: cellToString(row.lat),
-      lng: cellToString(row.lng),
+      indoor_plan_map_id:
+        mapKey !== '' && mapKey.toLowerCase() !== 'campus' ? mapKey : '',
+      lat,
+      lng,
       indoor_x: cellToString(row.x_position),
       indoor_y: cellToString(row.y_position),
       img_name: cellToString(row.img_name),
+      show_on_campus_map,
     })
   }
 
@@ -360,8 +432,20 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
     const id = cellToString(row.id)
     const name = cellToString(row.name)
     if (id === '' || name === '') continue
+    const mapKey = cellToString(row.map).trim()
+    const outdoor_area_id = outdoorAreaIdFromMapCell(row.map, mapIdToOutdoorAreaId, 'shops', id)
+    const show_on_campus_map = mapKey === '' || mapKey.toLowerCase() === 'campus' ? 'true' : 'false'
+    let lat = cellToString(row.lat)
+    let lng = cellToString(row.lng)
+    if (!hasLatLng(lat, lng) && outdoor_area_id !== '') {
+      const fb = outdoorAreaCenterFromAreasSheet(areasRaw, outdoor_area_id)
+      if (fb) {
+        lat = fb.lat
+        lng = fb.lng
+      }
+    }
     let pub = isRowPublished(row)
-    if (!hasLatLng(row.lat, row.lng)) pub = false
+    if (!hasLatLng(lat, lng)) pub = false
     locations.push({
       public: pub ? 'TRUE' : 'FALSE',
       id,
@@ -373,12 +457,16 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
       organization: cellToString(row.organization),
       department: '',
       description: cellToString(row.description),
+      outdoor_area_id,
       area_id: '',
-      lat: cellToString(row.lat),
-      lng: cellToString(row.lng),
+      indoor_plan_map_id:
+        mapKey !== '' && mapKey.toLowerCase() !== 'campus' ? mapKey : '',
+      lat,
+      lng,
       indoor_x: cellToString(row.x_position),
       indoor_y: cellToString(row.y_position),
       img_name: cellToString(row.img_name),
+      show_on_campus_map,
     })
   }
 
@@ -394,8 +482,6 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
         name: cellToString(r.name),
       }))
       .find((r) => r.id !== '' && r.name.includes('ステージ'))?.id ?? ''
-
-  const { outdoorMapImage, mapCatalog } = readMapsSheet(wb)
 
   const events: Record<string, string>[] = []
   for (const row of timetableRaw) {

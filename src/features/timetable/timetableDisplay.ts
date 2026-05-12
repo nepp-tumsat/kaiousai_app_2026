@@ -1,0 +1,22 @@
+import type { FestivalEvent } from '../../data/loaders'
+
+/** ステージ企画タイムテーブル: 雨天時は会場を講堂に統一（マスタの location_rainy は参照しない） */
+export const RAINY_STAGE_VENUE_LABEL = '講堂'
+
+export function timetableEventDisplayArea(
+  event: FestivalEvent,
+  selectedWeather: 'sunny' | 'rainy',
+): string {
+  if (selectedWeather === 'rainy' && event.areaRainy.trim() !== '') {
+    return event.areaRainy
+  }
+  return event.area
+}
+
+export function timetableEventDisplayLocation(
+  event: FestivalEvent,
+  selectedWeather: 'sunny' | 'rainy',
+): string {
+  if (selectedWeather === 'rainy') return RAINY_STAGE_VENUE_LABEL
+  return event.location
+}

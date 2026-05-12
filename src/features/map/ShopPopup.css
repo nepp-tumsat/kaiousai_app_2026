@@ -23,6 +23,8 @@
   max-height: 90svh;
   overflow-y: auto;
   position: relative;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 @media (min-width: 480px) {
@@ -115,4 +117,5 @@
   margin-top: 0.75rem !important;
   padding-top: 0.75rem;
   font-size: 0.9rem;
+  white-space: pre-line;
 }

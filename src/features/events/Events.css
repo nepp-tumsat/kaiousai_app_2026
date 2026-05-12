@@ -100,6 +100,7 @@
   color: var(--text);
   margin: 0;
   line-height: 1.45;
+  white-space: pre-line;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -151,6 +152,15 @@
   flex-shrink: 0;
   width: 72px;
   height: 72px;
+  border-radius: 8px;
+  object-fit: contain;
+  background-color: var(--bg);
+}
+
+.events-event-thumb {
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
   border-radius: 8px;
   object-fit: contain;
   background-color: var(--bg);
