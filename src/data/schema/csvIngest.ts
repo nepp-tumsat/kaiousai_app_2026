@@ -83,12 +83,21 @@ function normalizeShowOnCampusMapCell(r: Record<string, string>): string {
   return parseBoolString(v) ? 'true' : 'false'
 }
 
+/**
+ * マスター（Excel 等）由来のファイル名が NFD のことがあり、Linux 上の実ファイル（多くは NFC）と一致しない。
+ * ブラウザが要求する URL パスを OS と揃える。
+ */
+function normalizeMediaPathUnicode(path: string): string {
+  return path.normalize('NFC')
+}
+
 /** `img_name` がファイル名のみのとき `shops/` を付ける */
 function normalizeLocationImageField(raw: string): string {
   const t = sanitizeCsvCell(raw)
   if (t === '') return ''
-  if (t.startsWith('shops/') || t.startsWith('events/')) return t
-  return `shops/${t}`
+  const rel =
+    t.startsWith('shops/') || t.startsWith('events/') ? t : `shops/${t}`
+  return normalizeMediaPathUnicode(rel)
 }
 
 /**
@@ -279,8 +288,8 @@ function normalizeTimeHmForEvent(raw: string): string {
 function normalizeEventCsvImageField(raw: string): string {
   const t = sanitizeCsvCell(raw)
   if (t === '') return 'events/placeholder.png'
-  if (t.startsWith('events/')) return t
-  return `events/${t.replace(/^\//, '')}`
+  const rel = t.startsWith('events/') ? t : `events/${t.replace(/^\//, '')}`
+  return normalizeMediaPathUnicode(rel)
 }
 
 function whenFlagsToWeatherMode(sunnyRaw: string, rainyRaw: string): 'sunny' | 'rainy' | 'both' {
