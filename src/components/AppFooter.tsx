@@ -12,8 +12,8 @@ export default function AppFooter() {
         <Link href="/timetable" className="app-footer-link">
           タイムテーブル
         </Link>
-        <Link href="/about" className="app-footer-link">
-          お知らせ
+        <Link href="/events" className="app-footer-link">
+          企画を探す
         </Link>
       </nav>
       <p className="app-footer-copyright">

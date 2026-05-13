@@ -1,11 +1,13 @@
 'use client'
 
+import '../../styles/popup.css'
 import './EventDetailPopup.css'
 import Image from 'next/image'
 import { useEffect, useState, type FC } from 'react'
 import type { FestivalEvent } from '../../data/loaders'
 import { assetUrl } from '../../lib/assetUrl'
 import {
+  formatEventDay,
   timetableEventDisplayArea,
   timetableEventDisplayLocation,
 } from './timetableDisplay'
@@ -16,12 +18,6 @@ export interface EventDetailPopupProps {
   /** 一覧と同じく「開催中」を出すか */
   showNowBadge: boolean
   onClose: () => void
-}
-
-function formatEventDay(isoDate: string): string {
-  const [, month, day] = isoDate.split('-')
-  if (!month || !day) return isoDate
-  return `${Number(month)}/${Number(day)}`
 }
 
 const EventDetailPopup: FC<EventDetailPopupProps> = ({
@@ -49,16 +45,16 @@ const EventDetailPopup: FC<EventDetailPopupProps> = ({
   }, [onClose])
 
   return (
-    <div className="event-detail-popup-overlay" onClick={onClose}>
+    <div className="popup-overlay" onClick={onClose}>
       <div
-        className="event-detail-popup-content"
+        className="popup-content"
         role="dialog"
         aria-modal="true"
         aria-labelledby="event-detail-popup-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="event-detail-popup-header">
-          <button type="button" className="event-detail-popup-close" onClick={onClose} aria-label="閉じる">
+        <div className="popup-header">
+          <button type="button" className="popup-close" onClick={onClose} aria-label="閉じる">
             ×
           </button>
         </div>
@@ -67,13 +63,13 @@ const EventDetailPopup: FC<EventDetailPopupProps> = ({
           alt={event.title}
           width={1200}
           height={800}
-          className="event-detail-popup-image"
+          className="popup-image"
           unoptimized
           onError={() => {
             setCurrentSrc((prev) => (prev === fallbackSrc ? prev : fallbackSrc))
           }}
         />
-        <div className="event-detail-popup-info">
+        <div className="popup-info event-detail-popup-info">
           <p className="event-detail-popup-schedule">
             {formatEventDay(event.day)} {event.startTime}–{event.endTime}
           </p>

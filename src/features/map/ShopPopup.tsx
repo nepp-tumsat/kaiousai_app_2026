@@ -1,5 +1,6 @@
 'use client'
 
+import '../../styles/popup.css'
 import './ShopPopup.css'
 import { useEffect, useState, type FC } from 'react'
 import Image from 'next/image'
@@ -26,10 +27,10 @@ const ShopPopup: FC<ShopPopupProps> = ({ shop, onClose }) => {
   }, [imageSrc])
 
   return (
-    <div className="shop-popup-overlay" onClick={onClose}>
-      <div className="shop-popup-content" onClick={(e) => e.stopPropagation()}>
-        <div className="shop-popup-header">
-          <button className="shop-popup-close" onClick={onClose} aria-label="閉じる">
+    <div className="popup-overlay" onClick={onClose}>
+      <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+        <div className="popup-header">
+          <button className="popup-close" onClick={onClose} aria-label="閉じる">
             ×
           </button>
         </div>
@@ -38,12 +39,12 @@ const ShopPopup: FC<ShopPopupProps> = ({ shop, onClose }) => {
           alt={shop.title}
           width={1200}
           height={800}
-          className="shop-popup-image"
+          className="popup-image"
           onError={() => {
             setCurrentSrc((prev) => (prev === fallbackSrc ? prev : fallbackSrc))
           }}
         />
-        <div className="shop-popup-info">
+        <div className="popup-info shop-popup-info">
           <h2>{shop.title}</h2>
           {showVenueLine && <p className="shop-popup-venue">{venueLine}</p>}
           <p className="shop-popup-organization">{organizationLabel}</p>

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { getEvents, getShops, type FestivalEvent, type Shop, type ShopCategory } from '../../data/loaders'
 import { assetUrl, shopThumbUrl } from '../../lib/assetUrl'
+import { formatEventDay } from '../timetable/timetableDisplay'
 
 /** ステージ企画カードのサムネイル（正方形） */
 const EVENT_CARD_THUMB_PX = 96
@@ -43,10 +44,88 @@ function shopSearchText(s: Shop): string {
     .toLowerCase()
 }
 
-function formatEventDay(isoDate: string): string {
-  const [, month, day] = isoDate.split('-')
-  if (!month || !day) return isoDate
-  return `${Number(month)}/${Number(day)}`
+function EventsResultList({ events, q }: { events: FestivalEvent[]; q: string }) {
+  if (events.length === 0) {
+    return (
+      <p className="events-empty">
+        {q ? 'キーワードに一致する企画が見つかりませんでした。' : '公開中のステージ企画がありません。'}
+      </p>
+    )
+  }
+  return (
+    <div className="events-list">
+      {events.map((event) => (
+        <Link
+          key={event.id}
+          href={`/timetable?day=${encodeURIComponent(event.day)}&event=${event.id}`}
+          className="events-card"
+        >
+          <div className="events-card-row">
+            <Image
+              src={assetUrl(`/images/${event.image}`)}
+              alt={event.title}
+              width={EVENT_CARD_THUMB_PX}
+              height={EVENT_CARD_THUMB_PX}
+              className="events-event-thumb"
+              unoptimized
+              loading="lazy"
+            />
+            <div className="events-card-body">
+              <p className="events-card-title">{event.title}</p>
+              <p className="events-card-meta">
+                {formatEventDay(event.day)} {event.startTime}–{event.endTime}
+                {event.location ? ` ・ ${event.location}` : ''}
+                {event.organization ? ` ・ ${event.organization}` : ''}
+              </p>
+              {event.description ? (
+                <p className="events-card-desc">{event.description}</p>
+              ) : null}
+            </div>
+          </div>
+        </Link>
+      ))}
+    </div>
+  )
+}
+
+function ShopsResultList({ shops, q }: { shops: Shop[]; q: string }) {
+  if (shops.length === 0) {
+    return (
+      <p className="events-empty">
+        {q ? 'キーワードに一致する場所が見つかりませんでした。' : 'データがありません。'}
+      </p>
+    )
+  }
+  return (
+    <div className="events-list">
+      {shops.map((shop) => (
+        <Link key={shop.id} href={`/map?shop=${shop.id}`} className="events-card">
+          <div className="events-card-row">
+            <Image
+              src={shopThumbUrl(shop.image)}
+              alt={shop.title}
+              width={SHOP_CARD_THUMB_PX}
+              height={SHOP_CARD_THUMB_PX}
+              className="events-shop-thumb"
+              unoptimized
+              loading="lazy"
+            />
+            <div className="events-card-body">
+              <p className="events-card-title">{shop.title}</p>
+              <p className="events-card-meta">
+                {shopCategoryLabels[shop.category]}
+                {shop.location ? ` ・ ${shop.location}` : ''}
+                {shop.organization ? ` ・ ${shop.organization}` : ''}
+              </p>
+              {shop.description ? (
+                <p className="events-card-desc">{shop.description}</p>
+              ) : null}
+            </div>
+          </div>
+        </Link>
+      ))}
+    </div>
+  )
 }
 
 export default function EventsFeature() {
@@ -67,81 +146,6 @@ export default function EventsFeature() {
     if (!q) return shops
     return shops.filter((s) => shopSearchText(s).includes(q))
   }, [shops, q])
-
-  const list =
-    tab === 'events' ? (
-      filteredEvents.length === 0 ? (
-        <p className="events-empty">
-          {q ? 'キーワードに一致する企画が見つかりませんでした。' : '公開中のステージ企画がありません。'}
-        </p>
-      ) : (
-        <div className="events-list">
-          {filteredEvents.map((event) => (
-            <Link
-              key={event.id}
-              href={`/timetable?day=${encodeURIComponent(event.day)}&event=${event.id}`}
-              className="events-card"
-            >
-              <div className="events-card-row">
-                <Image
-                  src={assetUrl(`/images/${event.image}`)}
-                  alt={event.title}
-                  width={EVENT_CARD_THUMB_PX}
-                  height={EVENT_CARD_THUMB_PX}
-                  className="events-event-thumb"
-                  unoptimized
-                  loading="lazy"
-                />
-                <div className="events-card-body">
-                  <p className="events-card-title">{event.title}</p>
-                  <p className="events-card-meta">
-                    {formatEventDay(event.day)} {event.startTime}–{event.endTime}
-                    {event.location ? ` ・ ${event.location}` : ''}
-                    {event.organization ? ` ・ ${event.organization}` : ''}
-                  </p>
-                  {event.description ? (
-                    <p className="events-card-desc">{event.description}</p>
-                  ) : null}
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )
-    ) : filteredShops.length === 0 ? (
-      <p className="events-empty">
-        {q ? 'キーワードに一致する場所が見つかりませんでした。' : 'データがありません。'}
-      </p>
-    ) : (
-      <div className="events-list">
-        {filteredShops.map((shop) => (
-          <Link key={shop.id} href={`/map?shop=${shop.id}`} className="events-card">
-            <div className="events-card-row">
-              <Image
-                src={shopThumbUrl(shop.image)}
-                alt={shop.title}
-                width={SHOP_CARD_THUMB_PX}
-                height={SHOP_CARD_THUMB_PX}
-                className="events-shop-thumb"
-                unoptimized
-                loading="lazy"
-              />
-              <div className="events-card-body">
-                <p className="events-card-title">{shop.title}</p>
-                <p className="events-card-meta">
-                  {shopCategoryLabels[shop.category]}
-                  {shop.location ? ` ・ ${shop.location}` : ''}
-                  {shop.organization ? ` ・ ${shop.organization}` : ''}
-                </p>
-                {shop.description ? (
-                  <p className="events-card-desc">{shop.description}</p>
-                ) : null}
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
-    )
 
   return (
     <section className="events-container">
@@ -165,20 +169,20 @@ export default function EventsFeature() {
         <button
           type="button"
           role="tab"
-          aria-selected={tab === 'events'}
-          className={`events-tab ${tab === 'events' ? 'active' : ''}`}
-          onClick={() => setTab('events')}
-        >
-          ステージ・時間割（{events.length}）
-        </button>
-        <button
-          type="button"
-          role="tab"
           aria-selected={tab === 'shops'}
           className={`events-tab ${tab === 'shops' ? 'active' : ''}`}
           onClick={() => setTab('shops')}
         >
           模擬店・会場（{shops.length}）
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'events'}
+          className={`events-tab ${tab === 'events' ? 'active' : ''}`}
+          onClick={() => setTab('events')}
+        >
+          ステージ企画（{events.length}）
         </button>
       </div>
       <p className="events-hint" aria-live="polite">
@@ -186,7 +190,10 @@ export default function EventsFeature() {
           ? `表示: ${filteredEvents.length} 件`
           : `表示: ${filteredShops.length} 件`}
       </p>
-      {list}
+      {tab === 'events'
+        ? <EventsResultList events={filteredEvents} q={q} />
+        : <ShopsResultList shops={filteredShops} q={q} />
+      }
       <p className="events-footer-links">
         <Link href="/timetable" className="app-footer-link">
           タイムテーブルへ
