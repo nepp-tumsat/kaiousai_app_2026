@@ -76,6 +76,7 @@
   background-color: var(--bg);
   border-top: 1px solid var(--surface);
   padding: 0.5rem 0;
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0));
 }
 
 .app-footer-nav {
@@ -87,6 +88,7 @@
   color: var(--primary);
   text-decoration: none;
   font-size: 0.9rem;
+  padding: 0.35rem 0.5rem;
 }
 
 .app-footer-link:hover {
@@ -102,13 +104,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-/* スマホでは画面領域が狭いため下部のフッターメニューを非表示 */
-@media (max-width: 640px) {
-  .app-footer {
-    display: none;
-  }
 }
 
 .home-menu {
@@ -149,4 +144,15 @@
 .home-menu-label {
   font-size: 1rem;
   font-weight: 600;
+}
+
+
+.home-menu-notice {
+  padding: 0 0 1rem;
+  color: var(--text-muted);
+}
+
+.home-menu-item--inline {
+  display: inline-flex;
+  max-width: 100%;
 }

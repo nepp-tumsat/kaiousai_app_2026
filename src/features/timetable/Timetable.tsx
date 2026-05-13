@@ -122,7 +122,7 @@ function getCurrentLineIndex(
 
 export default function TimetableFeature() {
   const searchParams = useSearchParams()
-  const events: FestivalEvent[] = getEvents()
+  const events = useMemo(() => getEvents(), [])
   const appliedDayFromUrl = useRef(false)
   const scrollTargetHandledRef = useRef<number | null>(null)
   const prevEventParamRef = useRef<string | null>(null)
