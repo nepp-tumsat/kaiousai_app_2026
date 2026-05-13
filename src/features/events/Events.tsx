@@ -216,15 +216,6 @@ export default function EventsFeature() {
         <button
           type="button"
           role="tab"
-          aria-selected={tab === 'shops'}
-          className={`events-tab ${tab === 'shops' ? 'active' : ''}`}
-          onClick={() => setTab('shops')}
-        >
-          模擬店・会場
-        </button>
-        <button
-          type="button"
-          role="tab"
           aria-selected={tab === 'events'}
           className={`events-tab ${tab === 'events' ? 'active' : ''}`}
           onClick={() => setTab('events')}
@@ -234,8 +225,18 @@ export default function EventsFeature() {
         <button
           type="button"
           role="tab"
+          aria-selected={tab === 'shops'}
+          className={`events-tab ${tab === 'shops' ? 'active' : ''}`}
+          onClick={() => setTab('shops')}
+        >
+          模擬店・会場
+        </button>
+        <button
+          type="button"
+          role="tab"
           aria-selected={tab === 'favs'}
           className={`events-tab ${tab === 'favs' ? 'active' : ''}`}
+          aria-label={`お気に入り${favTotal > 0 ? ` (${favTotal}件)` : ''}`}
           onClick={() => setTab('favs')}
         >
           ★{favTotal > 0 ? ` ${favTotal}` : ''}

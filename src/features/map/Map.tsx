@@ -87,25 +87,35 @@ function CurrentLocationButton({
 }: {
   onLocationUpdate?: (lat: number, lng: number) => void
 }) {
+  const [isLocating, setIsLocating] = useState(false)
+
   const handleClick = () => {
     if (!navigator.geolocation) {
       alert('このブラウザでは現在地を取得できません。')
       return
     }
+    setIsLocating(true)
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords
+        setIsLocating(false)
         if (onLocationUpdate) {
           onLocationUpdate(latitude, longitude)
         }
       },
       () => {
+        setIsLocating(false)
         alert('現在地を取得できませんでした。位置情報の許可を確認してください。')
       },
     )
   }
   return (
-    <button className="current-location-button" onClick={handleClick} aria-label="現在地を取得">
+    <button
+      className="current-location-button"
+      onClick={handleClick}
+      aria-label={isLocating ? '現在地を取得中...' : '現在地を取得'}
+      disabled={isLocating}
+    >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
       </svg>
@@ -329,6 +339,7 @@ export default function MapFeature() {
   const resetFilters = useCallback(() => {
     setFilters(DEFAULT_FILTERS)
     setShopLabelMode('title')
+    setShowOnlyFavs(false)
   }, [])
 
   const availableAmenities = useMemo(() => {
@@ -443,15 +454,16 @@ export default function MapFeature() {
             >
               屋内マップ
             </button>
-            <button
-              type="button"
-              className={`map-mode-button ${showOnlyFavs ? 'active' : ''}`}
-              aria-pressed={showOnlyFavs}
-              onClick={() => setShowOnlyFavs((v) => !v)}
-            >
-              ★ お気に入り
-            </button>
           </div>
+          <button
+            type="button"
+            className={`map-mode-button map-fav-toggle${showOnlyFavs ? ' active' : ''}`}
+            aria-pressed={showOnlyFavs}
+            aria-label={showOnlyFavs ? 'お気に入りのみ表示中（解除）' : 'お気に入りのみ表示'}
+            onClick={() => setShowOnlyFavs((v) => !v)}
+          >
+            ★ お気に入り
+          </button>
           {isDev && (
             <div className="map-mode-dev">
               <button

@@ -27,9 +27,23 @@ const ShopPopup: FC<ShopPopupProps> = ({ shop, onClose, isFav, onToggleFav }) =>
     setCurrentSrc(imageSrc)
   }, [imageSrc])
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
   return (
     <div className="popup-overlay" onClick={onClose}>
-      <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="popup-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="shop-popup-title"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="popup-header">
           <button
             className={`popup-fav${isFav ? ' popup-fav--active' : ''}`}
@@ -54,7 +68,7 @@ const ShopPopup: FC<ShopPopupProps> = ({ shop, onClose, isFav, onToggleFav }) =>
           }}
         />
         <div className="popup-info shop-popup-info">
-          <h2>{shop.title}</h2>
+          <h2 id="shop-popup-title">{shop.title}</h2>
           {showVenueLine && <p className="shop-popup-venue">{venueLine}</p>}
           <p className="shop-popup-organization">{organizationLabel}</p>
           <p className="shop-popup-description">{shop.description}</p>

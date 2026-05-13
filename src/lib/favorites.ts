@@ -35,7 +35,8 @@ export function useFavorites() {
   const toggleShop = useCallback((id: number) => {
     setShopIds((prev) => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
       save({ ...load(), shops: [...next] })
       return next
     })
@@ -44,7 +45,8 @@ export function useFavorites() {
   const toggleEvent = useCallback((id: number) => {
     setEventIds((prev) => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
       save({ ...load(), events: [...next] })
       return next
     })

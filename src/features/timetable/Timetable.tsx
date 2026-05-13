@@ -63,6 +63,7 @@ function FavEventList({
                   height={TIMETABLE_EVENT_THUMB_H}
                   className="timetable-event-thumb"
                   unoptimized
+                  loading="lazy"
                 />
                 <div className="timetable-item-text">
                   <div className="timetable-time">{formatEventDay(event.day)} {event.startTime}–{event.endTime}</div>
@@ -421,6 +422,7 @@ export default function TimetableFeature() {
                                   height={TIMETABLE_EVENT_THUMB_H}
                                   className="timetable-event-thumb"
                                   unoptimized
+                                  loading="lazy"
                                 />
                                 <div className="timetable-item-text">
                                   <div className="timetable-time">{event.startTime}–{event.endTime}</div>

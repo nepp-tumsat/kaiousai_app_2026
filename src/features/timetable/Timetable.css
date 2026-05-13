@@ -158,11 +158,16 @@ button.timetable-item:focus-visible {
 }
 
 .timetable-need-ticket {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   margin-left: 0.35em;
-  font-size: 0.8em;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: #e53935;
+  color: #92400e;
+  background-color: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
   white-space: nowrap;
 }
 
@@ -205,16 +210,15 @@ button.timetable-item:focus-visible {
   border-radius: 8px;
   padding: 1rem;
   line-height: 1.8;
+  text-align: center;
 }
 
 .timetable-item--needs-ticket {
   border-left-color: #f59e0b;
-  box-shadow: inset 6px 0 0 #f59e0b;
 }
 
 .timetable-item--fav {
   border-left-color: #e53935;
-  box-shadow: inset 6px 0 0 #e53935;
 }
 
 .timetable-item-wrap {
@@ -235,8 +239,8 @@ button.timetable-item:focus-visible {
 
 .timetable-fav-btn {
   flex-shrink: 0;
-  width: 2.2rem;
-  height: 2.2rem;
+  width: 2.75rem;
+  height: 2.75rem;
   background: none;
   border: none;
   border-radius: 50%;
