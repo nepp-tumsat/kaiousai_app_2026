@@ -36,6 +36,7 @@ import MapZoomAndMarkers, { MapFocusShopFromQuery, MapViewResizeSync } from './M
 import { DevMapRightClickCoords, DevPinAdjustPanel } from './DevMapTools'
 import MapFilterPanel from './MapFilterPanel'
 import ShopPopup from './ShopPopup'
+import { trackEvent } from '@/lib/gtag'
 
 // Leaflet デフォルトアイコン（バンドラ用パッチ）
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Leaflet の型定義に _getIconUrl が無い
@@ -152,6 +153,11 @@ export default function MapFeature() {
   const openShopDetail = useCallback(
     (shop: Shop) => {
       setSelectedShop(shop)
+      trackEvent('map_spot_tap', {
+        shop_id: String(shop.id),
+        shop_name: shop.title,
+        shop_category: shop.category,
+      })
       const key = `shop-${shop.id}`
       queueMicrotask(() => {
         if (mapZoomRef.current >= popupMinZoom) {
@@ -304,13 +310,16 @@ export default function MapFeature() {
   const toggleShopCategory = useCallback((category: ShopCategory) => {
     setFilters((prev) => {
       const next = new Set(prev.shopCategories)
-      if (next.has(category)) next.delete(category)
+      const action = next.has(category) ? 'remove' : 'add'
+      if (action === 'remove') next.delete(category)
       else next.add(category)
+      trackEvent('map_filter_category', { category, action })
       return { ...prev, shopCategories: next }
     })
   }, [])
 
   const selectAmenityKind = useCallback((kind: MapAmenityKind | null) => {
+    if (kind !== null) trackEvent('map_filter_amenity', { amenity_kind: kind })
     setFilters((prev) => ({ ...prev, selectedAmenityKind: kind }))
   }, [])
 

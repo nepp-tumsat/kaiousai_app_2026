@@ -8,13 +8,14 @@ export default function PrivacyFeature() {
       </h2>
 
       <Section title="1. 運営者">
-        <p>東京海洋大学プログラミングサークルNePP（海王祭実行委員会と連携）</p>
+        <p>東京海洋大学プログラミングサークルNePP</p>
+        <p>本サービスは海王祭実行委員会との連携のもと、海王祭の運営支援を目的として提供しています。</p>
       </Section>
 
       <Section title="2. 収集する情報">
         <p>本サービスでは、以下の情報を収集します。</p>
         <ul>
-          <li>来場者属性（来場者タイプ・来場形態・就活状況など）の匿名回答</li>
+          <li>来場者属性（来場者タイプ・志望分野・来場きっかけ）の匿名回答</li>
           <li>ページ閲覧履歴・滞在時間・ボタン操作などの行動情報</li>
           <li>デバイス種別・ブラウザ情報・IPアドレス（匿名化済み）</li>
         </ul>
@@ -23,7 +24,7 @@ export default function PrivacyFeature() {
       <Section title="3. 利用目的">
         <ul>
           <li>来場者傾向の分析および海王祭の運営改善</li>
-          <li>翌年度の広告・スポンサー配置提案のための参考データ収集</li>
+          <li>来年度以降の運営改善・企画立案のための参考データ収集</li>
         </ul>
         <p>収集したデータは個人を特定する目的では使用しません。</p>
       </Section>
@@ -32,7 +33,7 @@ export default function PrivacyFeature() {
         <p>
           本サービスはGoogle LLC が提供するGoogle Analytics 4（GA4）を使用しています。
           GA4はCookieを使用してデータを収集しますが、IPアドレスは匿名化されており
-          個人を特定することはできません。
+          個人を特定することはできません。収集されたデータはGoogle のサーバーに最大2年間保持されます。
         </p>
         <p>
           Googleによるデータ利用については
@@ -63,16 +64,16 @@ export default function PrivacyFeature() {
       <Section title="5. 第三者提供">
         <p>
           収集したデータは、法令に基づく場合を除き、第三者に提供・販売することはありません。
-          広告提案に使用するデータは集計・匿名化されたものに限ります。
+          ただし、海王祭実行委員会に対して運営改善を目的として集計・匿名化されたデータを提供することがあります。
         </p>
       </Section>
 
       <Section title="6. お問い合わせ">
-        <p>プライバシーに関するお問い合わせは海王祭実行委員会までご連絡ください。</p>
+        <p>プライバシーに関するお問い合わせは東京海洋大学プログラミングサークルNePP(nepp.kaiyodai@gmail.com)までご連絡ください。</p>
       </Section>
 
       <p style={{ marginTop: '2rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-        制定：2026年
+        制定：2026年5月13日
       </p>
 
       <p style={{ marginTop: '1rem' }}>

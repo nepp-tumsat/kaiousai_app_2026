@@ -1,15 +1,11 @@
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? ''
 
-export type VisitorType = 'student_tokai' | 'student_other' | 'general'
-export type JobStage = 'before' | 'active' | 'done'
+export type VisitorType = 'student_tokai' | 'general'
 export type JobField = 'maritime' | 'ocean_fishery' | 'it' | 'public_research' | 'other'
-export type Companion = 'alone' | 'friends' | 'family' | 'couple'
 export type ReferralSource = 'sns' | 'word_of_mouth' | 'poster' | 'search' | 'other'
 
 export type OnboardingParams = {
   visitor_type: VisitorType
-  companion: Companion
-  job_stage?: JobStage
   job_field?: JobField
   referral_source?: ReferralSource
 }

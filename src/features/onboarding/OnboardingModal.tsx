@@ -4,30 +4,21 @@ import { useState, useEffect } from 'react'
 import './OnboardingModal.css'
 import {
   trackOnboardingComplete,
+  trackEvent,
   type VisitorType,
-  type JobStage,
   type JobField,
-  type Companion,
   type ReferralSource,
 } from '@/lib/gtag'
 
 const STORAGE_KEY = 'onboarding_done'
 
-type Step = 'visitor_type' | 'job_stage' | 'job_field' | 'referral' | 'companion'
-
-function stepOrder(visitorType: VisitorType | null): Step[] {
-  if (visitorType === 'student_tokai') return ['visitor_type', 'job_stage', 'job_field', 'companion']
-  if (visitorType === 'general') return ['visitor_type', 'referral', 'companion']
-  return ['visitor_type', 'companion']
-}
+type Step = 'visitor_type' | 'job_field' | 'referral'
 
 export default function OnboardingModal() {
   const [visible, setVisible] = useState(false)
   const [step, setStep] = useState<Step>('visitor_type')
   const [visitorType, setVisitorType] = useState<VisitorType | null>(null)
-  const [jobStage, setJobStage] = useState<JobStage | null>(null)
   const [jobField, setJobField] = useState<JobField | null>(null)
-  const [companion, setCompanion] = useState<Companion | null>(null)
   const [referralSource, setReferralSource] = useState<ReferralSource | null>(null)
 
   useEffect(() => {
@@ -36,33 +27,27 @@ export default function OnboardingModal() {
 
   if (!visible) return null
 
-  const steps = stepOrder(visitorType)
-  const currentIndex = steps.indexOf(step)
-  const totalSteps = steps.length
+  const totalSteps = 2
+  const currentIndex = step === 'visitor_type' ? 0 : 1
 
-  function advance() {
-    const next = steps[currentIndex + 1]
-    if (next) {
-      setStep(next)
-    } else {
-      complete()
-    }
+  function selectVisitorType(v: VisitorType) {
+    setVisitorType(v)
+    setStep(v === 'student_tokai' ? 'job_field' : 'referral')
   }
 
-  function complete() {
-    if (!visitorType || !companion) return
+  function complete(field: JobField | null, referral: ReferralSource | null) {
+    if (!visitorType) return
     trackOnboardingComplete({
       visitor_type: visitorType,
-      companion,
-      ...(jobStage ? { job_stage: jobStage } : {}),
-      ...(jobField ? { job_field: jobField } : {}),
-      ...(referralSource ? { referral_source: referralSource } : {}),
+      ...(field ? { job_field: field } : {}),
+      ...(referral ? { referral_source: referral } : {}),
     })
     localStorage.setItem(STORAGE_KEY, '1')
     setVisible(false)
   }
 
   function skip() {
+    trackEvent('onboarding_skip', { step })
     localStorage.setItem(STORAGE_KEY, '1')
     setVisible(false)
   }
@@ -84,28 +69,17 @@ export default function OnboardingModal() {
         </div>
 
         {step === 'visitor_type' && (
-          <VisitorTypeStep
-            onSelect={(v) => {
-              setVisitorType(v)
-              // steps変更前にすぐ次へ進むためstepOrderを直接計算
-              const next = stepOrder(v)[1]
-              if (next) setStep(next)
-            }}
-          />
-        )}
-
-        {step === 'job_stage' && (
-          <SingleChoiceStep<JobStage>
-            question="就活の状況を教えてください"
-            choices={[
-              { value: 'before', label: 'まだ先の話' },
-              { value: 'active', label: '現在就活中' },
-              { value: 'done', label: '内定・進路決定済み' },
-            ]}
-            selected={jobStage}
-            onSelect={setJobStage}
-            onNext={advance}
-          />
+          <>
+            <p className="onboarding-question">ようこそ！あなたはどちらですか？</p>
+            <div className="onboarding-choices">
+              <button className="onboarding-choice" onClick={() => selectVisitorType('student_tokai')}>
+                東京海洋大学の在学生
+              </button>
+              <button className="onboarding-choice" onClick={() => selectVisitorType('general')}>
+                一般来場者（他大学生含む）
+              </button>
+            </div>
+          </>
         )}
 
         {step === 'job_field' && (
@@ -120,7 +94,8 @@ export default function OnboardingModal() {
             ]}
             selected={jobField}
             onSelect={setJobField}
-            onNext={advance}
+            onNext={() => complete(jobField, null)}
+            onBack={() => { setVisitorType(null); setJobField(null); setStep('visitor_type') }}
           />
         )}
 
@@ -136,22 +111,8 @@ export default function OnboardingModal() {
             ]}
             selected={referralSource}
             onSelect={setReferralSource}
-            onNext={advance}
-          />
-        )}
-
-        {step === 'companion' && (
-          <SingleChoiceStep<Companion>
-            question="今日は誰と来ましたか？"
-            choices={[
-              { value: 'alone', label: '一人で' },
-              { value: 'friends', label: '友人と' },
-              { value: 'family', label: '家族と' },
-              { value: 'couple', label: 'カップルで' },
-            ]}
-            selected={companion}
-            onSelect={setCompanion}
-            onNext={advance}
+            onNext={() => complete(null, referralSource)}
+            onBack={() => { setVisitorType(null); setReferralSource(null); setStep('visitor_type') }}
           />
         )}
 
@@ -165,41 +126,20 @@ export default function OnboardingModal() {
   )
 }
 
-function VisitorTypeStep({ onSelect }: { onSelect: (v: VisitorType) => void }) {
-  return (
-    <>
-      <p className="onboarding-question">ようこそ！あなたはどちらですか？</p>
-      <div className="onboarding-choices">
-        {([
-          { value: 'student_tokai' as VisitorType, label: '東京海洋大学の在学生' },
-          { value: 'student_other' as VisitorType, label: '他大学・専門学生' },
-          { value: 'general' as VisitorType, label: '一般来場者' },
-        ] as const).map(({ value, label }) => (
-          <button
-            key={value}
-            className="onboarding-choice"
-            onClick={() => onSelect(value)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-    </>
-  )
-}
-
 function SingleChoiceStep<T extends string>({
   question,
   choices,
   selected,
   onSelect,
   onNext,
+  onBack,
 }: {
   question: string
   choices: { value: T; label: string }[]
   selected: T | null
   onSelect: (v: T) => void
   onNext: () => void
+  onBack: () => void
 }) {
   return (
     <>
@@ -219,12 +159,15 @@ function SingleChoiceStep<T extends string>({
         ))}
       </div>
       <div className="onboarding-footer">
+        <button className="onboarding-back-btn" onClick={onBack}>
+          ← 戻る
+        </button>
         <button
           className="onboarding-next-btn"
           disabled={selected === null}
           onClick={onNext}
         >
-          次へ
+          完了
         </button>
       </div>
     </>

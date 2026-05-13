@@ -16,11 +16,6 @@ export default function AppFooter() {
           企画を探す
         </Link>
       </nav>
-      <p style={{ textAlign: 'center', marginTop: '0.3rem' }}>
-        <Link href="/privacy" className="app-footer-link" style={{ fontSize: '0.75rem' }}>
-          プライバシーポリシー
-        </Link>
-      </p>
       <p className="app-footer-copyright">
         © 2026 海王祭実行委員会 / 東京海洋大学プログラミングサークルNePP
       </p>

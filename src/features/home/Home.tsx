@@ -18,6 +18,11 @@ export default function HomeFeature() {
           <span className="home-menu-label">アンケート</span>
         </span>
       </div>
+      <p className="home-menu-notice" style={{ marginTop: '1rem', fontSize: '0.78rem', textAlign: 'center' }}>
+        <Link href="/privacy" style={{ color: 'var(--text-muted)', textDecoration: 'underline' }}>
+          プライバシーポリシー
+        </Link>
+      </p>
     </section>
   )
 }

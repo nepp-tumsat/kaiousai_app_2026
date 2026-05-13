@@ -77,13 +77,28 @@
 .onboarding-choice--selected {
   border-color: var(--primary);
   background: var(--primary);
-  color: var(--bg);
+  color: #fff;
+  font-weight: 600;
 }
 
 .onboarding-footer {
   margin-top: 1.25rem;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.onboarding-back-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.4rem 0.2rem;
+}
+
+.onboarding-back-btn:hover {
+  color: var(--text);
 }
 
 .onboarding-next-btn {
