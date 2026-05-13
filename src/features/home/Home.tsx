@@ -1,7 +1,5 @@
 import Link from 'next/link'
 
-const ENQUETE_URL = 'https://forms.gle/placeholder'
-
 export default function HomeFeature() {
   return (
     <section className="home-menu">
@@ -16,14 +14,9 @@ export default function HomeFeature() {
         <Link href="/events" className="home-menu-item">
           <span className="home-menu-label">企画を探す</span>
         </Link>
-        <a
-          href={ENQUETE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="home-menu-item"
-        >
+        <span className="home-menu-item home-menu-item--disabled">
           <span className="home-menu-label">アンケート</span>
-        </a>
+        </span>
       </div>
     </section>
   )

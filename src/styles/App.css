@@ -141,6 +141,17 @@
   transform: translateY(-1px);
 }
 
+.home-menu-item--disabled {
+  background: #b0b0b0;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.home-menu-item--disabled:hover {
+  background: #b0b0b0;
+  transform: none;
+}
+
 .home-menu-label {
   font-size: 1rem;
   font-weight: 600;
