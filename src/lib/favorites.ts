@@ -1,16 +1,24 @@
 import { useCallback, useEffect, useState } from 'react'
+import { getShops } from '../data/loaders'
 
 const KEY = 'favorites'
 
-type Favs = { shops: number[]; events: number[] }
+type Favs = { shops: string[]; events: number[] }
 
 function load(): Favs {
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return { shops: [], events: [] }
-    const d = JSON.parse(raw) as Partial<Favs>
+    const d = JSON.parse(raw) as Partial<{ shops: unknown; events: unknown }>
+    const validShopIds = new Set(getShops().map((s) => s.id))
+    const shops: string[] = []
+    if (Array.isArray(d.shops)) {
+      for (const x of d.shops) {
+        if (typeof x === 'string' && validShopIds.has(x)) shops.push(x)
+      }
+    }
     return {
-      shops: Array.isArray(d.shops) ? d.shops.filter(Number.isFinite) : [],
+      shops,
       events: Array.isArray(d.events) ? d.events.filter(Number.isFinite) : [],
     }
   } catch {
@@ -19,11 +27,13 @@ function load(): Favs {
 }
 
 function save(d: Favs) {
-  try { localStorage.setItem(KEY, JSON.stringify(d)) } catch {}
+  try {
+    localStorage.setItem(KEY, JSON.stringify(d))
+  } catch {}
 }
 
 export function useFavorites() {
-  const [shopIds, setShopIds] = useState<Set<number>>(new Set())
+  const [shopIds, setShopIds] = useState<Set<string>>(new Set())
   const [eventIds, setEventIds] = useState<Set<number>>(new Set())
 
   useEffect(() => {
@@ -32,7 +42,7 @@ export function useFavorites() {
     setEventIds(new Set(d.events))
   }, [])
 
-  const toggleShop = useCallback((id: number) => {
+  const toggleShop = useCallback((id: string) => {
     setShopIds((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)

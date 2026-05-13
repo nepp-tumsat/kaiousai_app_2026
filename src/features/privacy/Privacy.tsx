@@ -14,7 +14,7 @@ export default function PrivacyFeature() {
 
       <Section title="2. 収集する情報">
         <p>本サービスでは、以下の情報を収集します。</p>
-        <ul>
+        <ul style={{ paddingLeft: '1.5rem' }}>
           <li>来場者属性（来場者タイプ・志望分野・来場きっかけ）の匿名回答</li>
           <li>ページ閲覧履歴・滞在時間・ボタン操作などの行動情報</li>
           <li>デバイス種別・ブラウザ情報・IPアドレス（匿名化済み）</li>
@@ -22,7 +22,7 @@ export default function PrivacyFeature() {
       </Section>
 
       <Section title="3. 利用目的">
-        <ul>
+        <ul style={{ paddingLeft: '1.5rem' }}>
           <li>来場者傾向の分析および海王祭の運営改善</li>
           <li>来年度以降の運営改善・企画立案のための参考データ収集</li>
         </ul>

@@ -113,8 +113,8 @@ function ShopsResultList({
 }: {
   shops: Shop[]
   q: string
-  favShopIds: Set<number>
-  onToggleShop: (id: number) => void
+  favShopIds: Set<string>
+  onToggleShop: (id: string) => void
 }) {
   if (shops.length === 0) {
     return (
@@ -128,7 +128,7 @@ function ShopsResultList({
       {shops.map((shop) => (
         <div key={shop.id} className="events-card-wrap">
           <Link
-            href={`/map?shop=${shop.id}`}
+            href={`/map?shop=${encodeURIComponent(shop.id)}`}
             className={`events-card${favShopIds.has(shop.id) ? ' events-card--fav' : ''}`}
           >
             <div className="events-card-row">

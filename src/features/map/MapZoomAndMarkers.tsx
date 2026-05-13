@@ -35,6 +35,14 @@ export function MapViewResizeSync({ viewMode }: { viewMode: 'outdoor' | 'indoor'
   return null
 }
 
+function shopIdFromMapQuery(raw: string): string {
+  try {
+    return decodeURIComponent(raw.trim())
+  } catch {
+    return raw.trim()
+  }
+}
+
 /** `/map?shop=` から該当ピンへズームし詳細を開く */
 export function MapFocusShopFromQuery({
   shops,
@@ -59,8 +67,8 @@ export function MapFocusShopFromQuery({
       return
     }
     if (doneForShopParamRef.current === raw) return
-    const id = Number.parseInt(raw, 10)
-    if (!Number.isFinite(id)) return
+    const id = shopIdFromMapQuery(raw)
+    if (id === '') return
     const shop = shops.find((s) => s.id === id)
     if (!shop) return
     doneForShopParamRef.current = raw
@@ -110,8 +118,8 @@ export default function MapZoomAndMarkers({
   amenityPins: MapAmenityPin[]
   amenityFocusMode: boolean
   onBuildingPinClickAtMaxZoom: (relatedAreaId: string) => void
-  pinnedCampusShopId?: number | null
-  favShopIds?: Set<number>
+  pinnedCampusShopId?: string | null
+  favShopIds?: Set<string>
 }) {
   const map = useMap()
   const [zoom, setZoom] = useState(() => map.getZoom())

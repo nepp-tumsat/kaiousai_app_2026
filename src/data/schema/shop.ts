@@ -2,6 +2,14 @@ import { z } from 'zod'
 
 export const shopCategorySchema = z.enum(['food', 'stage', 'facility', 'experience'])
 
+/** マスター locations の `id`（例 `mogi_01`, `00`）。URL クエリにも使うため ASCII のみ */
+export const shopStableIdSchema = z
+  .string()
+  .min(1)
+  .regex(/^[A-Za-z0-9_-]+$/, {
+    message: 'shop id must be ASCII letters, digits, underscore, hyphen (master locations.id)',
+  })
+
 const shopFieldsSchema = z.object({
   sourceLocationId: z.string().optional(),
   organization: z.string().default(''),
@@ -40,7 +48,7 @@ export const shopSourceListSchema = z.array(shopSourceSchema)
 export type ShopSource = z.infer<typeof shopSourceSchema>
 
 export const shopSchema = shopFieldsSchema.extend({
-  id: z.number().int().positive(),
+  id: shopStableIdSchema,
 })
 
 export const shopListSchema = z.array(shopSchema)
@@ -51,7 +59,20 @@ export type ShopCategory = z.infer<typeof shopCategorySchema>
 export function buildShopsFromSources(
   sources: z.infer<typeof shopSourceListSchema>,
 ): z.infer<typeof shopListSchema> {
-  return sources.map((shop, index) =>
-    shopSchema.parse({ ...shop, id: index + 1 }),
-  )
+  const seen = new Set<string>()
+  const out: z.infer<typeof shopListSchema> = []
+  for (const shop of sources) {
+    const rawId = shop.sourceLocationId?.trim()
+    if (!rawId) {
+      throw new Error(
+        '店舗に sourceLocationId（マスター locations の id）が無い行があります。Excel / CSV の id 列を確認してください。',
+      )
+    }
+    if (seen.has(rawId)) {
+      throw new Error(`重複した店舗 id（sourceLocationId）: ${rawId}`)
+    }
+    seen.add(rawId)
+    out.push(shopSchema.parse({ ...shop, id: rawId }))
+  }
+  return out
 }
