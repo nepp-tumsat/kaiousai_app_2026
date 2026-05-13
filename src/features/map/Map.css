@@ -312,6 +312,20 @@
   opacity: 0.92;
 }
 
+.map-fav-toggle {
+  background-color: var(--bg);
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .map-mode-bar .map-fav-toggle {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+
 .current-location-button {
   position: absolute;
   bottom: calc(16px + env(safe-area-inset-bottom, 0));
@@ -333,6 +347,11 @@
 .current-location-button:hover {
   background-color: var(--surface);
   color: var(--accent);
+}
+
+.current-location-button:disabled {
+  opacity: 0.55;
+  cursor: wait;
 }
 
 /* === マップフィルター（左下 FAB ＋ 展開パネル） === */
@@ -907,6 +926,21 @@
   border-radius: 50%;
   border: 2px solid var(--bg);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+/** お気に入り: 大きめピンにスターバッジを内包 */
+.category-marker-icon--fav .category-marker-dot {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-marker-star {
+  font-size: 13px;
+  line-height: 1;
+  color: #fff;
 }
 
 /** 施設: 模擬店（円）と形で区別 */

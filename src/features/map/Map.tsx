@@ -37,6 +37,7 @@ import { DevMapRightClickCoords, DevPinAdjustPanel } from './DevMapTools'
 import MapFilterPanel from './MapFilterPanel'
 import ShopPopup from './ShopPopup'
 import { trackEvent } from '@/lib/gtag'
+import { useFavorites } from '@/lib/favorites'
 
 // Leaflet デフォルトアイコン（バンドラ用パッチ）
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Leaflet の型定義に _getIconUrl が無い
@@ -86,25 +87,35 @@ function CurrentLocationButton({
 }: {
   onLocationUpdate?: (lat: number, lng: number) => void
 }) {
+  const [isLocating, setIsLocating] = useState(false)
+
   const handleClick = () => {
     if (!navigator.geolocation) {
       alert('このブラウザでは現在地を取得できません。')
       return
     }
+    setIsLocating(true)
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords
+        setIsLocating(false)
         if (onLocationUpdate) {
           onLocationUpdate(latitude, longitude)
         }
       },
       () => {
+        setIsLocating(false)
         alert('現在地を取得できませんでした。位置情報の許可を確認してください。')
       },
     )
   }
   return (
-    <button className="current-location-button" onClick={handleClick} aria-label="現在地を取得">
+    <button
+      className="current-location-button"
+      onClick={handleClick}
+      aria-label={isLocating ? '現在地を取得中...' : '現在地を取得'}
+      disabled={isLocating}
+    >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
       </svg>
@@ -138,6 +149,8 @@ export default function MapFeature() {
   const [devPinSaveMessage, setDevPinSaveMessage] = useState(
     'ドラッグで output_xlsx / csv に保存（屋外=lat/lng · 屋内=x/y 正規化）',
   )
+  const { shopIds: favShopIds, toggleShop: toggleFavShop } = useFavorites()
+  const [showOnlyFavs, setShowOnlyFavs] = useState(false)
   const markerRefs = useRef<MarkerRefMap>({})
   const mapZoomRef = useRef(18)
   const mapModeToggleRef = useRef<HTMLDivElement>(null)
@@ -326,6 +339,7 @@ export default function MapFeature() {
   const resetFilters = useCallback(() => {
     setFilters(DEFAULT_FILTERS)
     setShopLabelMode('title')
+    setShowOnlyFavs(false)
   }, [])
 
   const availableAmenities = useMemo(() => {
@@ -349,10 +363,9 @@ export default function MapFeature() {
     [shops, filters.shopCategories],
   )
 
-  /** 屋外キャンパス（Leaflet + 学内図）では屋内フロア用マスタのピンを出さない */
   const campusMapShops = useMemo(
-    () => filteredShops.filter((s) => s.showOnCampusMap),
-    [filteredShops],
+    () => filteredShops.filter((s) => s.showOnCampusMap && (!showOnlyFavs || favShopIds.has(s.id))),
+    [filteredShops, showOnlyFavs, favShopIds],
   )
 
   /** 屋内平面図用（`maps` のフロア id が付いた行。屋外にも出す店もここに含め各フロアでピン表示） */
@@ -442,6 +455,15 @@ export default function MapFeature() {
               屋内マップ
             </button>
           </div>
+          <button
+            type="button"
+            className={`map-mode-button map-fav-toggle${showOnlyFavs ? ' active' : ''}`}
+            aria-pressed={showOnlyFavs}
+            aria-label={showOnlyFavs ? 'お気に入りのみ表示中（解除）' : 'お気に入りのみ表示'}
+            onClick={() => setShowOnlyFavs((v) => !v)}
+          >
+            ★ お気に入り
+          </button>
           {isDev && (
             <div className="map-mode-dev">
               <button
@@ -541,6 +563,7 @@ export default function MapFeature() {
             devPinOverrides={devPinOverrides}
             onDevPinMove={handleDevPinMove}
             pinnedCampusShopId={selectedShop?.id ?? null}
+            favShopIds={favShopIds}
           />
           <MapFocusShopFromQuery
             shops={filteredShops}
@@ -621,6 +644,8 @@ export default function MapFeature() {
       {selectedShop && (
         <ShopPopup
           shop={selectedShop}
+          isFav={favShopIds.has(selectedShop.id)}
+          onToggleFav={() => toggleFavShop(selectedShop.id)}
           onClose={() => {
             const id = selectedShop.id
             setSelectedShop(null)

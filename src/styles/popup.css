@@ -38,9 +38,26 @@
 .popup-header {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: 10px 12px 0;
 }
+
+.popup-fav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0.1rem 0.3rem;
+  transition: color 0.15s, transform 0.1s;
+}
+
+.popup-fav:hover { transform: scale(1.15); }
+.popup-fav--active { color: #e53935; }
 
 .popup-close {
   display: flex;

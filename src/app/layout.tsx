@@ -42,7 +42,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
-                gtag('config', '${GA_ID}', { anonymize_ip: true });
+                gtag('config', '${GA_ID}', { anonymize_ip: true, debug_mode: ${process.env.NODE_ENV === 'development'} });
               `}
             </Script>
           </>
