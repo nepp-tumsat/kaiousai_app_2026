@@ -1,10 +1,17 @@
 import type { ReactNode } from 'react'
 import type { Viewport } from 'next'
+import { Suspense } from 'react'
+import Script from 'next/script'
 import '@/styles/globals.css'
 import '@/styles/App.css'
 import 'leaflet/dist/leaflet.css'
 import AppFooter from '@/components/AppFooter'
+import CookieBanner from '@/components/CookieBanner'
+import OnboardingModal from '@/features/onboarding/OnboardingModal'
+import GAPageView from '@/components/GAPageView'
 import Link from 'next/link'
+
+const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 export const metadata = {
   title: '海王祭Webアプリ',
@@ -24,6 +31,26 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="ja">
       <body>
+        {GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_ID}', { anonymize_ip: true });
+              `}
+            </Script>
+          </>
+        )}
+        <Suspense>
+          <GAPageView />
+        </Suspense>
+        <OnboardingModal />
         <div className="app">
           <Link href="/" className="app-header-link">
             <header className="app-header">
@@ -33,6 +60,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <main className="app-main">{children}</main>
           <AppFooter />
         </div>
+        <CookieBanner />
       </body>
     </html>
   )
