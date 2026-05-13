@@ -8,6 +8,7 @@ import { getEvents, getShops, type FestivalEvent, type Shop, type ShopCategory }
 import { assetUrl, shopThumbUrl } from '../../lib/assetUrl'
 import { formatEventDay } from '../timetable/timetableDisplay'
 import { useFavorites } from '@/lib/favorites'
+import { trackEvent } from '@/lib/gtag'
 
 const EVENT_CARD_THUMB_PX = 96
 const SHOP_CARD_THUMB_PX = 72
@@ -97,7 +98,11 @@ function EventsResultList({
           </Link>
           <FavBtn
             active={favEventIds.has(event.id)}
-            onToggle={(e) => { e.preventDefault(); onToggleEvent(event.id) }}
+            onToggle={(e) => {
+              e.preventDefault()
+              trackEvent('fav_toggle', { fav_type: 'event', fav_action: favEventIds.has(event.id) ? 'remove' : 'add', item_id: String(event.id), item_title: event.title })
+              onToggleEvent(event.id)
+            }}
           />
         </div>
       ))}
@@ -154,7 +159,11 @@ function ShopsResultList({
           </Link>
           <FavBtn
             active={favShopIds.has(shop.id)}
-            onToggle={(e) => { e.preventDefault(); onToggleShop(shop.id) }}
+            onToggle={(e) => {
+              e.preventDefault()
+              trackEvent('fav_toggle', { fav_type: 'shop', fav_action: favShopIds.has(shop.id) ? 'remove' : 'add', item_id: shop.id, item_title: shop.title })
+              onToggleShop(shop.id)
+            }}
           />
         </div>
       ))}
@@ -218,7 +227,7 @@ export default function EventsFeature() {
           role="tab"
           aria-selected={tab === 'events'}
           className={`events-tab ${tab === 'events' ? 'active' : ''}`}
-          onClick={() => setTab('events')}
+          onClick={() => { trackEvent('events_tab_switch', { tab: 'events' }); setTab('events') }}
         >
           ステージ企画
         </button>
@@ -227,7 +236,7 @@ export default function EventsFeature() {
           role="tab"
           aria-selected={tab === 'shops'}
           className={`events-tab ${tab === 'shops' ? 'active' : ''}`}
-          onClick={() => setTab('shops')}
+          onClick={() => { trackEvent('events_tab_switch', { tab: 'shops' }); setTab('shops') }}
         >
           模擬店・会場
         </button>
@@ -237,7 +246,7 @@ export default function EventsFeature() {
           aria-selected={tab === 'favs'}
           className={`events-tab ${tab === 'favs' ? 'active' : ''}`}
           aria-label={`お気に入り${favTotal > 0 ? ` (${favTotal}件)` : ''}`}
-          onClick={() => setTab('favs')}
+          onClick={() => { trackEvent('events_tab_switch', { tab: 'favs' }); setTab('favs') }}
         >
           ★{favTotal > 0 ? ` ${favTotal}` : ''}
         </button>

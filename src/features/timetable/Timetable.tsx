@@ -8,6 +8,7 @@ import { getEvents, type FestivalEvent } from '../../data/loaders'
 import { assetUrl } from '../../lib/assetUrl'
 import EventDetailPopup from './EventDetailPopup'
 import { useFavorites } from '@/lib/favorites'
+import { trackEvent } from '@/lib/gtag'
 import {
   formatEventDay,
   RAINY_STAGE_VENUE_LABEL,
@@ -200,6 +201,16 @@ export default function TimetableFeature() {
   const [showFavs, setShowFavs] = useState(false)
   const { eventIds: favEventIds, toggleEvent: toggleFavEvent } = useFavorites()
 
+  function handleToggleFav(id: number, title: string, isFav: boolean) {
+    trackEvent('fav_toggle', { fav_type: 'event', fav_action: isFav ? 'remove' : 'add', item_id: String(id), item_title: title })
+    toggleFavEvent(id)
+  }
+
+  function handleOpenDetail(ev: FestivalEvent) {
+    trackEvent('event_detail_open', { event_id: String(ev.id), event_title: ev.title })
+    setDetailEvent(ev)
+  }
+
   const festivalDayList = useMemo(
     () => [...new Set(events.map((e) => e.day))].sort(),
     [events],
@@ -368,8 +379,11 @@ export default function TimetableFeature() {
         <FavEventList
           events={eventsWithMinutes}
           favEventIds={favEventIds}
-          onToggleFav={toggleFavEvent}
-          onOpenDetail={setDetailEvent}
+          onToggleFav={(id) => {
+            const ev = eventsWithMinutes.find((e) => e.id === id)
+            if (ev) handleToggleFav(id, ev.title, favEventIds.has(id))
+          }}
+          onOpenDetail={handleOpenDetail}
         />
       ) : groupedByArea.size === 0 ? (
         <p className="timetable-empty">該当する企画はありません。</p>
@@ -413,7 +427,7 @@ export default function TimetableFeature() {
                                   isFav && !isNow ? 'timetable-item--fav' : '',
                                 ].filter(Boolean).join(' ')}
                                 aria-label={`${event.title}の詳細を表示`}
-                                onClick={() => setDetailEvent(event)}
+                                onClick={() => handleOpenDetail(event)}
                               >
                                 <Image
                                   src={assetUrl(`/images/${event.image}`)}
@@ -441,7 +455,7 @@ export default function TimetableFeature() {
                               </button>
                               <button
                                 className={`timetable-fav-btn${isFav ? ' timetable-fav-btn--active' : ''}`}
-                                onClick={(e) => { e.stopPropagation(); toggleFavEvent(event.id) }}
+                                onClick={(e) => { e.stopPropagation(); handleToggleFav(event.id, event.title, isFav) }}
                                 aria-label={isFav ? 'お気に入りから削除' : 'お気に入りに追加'}
                                 aria-pressed={isFav}
                               >
@@ -470,7 +484,7 @@ export default function TimetableFeature() {
           selectedWeather={selectedWeather}
           showNowBadge={currentEventId === detailEvent.id}
           isFav={favEventIds.has(detailEvent.id)}
-          onToggleFav={() => toggleFavEvent(detailEvent.id)}
+          onToggleFav={() => handleToggleFav(detailEvent.id, detailEvent.title, favEventIds.has(detailEvent.id))}
           onClose={() => setDetailEvent(null)}
         />
       ) : null}
