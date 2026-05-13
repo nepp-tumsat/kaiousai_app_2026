@@ -7,7 +7,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { getEvents, type FestivalEvent } from '../../data/loaders'
 import { assetUrl } from '../../lib/assetUrl'
 import EventDetailPopup from './EventDetailPopup'
+import { useFavorites } from '@/lib/favorites'
 import {
+  formatEventDay,
   RAINY_STAGE_VENUE_LABEL,
   timetableEventDisplayArea,
   timetableEventDisplayLocation,
@@ -24,6 +26,67 @@ const weatherLabels: Record<'sunny' | 'rainy', string> = {
 
 const RED_LINE_START_MINUTES = 9 * 60
 const RED_LINE_END_MINUTES = 18 * 60
+
+type EventWithMinutes = FestivalEvent & { startMinutes: number | null; endMinutes: number | null }
+
+function FavEventList({
+  events,
+  favEventIds,
+  onToggleFav,
+  onOpenDetail,
+}: {
+  events: EventWithMinutes[]
+  favEventIds: Set<number>
+  onToggleFav: (id: number) => void
+  onOpenDetail: (e: FestivalEvent) => void
+}) {
+  const favEvents = events.filter((e) => favEventIds.has(e.id))
+  if (favEvents.length === 0) {
+    return <p className="timetable-empty">お気に入りはまだありません。<br />☆ ボタンで追加できます。</p>
+  }
+  return (
+    <div className="timetable-group-list">
+      <div className="timetable-list">
+        {favEvents.map((event) => (
+          <div key={event.id} className="timetable-item-wrap">
+            <div className="timetable-item-row">
+              <button
+                type="button"
+                className="timetable-item timetable-item--fav"
+                aria-label={`${event.title}の詳細を表示`}
+                onClick={() => onOpenDetail(event)}
+              >
+                <Image
+                  src={assetUrl(`/images/${event.image}`)}
+                  alt={event.title}
+                  width={TIMETABLE_EVENT_THUMB_W}
+                  height={TIMETABLE_EVENT_THUMB_H}
+                  className="timetable-event-thumb"
+                  unoptimized
+                />
+                <div className="timetable-item-text">
+                  <div className="timetable-time">{formatEventDay(event.day)} {event.startTime}–{event.endTime}</div>
+                  <div className="timetable-content">
+                    <h3>{event.title}</h3>
+                    <p className="timetable-venue">{event.location}{event.organization ? ` ・ ${event.organization}` : ''}</p>
+                  </div>
+                </div>
+              </button>
+              <button
+                className="timetable-fav-btn timetable-fav-btn--active"
+                onClick={(e) => { e.stopPropagation(); onToggleFav(event.id) }}
+                aria-label="お気に入りから削除"
+                aria-pressed
+              >
+                ★
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 function parseTimeToMinutes(time: string): number | null {
   const match = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec(time.trim())
@@ -133,6 +196,8 @@ export default function TimetableFeature() {
   )
   const [selectedWeather, setSelectedWeather] = useState<'sunny' | 'rainy'>('sunny')
   const [detailEvent, setDetailEvent] = useState<FestivalEvent | null>(null)
+  const [showFavs, setShowFavs] = useState(false)
+  const { eventIds: favEventIds, toggleEvent: toggleFavEvent } = useFavorites()
 
   const festivalDayList = useMemo(
     () => [...new Set(events.map((e) => e.day))].sort(),
@@ -268,28 +333,44 @@ export default function TimetableFeature() {
             <button
               key={day}
               type="button"
-              className={`timetable-filter-button ${selectedDay === day ? 'active' : ''}`}
-              onClick={() => setSelectedDay(day)}
+              className={`timetable-filter-button ${!showFavs && selectedDay === day ? 'active' : ''}`}
+              onClick={() => { setShowFavs(false); setSelectedDay(day) }}
             >
               {formatFestivalDayButtonLabel(day, index)}
             </button>
           ))}
+          <button
+            type="button"
+            className={`timetable-filter-button ${showFavs ? 'active' : ''}`}
+            onClick={() => setShowFavs((v) => !v)}
+          >
+            ★{favEventIds.size > 0 ? ` ${favEventIds.size}` : ''}
+          </button>
         </div>
-        <div className="timetable-filter-row">
-          {(['sunny', 'rainy'] as const).map((weather) => (
-            <button
-              key={weather}
-              type="button"
-              className={`timetable-filter-button ${selectedWeather === weather ? 'active' : ''}`}
-              onClick={() => setSelectedWeather(weather)}
-            >
-              {weatherLabels[weather]}
-            </button>
-          ))}
-        </div>
+        {!showFavs && (
+          <div className="timetable-filter-row">
+            {(['sunny', 'rainy'] as const).map((weather) => (
+              <button
+                key={weather}
+                type="button"
+                className={`timetable-filter-button ${selectedWeather === weather ? 'active' : ''}`}
+                onClick={() => setSelectedWeather(weather)}
+              >
+                {weatherLabels[weather]}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {groupedByArea.size === 0 ? (
+      {showFavs ? (
+        <FavEventList
+          events={eventsWithMinutes}
+          favEventIds={favEventIds}
+          onToggleFav={toggleFavEvent}
+          onOpenDetail={setDetailEvent}
+        />
+      ) : groupedByArea.size === 0 ? (
         <p className="timetable-empty">該当する企画はありません。</p>
       ) : (
         <div className="timetable-group-list">
@@ -309,47 +390,65 @@ export default function TimetableFeature() {
                     : null
                   return (
                     <>
-                      {locationEvents.map((event, index) => (
-                        <div key={event.id}>
-                          {currentLineIndex === index && (
-                            <div className="timetable-now-line" aria-label={`現在時刻 ${currentTimeLabel}`}>
-                              <span>{currentTimeLabel}</span>
-                            </div>
-                          )}
-                          <button
-                            type="button"
-                            id={`timetable-event-${event.id}`}
-                            className={`timetable-item ${currentEventId === event.id ? 'now' : ''}`}
-                            aria-label={`${event.title}の詳細を表示`}
-                            onClick={() => setDetailEvent(event)}
-                          >
-                            <Image
-                              src={assetUrl(`/images/${event.image}`)}
-                              alt={event.title}
-                              width={TIMETABLE_EVENT_THUMB_W}
-                              height={TIMETABLE_EVENT_THUMB_H}
-                              className="timetable-event-thumb"
-                              unoptimized
-                            />
-                            <div className="timetable-item-text">
-                              <div className="timetable-time">
-                                {event.startTime}–{event.endTime}
+                      {locationEvents.map((event, index) => {
+                        const needsTicket = selectedWeather === 'rainy' && event.needTicketWhenRainy
+                        const isFav = favEventIds.has(event.id)
+                        const isNow = currentEventId === event.id
+                        return (
+                          <div key={event.id} className="timetable-item-wrap">
+                            {currentLineIndex === index && (
+                              <div className="timetable-now-line" aria-label={`現在時刻 ${currentTimeLabel}`}>
+                                <span>{currentTimeLabel}</span>
                               </div>
-                              <div className="timetable-content">
-                                <h3>{event.title}</h3>
-                                {currentEventId === event.id && <span className="now-badge">開催中 (NOW)</span>}
-                                <p className="timetable-venue">
-                                  {timetableEventDisplayLocation(event, selectedWeather)}
-                                  {event.organization ? ` ・ ${event.organization}` : ''}
-                                  {selectedWeather === 'rainy' && event.needTicketWhenRainy ? (
-                                    <span className="timetable-need-ticket">（雨天は整理券が必要です）</span>
-                                  ) : null}
-                                </p>
-                              </div>
+                            )}
+                            <div className="timetable-item-row">
+                              <button
+                                type="button"
+                                id={`timetable-event-${event.id}`}
+                                className={[
+                                  'timetable-item',
+                                  isNow ? 'now' : '',
+                                  needsTicket ? 'timetable-item--needs-ticket' : '',
+                                  isFav && !isNow ? 'timetable-item--fav' : '',
+                                ].filter(Boolean).join(' ')}
+                                aria-label={`${event.title}の詳細を表示`}
+                                onClick={() => setDetailEvent(event)}
+                              >
+                                <Image
+                                  src={assetUrl(`/images/${event.image}`)}
+                                  alt={event.title}
+                                  width={TIMETABLE_EVENT_THUMB_W}
+                                  height={TIMETABLE_EVENT_THUMB_H}
+                                  className="timetable-event-thumb"
+                                  unoptimized
+                                />
+                                <div className="timetable-item-text">
+                                  <div className="timetable-time">{event.startTime}–{event.endTime}</div>
+                                  <div className="timetable-content">
+                                    <h3>{event.title}</h3>
+                                    {isNow && <span className="now-badge">開催中 (NOW)</span>}
+                                    <p className="timetable-venue">
+                                      {timetableEventDisplayLocation(event, selectedWeather)}
+                                      {event.organization ? ` ・ ${event.organization}` : ''}
+                                      {needsTicket ? (
+                                        <span className="timetable-need-ticket">（雨天は整理券が必要です）</span>
+                                      ) : null}
+                                    </p>
+                                  </div>
+                                </div>
+                              </button>
+                              <button
+                                className={`timetable-fav-btn${isFav ? ' timetable-fav-btn--active' : ''}`}
+                                onClick={(e) => { e.stopPropagation(); toggleFavEvent(event.id) }}
+                                aria-label={isFav ? 'お気に入りから削除' : 'お気に入りに追加'}
+                                aria-pressed={isFav}
+                              >
+                                {isFav ? '★' : '☆'}
+                              </button>
                             </div>
-                          </button>
-                        </div>
-                      ))}
+                          </div>
+                        )
+                      })}
                       {currentLineIndex === locationEvents.length && (
                         <div className="timetable-now-line" aria-label={`現在時刻 ${currentTimeLabel}`}>
                           <span>{currentTimeLabel}</span>
@@ -368,6 +467,8 @@ export default function TimetableFeature() {
           event={detailEvent}
           selectedWeather={selectedWeather}
           showNowBadge={currentEventId === detailEvent.id}
+          isFav={favEventIds.has(detailEvent.id)}
+          onToggleFav={() => toggleFavEvent(detailEvent.id)}
           onClose={() => setDetailEvent(null)}
         />
       ) : null}

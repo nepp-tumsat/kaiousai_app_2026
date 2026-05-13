@@ -123,6 +123,50 @@
   font-size: 0.9rem;
 }
 
+.events-card-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.events-card-wrap .events-card {
+  flex: 1;
+  min-width: 0;
+}
+
+.events-fav-btn {
+  flex-shrink: 0;
+  width: 2.2rem;
+  height: 2.2rem;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: transform 0.1s, color 0.15s;
+}
+
+.events-fav-btn:hover { transform: scale(1.15); }
+.events-fav-btn--active { color: #e53935; }
+
+.events-card--fav {
+  border-left: 4px solid #e53935;
+  box-shadow: 0 0 0 1px rgba(229, 57, 53, 0.25), 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.events-fav-section-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 1rem 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .events-empty {
   text-align: center;
   color: var(--text-muted);

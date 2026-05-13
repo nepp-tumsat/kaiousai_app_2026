@@ -18,6 +18,8 @@ export interface EventDetailPopupProps {
   /** 一覧と同じく「開催中」を出すか */
   showNowBadge: boolean
   onClose: () => void
+  isFav?: boolean
+  onToggleFav?: () => void
 }
 
 const EventDetailPopup: FC<EventDetailPopupProps> = ({
@@ -25,6 +27,8 @@ const EventDetailPopup: FC<EventDetailPopupProps> = ({
   selectedWeather,
   showNowBadge,
   onClose,
+  isFav = false,
+  onToggleFav,
 }) => {
   const imageSrc = assetUrl(`/images/${event.image}`)
   const fallbackSrc = assetUrl('/images/events/placeholder.png')
@@ -54,6 +58,17 @@ const EventDetailPopup: FC<EventDetailPopupProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="popup-header">
+          {onToggleFav && (
+            <button
+              type="button"
+              className={`popup-fav${isFav ? ' popup-fav--active' : ''}`}
+              onClick={onToggleFav}
+              aria-label={isFav ? 'お気に入りから削除' : 'お気に入りに追加'}
+              aria-pressed={isFav}
+            >
+              {isFav ? '★' : '☆'}
+            </button>
+          )}
           <button type="button" className="popup-close" onClick={onClose} aria-label="閉じる">
             ×
           </button>

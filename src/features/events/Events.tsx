@@ -7,10 +7,9 @@ import { useMemo, useState } from 'react'
 import { getEvents, getShops, type FestivalEvent, type Shop, type ShopCategory } from '../../data/loaders'
 import { assetUrl, shopThumbUrl } from '../../lib/assetUrl'
 import { formatEventDay } from '../timetable/timetableDisplay'
+import { useFavorites } from '@/lib/favorites'
 
-/** ステージ企画カードのサムネイル（正方形） */
 const EVENT_CARD_THUMB_PX = 96
-/** 模擬店カードは WebP サムネのまま従来サイズ */
 const SHOP_CARD_THUMB_PX = 72
 
 const shopCategoryLabels: Record<ShopCategory, string> = {
@@ -25,15 +24,7 @@ function normalizeForSearch(s: string): string {
 }
 
 function eventSearchText(e: FestivalEvent): string {
-  return [
-    e.title,
-    e.organization,
-    e.description,
-    e.location,
-    e.locationRainy,
-    e.area,
-    e.areaRainy,
-  ]
+  return [e.title, e.organization, e.description, e.location, e.locationRainy, e.area, e.areaRainy]
     .join(' ')
     .toLowerCase()
 }
@@ -44,7 +35,30 @@ function shopSearchText(s: Shop): string {
     .toLowerCase()
 }
 
-function EventsResultList({ events, q }: { events: FestivalEvent[]; q: string }) {
+function FavBtn({ active, onToggle }: { active: boolean; onToggle: (e: React.MouseEvent) => void }) {
+  return (
+    <button
+      className={`events-fav-btn${active ? ' events-fav-btn--active' : ''}`}
+      onClick={onToggle}
+      aria-label={active ? 'お気に入りから削除' : 'お気に入りに追加'}
+      aria-pressed={active}
+    >
+      {active ? '★' : '☆'}
+    </button>
+  )
+}
+
+function EventsResultList({
+  events,
+  q,
+  favEventIds,
+  onToggleEvent,
+}: {
+  events: FestivalEvent[]
+  q: string
+  favEventIds: Set<number>
+  onToggleEvent: (id: number) => void
+}) {
   if (events.length === 0) {
     return (
       <p className="events-empty">
@@ -55,40 +69,53 @@ function EventsResultList({ events, q }: { events: FestivalEvent[]; q: string })
   return (
     <div className="events-list">
       {events.map((event) => (
-        <Link
-          key={event.id}
-          href={`/timetable?day=${encodeURIComponent(event.day)}&event=${event.id}`}
-          className="events-card"
-        >
-          <div className="events-card-row">
-            <Image
-              src={assetUrl(`/images/${event.image}`)}
-              alt={event.title}
-              width={EVENT_CARD_THUMB_PX}
-              height={EVENT_CARD_THUMB_PX}
-              className="events-event-thumb"
-              unoptimized
-              loading="lazy"
-            />
-            <div className="events-card-body">
-              <p className="events-card-title">{event.title}</p>
-              <p className="events-card-meta">
-                {formatEventDay(event.day)} {event.startTime}–{event.endTime}
-                {event.location ? ` ・ ${event.location}` : ''}
-                {event.organization ? ` ・ ${event.organization}` : ''}
-              </p>
-              {event.description ? (
-                <p className="events-card-desc">{event.description}</p>
-              ) : null}
+        <div key={event.id} className="events-card-wrap">
+          <Link
+            href={`/timetable?day=${encodeURIComponent(event.day)}&event=${event.id}`}
+            className={`events-card${favEventIds.has(event.id) ? ' events-card--fav' : ''}`}
+          >
+            <div className="events-card-row">
+              <Image
+                src={assetUrl(`/images/${event.image}`)}
+                alt={event.title}
+                width={EVENT_CARD_THUMB_PX}
+                height={EVENT_CARD_THUMB_PX}
+                className="events-event-thumb"
+                unoptimized
+                loading="lazy"
+              />
+              <div className="events-card-body">
+                <p className="events-card-title">{event.title}</p>
+                <p className="events-card-meta">
+                  {formatEventDay(event.day)} {event.startTime}–{event.endTime}
+                  {event.location ? ` ・ ${event.location}` : ''}
+                  {event.organization ? ` ・ ${event.organization}` : ''}
+                </p>
+                {event.description ? <p className="events-card-desc">{event.description}</p> : null}
+              </div>
             </div>
-          </div>
-        </Link>
+          </Link>
+          <FavBtn
+            active={favEventIds.has(event.id)}
+            onToggle={(e) => { e.preventDefault(); onToggleEvent(event.id) }}
+          />
+        </div>
       ))}
     </div>
   )
 }
 
-function ShopsResultList({ shops, q }: { shops: Shop[]; q: string }) {
+function ShopsResultList({
+  shops,
+  q,
+  favShopIds,
+  onToggleShop,
+}: {
+  shops: Shop[]
+  q: string
+  favShopIds: Set<number>
+  onToggleShop: (id: number) => void
+}) {
   if (shops.length === 0) {
     return (
       <p className="events-empty">
@@ -99,30 +126,37 @@ function ShopsResultList({ shops, q }: { shops: Shop[]; q: string }) {
   return (
     <div className="events-list">
       {shops.map((shop) => (
-        <Link key={shop.id} href={`/map?shop=${shop.id}`} className="events-card">
-          <div className="events-card-row">
-            <Image
-              src={shopThumbUrl(shop.image)}
-              alt={shop.title}
-              width={SHOP_CARD_THUMB_PX}
-              height={SHOP_CARD_THUMB_PX}
-              className="events-shop-thumb"
-              unoptimized
-              loading="lazy"
-            />
-            <div className="events-card-body">
-              <p className="events-card-title">{shop.title}</p>
-              <p className="events-card-meta">
-                {shopCategoryLabels[shop.category]}
-                {shop.location ? ` ・ ${shop.location}` : ''}
-                {shop.organization ? ` ・ ${shop.organization}` : ''}
-              </p>
-              {shop.description ? (
-                <p className="events-card-desc">{shop.description}</p>
-              ) : null}
+        <div key={shop.id} className="events-card-wrap">
+          <Link
+            href={`/map?shop=${shop.id}`}
+            className={`events-card${favShopIds.has(shop.id) ? ' events-card--fav' : ''}`}
+          >
+            <div className="events-card-row">
+              <Image
+                src={shopThumbUrl(shop.image)}
+                alt={shop.title}
+                width={SHOP_CARD_THUMB_PX}
+                height={SHOP_CARD_THUMB_PX}
+                className="events-shop-thumb"
+                unoptimized
+                loading="lazy"
+              />
+              <div className="events-card-body">
+                <p className="events-card-title">{shop.title}</p>
+                <p className="events-card-meta">
+                  {shopCategoryLabels[shop.category]}
+                  {shop.location ? ` ・ ${shop.location}` : ''}
+                  {shop.organization ? ` ・ ${shop.organization}` : ''}
+                </p>
+                {shop.description ? <p className="events-card-desc">{shop.description}</p> : null}
+              </div>
             </div>
-          </div>
-        </Link>
+          </Link>
+          <FavBtn
+            active={favShopIds.has(shop.id)}
+            onToggle={(e) => { e.preventDefault(); onToggleShop(shop.id) }}
+          />
+        </div>
       ))}
     </div>
   )
@@ -130,22 +164,35 @@ function ShopsResultList({ shops, q }: { shops: Shop[]; q: string }) {
 
 export default function EventsFeature() {
   const [query, setQuery] = useState('')
-  const [tab, setTab] = useState<'events' | 'shops'>('events')
+  const [tab, setTab] = useState<'events' | 'shops' | 'favs'>('events')
+  const { shopIds: favShopIds, eventIds: favEventIds, toggleShop, toggleEvent } = useFavorites()
 
   const events = useMemo(() => getEvents(), [])
   const shops = useMemo(() => getShops(), [])
 
   const q = normalizeForSearch(query)
 
-  const filteredEvents = useMemo(() => {
-    if (!q) return events
-    return events.filter((e) => eventSearchText(e).includes(q))
-  }, [events, q])
+  const filteredEvents = useMemo(
+    () => (!q ? events : events.filter((e) => eventSearchText(e).includes(q))),
+    [events, q],
+  )
 
-  const filteredShops = useMemo(() => {
-    if (!q) return shops
-    return shops.filter((s) => shopSearchText(s).includes(q))
-  }, [shops, q])
+  const filteredShops = useMemo(
+    () => (!q ? shops : shops.filter((s) => shopSearchText(s).includes(q))),
+    [shops, q],
+  )
+
+  const favEvents = useMemo(
+    () => events.filter((e) => favEventIds.has(e.id) && (!q || eventSearchText(e).includes(q))),
+    [events, favEventIds, q],
+  )
+
+  const favShops = useMemo(
+    () => shops.filter((s) => favShopIds.has(s.id) && (!q || shopSearchText(s).includes(q))),
+    [shops, favShopIds, q],
+  )
+
+  const favTotal = favShopIds.size + favEventIds.size
 
   return (
     <section className="events-container">
@@ -173,7 +220,7 @@ export default function EventsFeature() {
           className={`events-tab ${tab === 'shops' ? 'active' : ''}`}
           onClick={() => setTab('shops')}
         >
-          模擬店・会場（{shops.length}）
+          模擬店・会場
         </button>
         <button
           type="button"
@@ -182,18 +229,54 @@ export default function EventsFeature() {
           className={`events-tab ${tab === 'events' ? 'active' : ''}`}
           onClick={() => setTab('events')}
         >
-          ステージ企画（{events.length}）
+          ステージ企画
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'favs'}
+          className={`events-tab ${tab === 'favs' ? 'active' : ''}`}
+          onClick={() => setTab('favs')}
+        >
+          ★{favTotal > 0 ? ` ${favTotal}` : ''}
         </button>
       </div>
-      <p className="events-hint" aria-live="polite">
-        {tab === 'events'
-          ? `表示: ${filteredEvents.length} 件`
-          : `表示: ${filteredShops.length} 件`}
-      </p>
-      {tab === 'events'
-        ? <EventsResultList events={filteredEvents} q={q} />
-        : <ShopsResultList shops={filteredShops} q={q} />
-      }
+
+      {tab !== 'favs' && (
+        <p className="events-hint" aria-live="polite">
+          {tab === 'events' ? `表示: ${filteredEvents.length} 件` : `表示: ${filteredShops.length} 件`}
+        </p>
+      )}
+
+      {tab === 'events' && (
+        <EventsResultList events={filteredEvents} q={q} favEventIds={favEventIds} onToggleEvent={toggleEvent} />
+      )}
+      {tab === 'shops' && (
+        <ShopsResultList shops={filteredShops} q={q} favShopIds={favShopIds} onToggleShop={toggleShop} />
+      )}
+      {tab === 'favs' && (
+        <div>
+          {favTotal === 0 ? (
+            <p className="events-empty">お気に入りはまだありません。<br />☆ ボタンで追加できます。</p>
+          ) : (
+            <>
+              {favShops.length > 0 && (
+                <>
+                  <p className="events-fav-section-label">模擬店・会場</p>
+                  <ShopsResultList shops={favShops} q={q} favShopIds={favShopIds} onToggleShop={toggleShop} />
+                </>
+              )}
+              {favEvents.length > 0 && (
+                <>
+                  <p className="events-fav-section-label">ステージ企画</p>
+                  <EventsResultList events={favEvents} q={q} favEventIds={favEventIds} onToggleEvent={toggleEvent} />
+                </>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
       <p className="events-footer-links">
         <Link href="/timetable" className="app-footer-link">
           タイムテーブルへ

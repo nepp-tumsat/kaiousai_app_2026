@@ -909,6 +909,21 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
 }
 
+/** お気に入り: 大きめピンにスターバッジを内包 */
+.category-marker-icon--fav .category-marker-dot {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-marker-star {
+  font-size: 13px;
+  line-height: 1;
+  color: #fff;
+}
+
 /** 施設: 模擬店（円）と形で区別 */
 .category-marker-dot--facility {
   border-radius: 6px;

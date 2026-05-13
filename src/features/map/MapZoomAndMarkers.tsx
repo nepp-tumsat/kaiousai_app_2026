@@ -94,6 +94,7 @@ export default function MapZoomAndMarkers({
   amenityFocusMode,
   onBuildingPinClickAtMaxZoom,
   pinnedCampusShopId = null,
+  favShopIds = new Set(),
 }: {
   shops: Shop[]
   isMapReady: boolean
@@ -104,17 +105,13 @@ export default function MapZoomAndMarkers({
   devPinOverrides: Record<string, LatLngTuple>
   onDevPinMove: (move: DevPinMove) => void
   onZoomChange?: (zoom: number) => void
-  /** 屋外マップのときのみ店舗・エリアピンを描画（屋内は平面図のみ） */
   pinsEnabled?: boolean
-  /** 店舗ピンの吹き出しに表示するテキスト種別 */
   shopLabelMode: ShopLabelMode
-  /** 表示中の付帯設備ピン（フィルタで選ばれた kind のみ） */
   amenityPins: MapAmenityPin[]
-  /** 付帯設備が選択されている間は他カテゴリの吹き出しを出さない */
   amenityFocusMode: boolean
-  /** 最大拡大時に建物ピン（非 AR エリア）をクリックしたとき、対応する屋内マップへ遷移 */
   onBuildingPinClickAtMaxZoom: (relatedAreaId: string) => void
   pinnedCampusShopId?: number | null
+  favShopIds?: Set<number>
 }) {
   const map = useMap()
   const [zoom, setZoom] = useState(() => map.getZoom())
@@ -147,15 +144,11 @@ export default function MapZoomAndMarkers({
     return mapPayload.areas
   })()
 
-  /** 通常はズームに応じて全店舗 or 非表示。詳細オープン中は選択店のみエリア表示モードでも残す */
+  /** 通常はズームに応じて全店舗 or 非表示。お気に入り・詳細オープン中の店舗はズームアウト時も常時表示 */
   const visibleCampusShops = useMemo(() => {
     if (showShopPins) return shops
-    if (pinnedCampusShopId != null) {
-      const found = shops.find((s) => s.id === pinnedCampusShopId)
-      return found ? [found] : []
-    }
-    return []
-  }, [shops, showShopPins, pinnedCampusShopId])
+    return shops.filter((s) => favShopIds.has(s.id) || s.id === pinnedCampusShopId)
+  }, [shops, showShopPins, favShopIds, pinnedCampusShopId])
 
   useEffect(() => {
     onZoomChange?.(zoom)
@@ -253,7 +246,7 @@ export default function MapZoomAndMarkers({
         <Marker
           key={`shop-${shop.id}`}
           position={devPinOverrides[buildPinKey('shop', shop.id)] ?? shop.coordinates}
-          zIndexOffset={showShopPins ? 0 : 650}
+          zIndexOffset={favShopIds.has(shop.id) ? 300 : !showShopPins ? 650 : 0}
           draggable={devPinAdjustEnabled}
           ref={(marker) => {
             const key = `shop-${shop.id}`
@@ -276,7 +269,7 @@ export default function MapZoomAndMarkers({
               })
             },
           }}
-          icon={buildCategoryMarkerIcon(shop, getCategoryColor)}
+          icon={buildCategoryMarkerIcon(shop, getCategoryColor, favShopIds.has(shop.id))}
         >
           {showShopEventPopups && !amenityFocusMode && (
             <Popup
