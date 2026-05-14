@@ -421,12 +421,15 @@
 
 .map-filter-panel {
   width: min(260px, 80vw);
+  max-height: calc(100dvh - 180px);
   padding: 12px 12px 10px;
   background-color: var(--bg);
   border: 1px solid color-mix(in srgb, var(--text-muted) 20%, transparent);
   border-radius: 12px;
   box-shadow: 0 6px 22px rgba(0, 0, 0, 0.22);
   color: var(--text);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .map-filter-panel__reset-row {
