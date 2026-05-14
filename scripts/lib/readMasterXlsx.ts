@@ -475,13 +475,43 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
     raw: true,
   })
 
-  const stageLocationId =
-    facilitiesRaw
-      .map((r) => ({
-        id: cellToString(r.id),
-        name: cellToString(r.name),
-      }))
-      .find((r) => r.id !== '' && r.name.includes('ステージ'))?.id ?? ''
+  // facilities の name → id マップを構築。name が完全一致しない場合は仮 id を生成してロケーションに追加する。
+  const facilityNameToId = new Map<string, string>()
+  for (const r of facilitiesRaw) {
+    const fid = cellToString(r.id)
+    const fname = cellToString(r.name)
+    if (fid !== '' && fname !== '') facilityNameToId.set(fname, fid)
+  }
+
+  function resolveOrCreateLocationId(name: string): string {
+    const existing = facilityNameToId.get(name)
+    if (existing !== undefined) return existing
+    // facilities に存在しない会場名: 仮エントリを追加してタイムテーブルから参照できるようにする
+    const syntheticId = `_loc_${facilityNameToId.size}`
+    facilityNameToId.set(name, syntheticId)
+    locations.push({
+      public: 'FALSE',
+      id: syntheticId,
+      is_event_location: 'TRUE',
+      is_facility: 'FALSE',
+      is_shop: 'FALSE',
+      is_exhibit: 'FALSE',
+      name,
+      organization: '',
+      department: '',
+      description: '',
+      outdoor_area_id: '',
+      area_id: '',
+      indoor_plan_map_id: '',
+      lat: '',
+      lng: '',
+      indoor_x: '',
+      indoor_y: '',
+      img_name: '',
+      show_on_campus_map: 'false',
+    })
+    return syntheticId
+  }
 
   const events: Record<string, string>[] = []
   for (const row of timetableRaw) {
@@ -494,19 +524,24 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
     const start_time = excelTimeFractionToHm(row.start_time)
     const end_time = excelTimeFractionToHm(row.end_time)
 
-    const locId = stageLocationId
-    if (locId === '') {
+    const sunnyLocName = cellToString(row.sunny_loc)
+    const rainyLocName = cellToString(row.rainy_loc)
+
+    if (sunnyLocName === '') {
       throw new Error(
-        'stage_timetable 用のステージ施設（facilities で名前に「ステージ」を含む行）が見つかりません',
+        `stage_timetable: sunny_loc が空です (id=${id})。会場名を入力してください。`,
       )
     }
+
+    const sunnyId = resolveOrCreateLocationId(sunnyLocName)
+    const rainyId = rainyLocName !== '' ? resolveOrCreateLocationId(rainyLocName) : sunnyId
 
     events.push({
       public: 'TRUE',
       id,
       need_ticket_when_rainy: cellToString(row.need_ticket_when_rainy) || 'FALSE',
-      sunny_location_id: locId,
-      rainy_location_id: locId,
+      sunny_location_id: sunnyId,
+      rainy_location_id: rainyId,
       title,
       organization: cellToString(row.organization),
       department: '',
