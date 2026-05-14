@@ -125,7 +125,7 @@ export default function IndoorMapPlanLayer({
       }
     }, 60)
     return () => window.clearTimeout(id)
-  }, [map, plane, entry.relatedAreaId, entry.id])
+  }, [map, plane, entry.relatedAreaId, entry.id, isMobile])
 
   useEffect(() => {
     if (!plane || amenityFocusMode) return
