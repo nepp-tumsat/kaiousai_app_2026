@@ -180,6 +180,35 @@
   color: var(--text-muted);
 }
 
+.events-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.events-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.events-filter-button {
+  border: 1px solid var(--surface);
+  background-color: var(--bg);
+  color: var(--primary);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.events-filter-button.active {
+  background-color: var(--primary);
+  color: var(--bg);
+  border-color: var(--primary);
+}
+
 .events-shop-thumb {
   flex-shrink: 0;
   width: 72px;

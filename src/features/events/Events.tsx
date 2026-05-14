@@ -171,9 +171,17 @@ function ShopsResultList({
   )
 }
 
+function formatDayFilterLabel(isoDate: string, index: number): string {
+  const [, month, day] = isoDate.split('-')
+  return `${index + 1}日目 (${Number(month)}/${Number(day)})`
+}
+
 export default function EventsFeature() {
   const [query, setQuery] = useState('')
   const [tab, setTab] = useState<'events' | 'shops' | 'favs'>('events')
+  const [eventDayFilter, setEventDayFilter] = useState('all')
+  const [eventLocationFilter, setEventLocationFilter] = useState('all')
+  const [shopCategoryFilter, setShopCategoryFilter] = useState('all')
   const { shopIds: favShopIds, eventIds: favEventIds, toggleShop, toggleEvent } = useFavorites()
 
   const events = useMemo(() => getEvents(), [])
@@ -181,15 +189,31 @@ export default function EventsFeature() {
 
   const q = normalizeForSearch(query)
 
-  const filteredEvents = useMemo(
-    () => (!q ? events : events.filter((e) => eventSearchText(e).includes(q))),
-    [events, q],
+  const eventDayList = useMemo(
+    () => [...new Set(events.map((e) => e.day))].sort(),
+    [events],
+  )
+  const eventLocationList = useMemo(
+    () => [...new Set(events.map((e) => e.location).filter(Boolean))].sort(),
+    [events],
+  )
+  const shopCategoryList = useMemo(
+    () => [...new Set(shops.map((s) => s.category))],
+    [shops],
   )
 
-  const filteredShops = useMemo(
-    () => (!q ? shops : shops.filter((s) => shopSearchText(s).includes(q))),
-    [shops, q],
-  )
+  const filteredEvents = useMemo(() => {
+    let result = !q ? events : events.filter((e) => eventSearchText(e).includes(q))
+    if (eventDayFilter !== 'all') result = result.filter((e) => e.day === eventDayFilter)
+    if (eventLocationFilter !== 'all') result = result.filter((e) => e.location === eventLocationFilter)
+    return result
+  }, [events, q, eventDayFilter, eventLocationFilter])
+
+  const filteredShops = useMemo(() => {
+    let result = !q ? shops : shops.filter((s) => shopSearchText(s).includes(q))
+    if (shopCategoryFilter !== 'all') result = result.filter((s) => s.category === shopCategoryFilter)
+    return result
+  }, [shops, q, shopCategoryFilter])
 
   const favEvents = useMemo(
     () => events.filter((e) => favEventIds.has(e.id) && (!q || eventSearchText(e).includes(q))),
@@ -252,6 +276,75 @@ export default function EventsFeature() {
         </button>
       </div>
 
+      {tab === 'events' && (
+        <div className="events-filters">
+          {eventDayList.length > 1 && (
+            <div className="events-filter-row">
+              <button
+                type="button"
+                className={`events-filter-button ${eventDayFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setEventDayFilter('all')}
+              >
+                全日程
+              </button>
+              {eventDayList.map((day, i) => (
+                <button
+                  key={day}
+                  type="button"
+                  className={`events-filter-button ${eventDayFilter === day ? 'active' : ''}`}
+                  onClick={() => setEventDayFilter(day)}
+                >
+                  {formatDayFilterLabel(day, i)}
+                </button>
+              ))}
+            </div>
+          )}
+          {eventLocationList.length > 1 && (
+            <div className="events-filter-row">
+              <button
+                type="button"
+                className={`events-filter-button ${eventLocationFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setEventLocationFilter('all')}
+              >
+                全ての場所
+              </button>
+              {eventLocationList.map((loc) => (
+                <button
+                  key={loc}
+                  type="button"
+                  className={`events-filter-button ${eventLocationFilter === loc ? 'active' : ''}`}
+                  onClick={() => setEventLocationFilter(loc)}
+                >
+                  {loc}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      {tab === 'shops' && shopCategoryList.length > 1 && (
+        <div className="events-filters">
+          <div className="events-filter-row">
+            <button
+              type="button"
+              className={`events-filter-button ${shopCategoryFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setShopCategoryFilter('all')}
+            >
+              全て
+            </button>
+            {shopCategoryList.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                className={`events-filter-button ${shopCategoryFilter === cat ? 'active' : ''}`}
+                onClick={() => setShopCategoryFilter(cat)}
+              >
+                {shopCategoryLabels[cat]}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {tab !== 'favs' && (
         <p className="events-hint" aria-live="polite">
           {tab === 'events' ? `表示: ${filteredEvents.length} 件` : `表示: ${filteredShops.length} 件`}
