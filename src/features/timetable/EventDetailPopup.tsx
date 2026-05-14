@@ -11,6 +11,7 @@ import {
   timetableEventDisplayArea,
   timetableEventDisplayLocation,
 } from './timetableDisplay'
+import LinkifiedText from '../../components/LinkifiedText'
 
 export interface EventDetailPopupProps {
   event: FestivalEvent
@@ -98,7 +99,7 @@ const EventDetailPopup: FC<EventDetailPopupProps> = ({
             <p className="event-detail-popup-ticket">雨天は整理券が必要です</p>
           ) : null}
           {event.description.trim() !== '' ? (
-            <p className="event-detail-popup-description">{event.description}</p>
+            <p className="event-detail-popup-description"><LinkifiedText text={event.description} /></p>
           ) : null}
         </div>
       </div>
