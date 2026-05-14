@@ -14,9 +14,14 @@ export default function HomeFeature() {
         <Link href="/events" className="home-menu-item">
           <span className="home-menu-label">企画を探す</span>
         </Link>
-        <span className="home-menu-item home-menu-item--disabled">
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSef7-7FPlBjWyuRUmU3ikTwNC4_9KxF-viLx7D9aRvriM6Xdg/viewform?usp=dialog"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="home-menu-item"
+        >
           <span className="home-menu-label">アンケート</span>
-        </span>
+        </a>
       </div>
       <p className="home-menu-notice" style={{ marginTop: '1rem', fontSize: '0.78rem', textAlign: 'center' }}>
         <Link href="/privacy" style={{ color: 'var(--text-muted)', textDecoration: 'underline' }}>
