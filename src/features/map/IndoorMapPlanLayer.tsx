@@ -103,7 +103,7 @@ export default function IndoorMapPlanLayer({
     return () => {
       cancelled = true
     }
-  }, [entry.id, entry.image, entry.relatedAreaId, areaPins])
+  }, [entry.id, entry.image, entry.relatedAreaId, areaPins, isMobile])
 
   useEffect(() => {
     if (!plane) return
