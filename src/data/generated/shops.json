@@ -37,7 +37,7 @@
     "sourceLocationId": "03",
     "organization": "",
     "title": "ベビーカー置き場",
-    "description": "ベビーカー置き場をご用意しています。ご自由にご利用ください。",
+    "description": "ベビーカー置き場をご用意しています。ご自由にご利用ください。\n※置場内の盗難及び事故発生等は責任を負いかねますので、ご了承ください。",
     "area": "",
     "location": "ベビーカー置き場",
     "coordinates": [
@@ -68,6 +68,125 @@
     "id": "05"
   },
   {
+    "sourceLocationId": "06",
+    "organization": "",
+    "title": "ゴミステーション",
+    "description": "ゴミステーション",
+    "area": "",
+    "location": "ゴミステーション",
+    "coordinates": [
+      35.6661613,
+      139.7919166
+    ],
+    "image": "shops/27-本部.png",
+    "category": "facility",
+    "showOnCampusMap": true,
+    "indoorPlanMapId": "",
+    "id": "06"
+  },
+  {
+    "sourceLocationId": "07",
+    "organization": "",
+    "title": "ゴミステーション",
+    "description": "ゴミステーション",
+    "area": "",
+    "location": "ゴミステーション",
+    "coordinates": [
+      35.6661613,
+      139.7919166
+    ],
+    "image": "shops/27-本部.png",
+    "category": "facility",
+    "showOnCampusMap": true,
+    "indoorPlanMapId": "",
+    "id": "07"
+  },
+  {
+    "sourceLocationId": "08",
+    "organization": "",
+    "title": "ゴミステーション",
+    "description": "ゴミステーション",
+    "area": "",
+    "location": "ゴミステーション",
+    "coordinates": [
+      35.6661613,
+      139.7919166
+    ],
+    "image": "shops/27-本部.png",
+    "category": "facility",
+    "showOnCampusMap": true,
+    "indoorPlanMapId": "",
+    "id": "08"
+  },
+  {
+    "sourceLocationId": "09",
+    "organization": "",
+    "title": "ゴミステーション",
+    "description": "ゴミステーション",
+    "area": "",
+    "location": "ゴミステーション",
+    "coordinates": [
+      35.6661613,
+      139.7919166
+    ],
+    "image": "shops/27-本部.png",
+    "category": "facility",
+    "showOnCampusMap": true,
+    "indoorPlanMapId": "",
+    "id": "09"
+  },
+  {
+    "sourceLocationId": "10",
+    "organization": "",
+    "title": "プラネタリウム受付",
+    "description": "プラネタリウム受付",
+    "area": "",
+    "location": "プラネタリウム受付",
+    "coordinates": [
+      35.6661613,
+      139.7919166
+    ],
+    "image": "shops/27-本部.png",
+    "category": "facility",
+    "showOnCampusMap": true,
+    "indoorPlanMapId": "",
+    "id": "10"
+  },
+  {
+    "sourceLocationId": "11",
+    "organization": "",
+    "title": "チョークの落書きコーナー",
+    "description": "チョークの落書きコーナー",
+    "area": "",
+    "location": "チョークの落書きコーナー",
+    "coordinates": [
+      35.6666626,
+      139.792099
+    ],
+    "image": "shops/27-本部.png",
+    "category": "facility",
+    "showOnCampusMap": true,
+    "indoorPlanMapId": "",
+    "id": "11"
+  },
+  {
+    "sourceLocationId": "12",
+    "organization": "",
+    "title": "寄せ書きボード",
+    "description": "寄せ書きボード",
+    "area": "",
+    "location": "寄せ書きボード",
+    "coordinates": [
+      35.6677689,
+      139.7910838
+    ],
+    "image": "shops/27-本部.png",
+    "category": "facility",
+    "showOnCampusMap": true,
+    "indoorPlanMapId": "",
+    "id": "12"
+  },
+  {
     "sourceLocationId": "mogi_01",
     "organization": "海洋会",
     "title": "海洋会",
@@ -88,7 +207,7 @@
     "sourceLocationId": "mogi_02",
     "organization": "株式会社日本海事新聞社",
     "title": "株式会社日本海事新聞社",
-    "description": "学生の皆さんに電子版無料ログインID&PWを配布するほか、来場者に発行日前の新聞(6月16日付)を無料配布いたします！",
+    "description": "学生の皆さんに電子版無料ログインID&PWを配布するほか、来場者に発行日前の新聞(5月18日付)を無料配布いたします！",
     "area": "",
     "location": "株式会社日本海事新聞社",
     "coordinates": [
@@ -153,27 +272,10 @@
     "id": "mogi_05"
   },
   {
-    "sourceLocationId": "mogi_06",
-    "organization": "今治造船株式会社",
-    "title": "今治造船株式会社",
-    "description": "VRゴーグルを装着することで、まるで造船所にいるかのような没入感のある見学体験が可能です。普段はなかなか見ることができない建造中の船を歩いたり飛んだり･･･とご自身が操作することで、自由に体感することができます。",
-    "area": "",
-    "location": "今治造船株式会社",
-    "coordinates": [
-      35.6676289,
-      139.790538
-    ],
-    "image": "shops/39-今治造船株式会社.png",
-    "category": "food",
-    "showOnCampusMap": true,
-    "indoorPlanMapId": "",
-    "id": "mogi_06"
-  },
-  {
     "sourceLocationId": "mogi_07",
     "organization": "海王祭実行委員会",
     "title": "海王祭実行委員会ブース",
-    "description": "海王祭実行委員会の模擬店では ノンアルコールビール、海王祭グッズ、 船舶模型、ビンゴカードを 販売いたします！",
+    "description": "海王祭実行委員会の模擬店では ノンアルコールビール、海王祭グッズ、 船舶模型、ビンゴカードを販売いたします！射的もあるよ！",
     "area": "",
     "location": "海王祭実行委員会ブース",
     "coordinates": [
@@ -206,10 +308,10 @@
   {
     "sourceLocationId": "mogi_09",
     "organization": "ダンス部EXSEAD",
-    "title": "食飯とダンス公演",
-    "description": "屋外ステージでダンス公演を行います！各ジャンルの発表に加え、さまざまな有志も見どころです   ぜひご覧ください！また、模擬店ブースではたこ焼きの販売も行います！",
+    "title": "たこやき",
+    "description": "たこ焼きの販売を行います！また、屋外ステージでダンス公演を行います！各ジャンルの発表に加え、さまざまな有志も見どころです   ぜひご覧ください！",
     "area": "",
-    "location": "食飯とダンス公演",
+    "location": "たこやき",
     "coordinates": [
       35.6675843,
       139.7911495
@@ -241,7 +343,7 @@
     "sourceLocationId": "mogi_11",
     "organization": "東京海洋大学合気道部",
     "title": "串だんご",
-    "description": "合気道部は屋外テントにてお団子を販売しています！お好きな生地のお団子とお好きな餡・たれを選んで、ぜひおいしい串団子を片手に海王祭をお楽しみください！！",
+    "description": "屋外テントにてお団子を販売しています！お好きな生地のお団子とお好きな餡・たれを選んで、ぜひおいしい串団子を片手に海王祭をお楽しみください！！",
     "area": "",
     "location": "串だんご",
     "coordinates": [
@@ -275,7 +377,7 @@
     "sourceLocationId": "mogi_13",
     "organization": "男子バレーボール部",
     "title": "チョコバナナ",
-    "description": "毎年人気のチョコバナナを今年も販売します！暑い日にぴったりなバナナスムージーも販売するのでぜひご賞味ください！",
+    "description": "毎年人気のチョコバナナを今年も販売します！",
     "area": "",
     "location": "チョコバナナ",
     "coordinates": [
@@ -308,10 +410,10 @@
   {
     "sourceLocationId": "mogi_15",
     "organization": "バスケットボール部",
-    "title": "チュロス",
+    "title": "青いチュロス",
     "description": "外はサクサク，中はもちっと。 海を感じる特別なチュロスにしました！",
     "area": "",
-    "location": "チュロス",
+    "location": "青いチュロス",
     "coordinates": [
       35.6672748,
       139.791358
@@ -360,7 +462,7 @@
     "sourceLocationId": "mogi_18",
     "organization": "東京海洋大学・水泳部",
     "title": "特製スタミナ油そば",
-    "description": "いつもは大会等があり、参加を見送ることが多かった我々水泳部ですが、今回の海王祭りでは満を持して出店させていただきます。水泳部が一丸となって作った油そば食べてみたくなりませんか！？",
+    "description": "いつもは大会等があり、参加を見送ることが多かった我々水泳部ですが、今回の海王祭では満を持して出店させていただきます。水泳部が一丸となって作った油そば食べてみたくなりませんか！？",
     "area": "",
     "location": "特製スタミナ油そば",
     "coordinates": [
@@ -411,7 +513,7 @@
     "sourceLocationId": "mogi_21",
     "organization": "芝浦祭実行委員会",
     "title": "最適解ワッフル",
-    "description": "ミックスベリーを乗せた最適解ワッフルを 販売いたします！ ソースはチョコ、イチゴ、ブルーベリー、 メープルをご用意しております。",
+    "description": "ミックスベリーを乗せた最適解ワッフルを販売いたします！ ソースはチョコ、イチゴ、ブルーベリー、 メープルをご用意しております。",
     "area": "",
     "location": "最適解ワッフル",
     "coordinates": [
@@ -478,10 +580,10 @@
   {
     "sourceLocationId": "mogi_25",
     "organization": "剣道部",
-    "title": "クジラ肉の唐揚げ",
+    "title": "クジラ肉の竜田揚げ",
     "description": "珍しいクジラ肉の唐揚げを販売いたします！ 香ばしく揚げた一品を、ぜひご賞味ください。",
     "area": "",
-    "location": "クジラ肉の唐揚げ",
+    "location": "クジラ肉の竜田揚げ",
     "coordinates": [
       35.6669469,
       139.7917631
@@ -496,7 +598,7 @@
     "sourceLocationId": "mogi_26",
     "organization": "カヌー部",
     "title": "シェイク",
-    "description": "カヌー部では、いちご・抹茶・キャラメル・ コーヒー・オレオから選べるシェイクを 販売しています。 ぜひお越しください！",
+    "description": "カヌー部では、いちご・抹茶・キャラメル・ コーヒー・オレオから選べるシェイクを販売しています。 ぜひお越しください！",
     "area": "",
     "location": "シェイク",
     "coordinates": [
@@ -512,10 +614,10 @@
   {
     "sourceLocationId": "mogi_27",
     "organization": "東京海洋大学ヨット部",
-    "title": "海鮮焼そば",
-    "description": "海鮮のうまみがたっぷり入った焼きそばを 販売いたします！",
+    "title": "海鮮焼きそば",
+    "description": "海鮮のうまみがたっぷり入った焼きそばを販売いたします！",
     "area": "",
-    "location": "海鮮焼そば",
+    "location": "海鮮焼きそば",
     "coordinates": [
       35.666875,
       139.7918502
@@ -528,11 +630,11 @@
   },
   {
     "sourceLocationId": "mogi_28",
-    "organization": "東京海洋大学・共立薬科大学管弦楽団",
-    "title": "焼きグソクムシ販売・アンサンブル他",
-    "description": "オーケストラ部です！テントにて焼きグソクムシ、焼き鳥、ラムネの販売、ス ーパーボールすくい、教室にてアンサンブルおよびグッズ販売をいたしま す！ぜひお越しください！",
+    "organization": "オーケストラ部",
+    "title": "焼きグソクムシ",
+    "description": "オーケストラ部です！テントにて焼きグソクムシ、焼き鳥、ラムネの販売、ス ーパーボールすくいをいたしま す！ぜひお越しください！",
     "area": "",
-    "location": "焼きグソクムシ販売・アンサンブル他",
+    "location": "焼きグソクムシ",
     "coordinates": [
       35.6668396,
       139.7918925
@@ -598,7 +700,7 @@
     "sourceLocationId": "mogi_32",
     "organization": "志馬なにがし先生",
     "title": "志馬なにがし先生",
-    "description": "本学出身作家志馬なにがし先生の作品に関連した企画です！！",
+    "description": "・トークショー\n・サイン会\n・パネル展示\n本学出身作家志馬なにがし先生の作品に関連した企画です！！\n※本イベントの参加には模擬店テント1.海王祭実行委員会にて書籍の購入が必要です。\nパネル展示:5/16(土)15:00〜15:30\nトークショー:5/16(土)15:00〜16:00",
     "area": "1号館",
     "location": "志馬なにがし先生",
     "coordinates": [
@@ -628,17 +730,17 @@
     "category": "food",
     "showOnCampusMap": false,
     "indoorPlanMapId": "1-1",
-    "indoorX": 0.331117,
-    "indoorY": 0.179293,
+    "indoorX": 0.327169,
+    "indoorY": 0.2104,
     "id": "mogi_33"
   },
   {
     "sourceLocationId": "mogi_34",
-    "organization": "郵船クルーズ株式会社",
-    "title": "郵船クルーズ株式会社客船「飛鳥II」「飛鳥Ⅲ」運航〜日本郵船グループ〜",
-    "description": "日本船籍最大級の客船「飛鳥II」、「飛鳥Ⅲ」を運航。業界のリーディングカンパニーとして、日本船籍ならではの「和のおもてなし」と「最幸の時間」を提供を目指します。",
+    "organization": "郵船クルーズ株式会社客船「飛鳥II」「飛鳥Ⅲ」運航〜日本郵船グループ〜",
+    "title": "郵船クルーズ株式会社 企業紹介/就職相談",
+    "description": "日本船籍最大級の客船「飛鳥II」、「飛鳥Ⅲ」を運航。業界のリーディングカンパニーとして、日本船籍ならではの「和のおもてなし」と「最幸の時間」の提供を目指します。",
     "area": "1号館",
-    "location": "郵船クルーズ株式会社客船「飛鳥II」「飛鳥Ⅲ」運航〜日本郵船グループ〜",
+    "location": "郵船クルーズ株式会社 企業紹介/就職相談",
     "coordinates": [
       35.66821282,
       139.7911122
@@ -647,8 +749,8 @@
     "category": "food",
     "showOnCampusMap": false,
     "indoorPlanMapId": "1-1",
-    "indoorX": 0.419954,
-    "indoorY": 0.112847,
+    "indoorX": 0.416992,
+    "indoorY": 0.09418,
     "id": "mogi_34"
   },
   {
@@ -666,8 +768,8 @@
     "category": "food",
     "showOnCampusMap": false,
     "indoorPlanMapId": "1-1",
-    "indoorX": 0.617368,
-    "indoorY": 0.180328,
+    "indoorX": 0.616381,
+    "indoorY": 0.20833,
     "id": "mogi_35"
   },
   {
@@ -685,8 +787,8 @@
     "category": "food",
     "showOnCampusMap": false,
     "indoorPlanMapId": "1-1",
-    "indoorX": 0.709166,
-    "indoorY": 0.116998,
+    "indoorX": 0.703244,
+    "indoorY": 0.092104,
     "id": "mogi_36"
   },
   {
@@ -709,80 +811,21 @@
     "id": "mogi_37"
   },
   {
-    "sourceLocationId": "mogi_48",
-    "organization": "航路論研究室",
-    "title": "航路論研究室",
-    "description": "実際の船舶運航時に用いられる紙海図の展示・説明を行います。",
-    "area": "第1実験棟",
-    "location": "航路論研究室",
+    "sourceLocationId": "mogi_53",
+    "organization": "主催: 日本海洋塾",
+    "title": "「帆船を語る」—岐路に立つ帆船と、その先の未来へ—",
+    "description": "【詳しくはこちら→】https://kaiyou-juku.org/event/index.html\n― 岐路に立つ帆船と、その先の未来へ ―\n商船大OB会組織「日本海洋塾」主催により、第66回海王祭にて特別講演を開催します。 日本の帆船運航・教育の第一線を担ってきたお二人をお迎えし、対面およびオンラインで実施します。\n■講演① 5月16日（土）午後1時～3時 小原朋尚 氏 元「みらいへ」船長／笹川平和財団 海洋政策研究所\n■講演② 5月17日（日）午後1時～3時 國枝佳明 氏 元 海王丸船長（航海訓練所）　元 東京海洋大学教授 現 富山高等専門学校 校長\n■会場 東京海洋大学 越中島キャンパス 明治丸ミュージアム・セミナー室（明治丸横、百周年記念館裏）\n■オンライン配信あり（全国から参加可能）　ZOOM招待QRコード添付\n▼日本海洋塾 公式掲載ページ\nhttps://www.kaioufes.com/event/indoor\n\n帆船は、単なる「懐かしい乗り物」ではありません。 大航海時代から積み上げられてきた、人類の知恵の結晶であり、機能美の極致です。 風を読み、海を感じ、自然と向き合いながら航海する—— そこには、現代の高度な技術社会においても失われてはならない、本質的な学びがあります。\n今、帆船は岐路に立っています。 しかしそれは終わりではなく、次の時代への出発点です。 これからの海事を担う学生たちには、帆船を通じて自然と対話する力を身につけ、 数年後の海洋分野における劇的・革新の先頭に立ってほしい—— その思いを込めた講演です。\n海事関係者、学生、そして海に関心のあるすべての方へ。 ぜひご参加ください。",
+    "area": "",
+    "location": "「帆船を語る」—岐路に立つ帆船と、その先の未来へ—",
     "coordinates": [
-      35.6679242,
-      139.7917745
+      35.6678615,
+      139.7903308
     ],
-    "image": "shops/placeholder.png",
+    "image": "shops/日本海洋塾_講演会.webp",
     "category": "food",
-    "showOnCampusMap": false,
-    "indoorPlanMapId": "exp-1-3",
-    "indoorX": 0.880508,
-    "indoorY": 0.935795,
-    "id": "mogi_48"
-  },
-  {
-    "sourceLocationId": "mogi_49",
-    "organization": "情報通信工学研究室",
-    "title": "情報通信工学研究室",
-    "description": "はじめての人でも楽しめる内容です！！GPS/GNSSを知りたい人・衛星に興味がある人はぜひ一度遊びに来てください～",
-    "area": "第4実験棟(大教室)",
-    "location": "情報通信工学研究室",
-    "coordinates": [
-      35.66636313,
-      139.7923586
-    ],
-    "image": "shops/placeholder.png",
-    "category": "food",
-    "showOnCampusMap": false,
-    "indoorPlanMapId": "exp-4-5",
-    "indoorX": 0.224924,
-    "indoorY": 0.926683,
-    "id": "mogi_49"
-  },
-  {
-    "sourceLocationId": "mogi_51",
-    "organization": "垂直循環型回流水槽",
-    "title": "研究室公開！　垂直循環型回流水槽",
-    "description": "実験水槽の公開を行います！",
-    "area": "第1実験棟",
-    "location": "研究室公開！　垂直循環型回流水槽",
-    "coordinates": [
-      35.6679242,
-      139.7917745
-    ],
-    "image": "shops/placeholder.png",
-    "category": "food",
-    "showOnCampusMap": false,
-    "indoorPlanMapId": "exp-1-1",
-    "indoorX": 0.816487,
-    "indoorY": 0.41284,
-    "id": "mogi_51"
-  },
-  {
-    "sourceLocationId": "mogi_52",
-    "organization": "電気動力研究室",
-    "title": "電池推進船のペーパークラフトやってみない？",
-    "description": "第3実験棟6階602 対象：小学生～　参加費無料 10:30～15:00",
-    "area": "第3実験棟",
-    "location": "電池推進船のペーパークラフトやってみない？",
-    "coordinates": [
-      35.6672573,
-      139.7917852
-    ],
-    "image": "shops/placeholder.png",
-    "category": "food",
-    "showOnCampusMap": false,
-    "indoorPlanMapId": "exp-3-6",
-    "indoorX": 0.299943,
-    "indoorY": 0.65347,
-    "id": "mogi_52"
+    "showOnCampusMap": true,
+    "indoorPlanMapId": "",
+    "id": "mogi_53"
   },
   {
     "sourceLocationId": "mogi_58",
@@ -843,11 +886,30 @@
   },
   {
     "sourceLocationId": "mogi_61",
-    "organization": "富山高等専門学校 広島商船高等専門学校",
-    "title": "世界の海をかけて巡る船乗りを育てる　商船高専展（富山）",
-    "description": "ブースでは、海図の読み方とロープワークも学べる海図バッグの制作体験、令和 8 年 3 月に竣工した練習船「若潮丸」の紹介、質問コーナーを実施しています。",
+    "organization": "広島商船高等専門学校",
+    "title": "海事教育のご案内と学校説明",
+    "description": "広島商船高等専門学校では、海事教育の魅力や本校の特色を紹介するブースを出展します。ブースでは、航海士・機関士をはじめとした海事分野の学びや、商船高専での学生生活について分かりやすく紹介したパンフレットを配布します。また、ご来場いただいた方には、広島商船高等専門学校オリジナルボールペンをプレゼントします。\n海や船、ものづくりに興味のある方はもちろん、進路を考えている中高生や保護者の皆さまも、ぜひお気軽にお立ち寄りください。",
     "area": "2号館",
-    "location": "世界の海をかけて巡る船乗りを育てる　商船高専展（富山）",
+    "location": "海事教育のご案内と学校説明",
+    "coordinates": [
+      35.667034,
+      139.7926167
+    ],
+    "image": "shops/39-広島商船高等専門学校.png",
+    "category": "food",
+    "showOnCampusMap": false,
+    "indoorPlanMapId": "2-1",
+    "indoorX": 0.17824,
+    "indoorY": 0.843416,
+    "id": "mogi_61"
+  },
+  {
+    "sourceLocationId": "mogi_76",
+    "organization": "富山高等専門学校 広島商船高等専門学校",
+    "title": "世界の海をかけて巡る船乗りを育てる　商船高専展",
+    "description": "ブースでは、海図の読み方とロープワークも学べる海図バッグの制作体験、\n令和 8 年 3 月に竣工した練習船「若潮丸」の紹介、質問コーナーを実施して\nいます 。ぜひお立ち寄りください。",
+    "area": "2号館",
+    "location": "世界の海をかけて巡る船乗りを育てる　商船高専展",
     "coordinates": [
       35.667034,
       139.7926167
@@ -856,9 +918,9 @@
     "category": "food",
     "showOnCampusMap": false,
     "indoorPlanMapId": "2-1",
-    "indoorX": 0.17824,
-    "indoorY": 0.843416,
-    "id": "mogi_61"
+    "indoorX": 0.178241,
+    "indoorY": 0.843417,
+    "id": "mogi_76"
   },
   {
     "sourceLocationId": "mogi_62",
@@ -937,6 +999,44 @@
     "id": "mogi_65"
   },
   {
+    "sourceLocationId": "mogi_67",
+    "organization": "海王祭実行委員会",
+    "title": "休憩所",
+    "description": "休憩所として学生食堂(ワールドマリンカフェ)を開放しております。お食事や休憩にぜひご利用ください。",
+    "area": "越中島会館(講堂)",
+    "location": "休憩所",
+    "coordinates": [
+      35.6665416,
+      139.7929962
+    ],
+    "image": "shops/41-休憩所.png",
+    "category": "food",
+    "showOnCampusMap": false,
+    "indoorPlanMapId": "ettyu-1",
+    "indoorX": 0.5,
+    "indoorY": 0.5,
+    "id": "mogi_67"
+  },
+  {
+    "sourceLocationId": "mogi_68",
+    "organization": "越中島写真部",
+    "title": "海王祭展",
+    "description": "新体制となった後の初めての展示です。ぜひお越しください。",
+    "area": "越中島会館(講堂)",
+    "location": "海王祭展",
+    "coordinates": [
+      35.6665416,
+      139.7929962
+    ],
+    "image": "shops/41-越中島写真部.png",
+    "category": "food",
+    "showOnCampusMap": false,
+    "indoorPlanMapId": "ettyu-1",
+    "indoorX": 0.933473,
+    "indoorY": 0.63806,
+    "id": "mogi_68"
+  },
+  {
     "sourceLocationId": "mogi_69",
     "organization": "ロボット研究会",
     "title": "ロボット展示",
@@ -956,6 +1056,57 @@
     "id": "mogi_69"
   },
   {
+    "sourceLocationId": "mogi_70",
+    "organization": "ロボット研究会",
+    "title": "飛行展示",
+    "description": "当サークルで製作したロボットの展示・紹介及び一部機体の飛行展示を行います。",
+    "area": "",
+    "location": "飛行展示",
+    "coordinates": [
+      35.6678512,
+      139.7931585
+    ],
+    "image": "shops/41-ロボット研究会.png",
+    "category": "food",
+    "showOnCampusMap": true,
+    "indoorPlanMapId": "",
+    "id": "mogi_70"
+  },
+  {
+    "sourceLocationId": "mogi_71",
+    "organization": "ロボット研究会",
+    "title": "ラジコン展示",
+    "description": "当サークルで製作したロボットの展示・紹介及び一部機体の飛行展示を行います。",
+    "area": "",
+    "location": "ラジコン展示",
+    "coordinates": [
+      35.6676175,
+      139.7899894
+    ],
+    "image": "shops/41-ロボット研究会.png",
+    "category": "food",
+    "showOnCampusMap": true,
+    "indoorPlanMapId": "",
+    "id": "mogi_71"
+  },
+  {
+    "sourceLocationId": "mogi_72",
+    "organization": "",
+    "title": "試乗会",
+    "description": "越中島キャンパスの訓練用船舶に乗船できる試乗会を実施します。\n事前抽選制で、当日抽選は実施しません。",
+    "area": "",
+    "location": "試乗会",
+    "coordinates": [
+      35.6661243,
+      139.7921808
+    ],
+    "image": "shops/49-試乗会.png",
+    "category": "food",
+    "showOnCampusMap": true,
+    "indoorPlanMapId": "",
+    "id": "mogi_72"
+  },
+  {
     "sourceLocationId": "mogi_73",
     "organization": "東京海洋大学プログラミングサークルNePP",
     "title": "NePPパネル展示",
@@ -973,5 +1124,100 @@
     "indoorX": 0.44329,
     "indoorY": 0.631808,
     "id": "mogi_73"
+  },
+  {
+    "sourceLocationId": "lab_01",
+    "organization": "",
+    "title": "電気動力研究室 研究室公開",
+    "description": "船の省エネや陸電導入、陸上の電気設備まで！電気が好きなら来るしかない！",
+    "area": "第3実験棟",
+    "location": "電気動力研究室 研究室公開",
+    "coordinates": [
+      35.6672573,
+      139.7917852
+    ],
+    "image": "shops/電気動力研究室.webp",
+    "category": "food",
+    "showOnCampusMap": false,
+    "indoorPlanMapId": "exp-3-5",
+    "indoorX": 0.680813,
+    "indoorY": 0.601611,
+    "id": "lab_01"
+  },
+  {
+    "sourceLocationId": "lab_02",
+    "organization": "航路論研究室",
+    "title": "航路論研究室",
+    "description": "実際の船舶運航時に用いられる紙海図の展示・説明を行います。",
+    "area": "第1実験棟",
+    "location": "航路論研究室",
+    "coordinates": [
+      35.6679242,
+      139.7917745
+    ],
+    "image": "shops/航路論研究室.webp",
+    "category": "food",
+    "showOnCampusMap": false,
+    "indoorPlanMapId": "exp-1-3",
+    "indoorX": 0.880508,
+    "indoorY": 0.935795,
+    "id": "lab_02"
+  },
+  {
+    "sourceLocationId": "lab_03",
+    "organization": "情報通信工学研究室",
+    "title": "情報通信工学研究室",
+    "description": "はじめての人でも楽しめる内容です！！GPS/GNSSを知りたい人・衛星に興味がある人はぜひ一度遊びに来てください～",
+    "area": "第4実験棟(大教室)",
+    "location": "情報通信工学研究室",
+    "coordinates": [
+      35.66636313,
+      139.7923586
+    ],
+    "image": "shops/情報通信工学研究室.webp",
+    "category": "food",
+    "showOnCampusMap": false,
+    "indoorPlanMapId": "exp-4-5",
+    "indoorX": 0.230658,
+    "indoorY": 0.61748,
+    "id": "lab_03"
+  },
+  {
+    "sourceLocationId": "lab_04",
+    "organization": "垂直循環型回流水槽",
+    "title": "研究室公開！　垂直循環型回流水槽",
+    "description": "実験水槽の公開を行います！",
+    "area": "第1実験棟",
+    "location": "研究室公開！　垂直循環型回流水槽",
+    "coordinates": [
+      35.6679242,
+      139.7917745
+    ],
+    "image": "shops/placeholder.png",
+    "category": "food",
+    "showOnCampusMap": false,
+    "indoorPlanMapId": "exp-1-1",
+    "indoorX": 0.816487,
+    "indoorY": 0.41284,
+    "id": "lab_04"
+  },
+  {
+    "sourceLocationId": "lab_05",
+    "organization": "電気動力研究室",
+    "title": "電池推進船のペーパークラフトやってみない？",
+    "description": "第3実験棟6階602 対象：小学生～　参加費無料 10:30～15:00",
+    "area": "第3実験棟",
+    "location": "電池推進船のペーパークラフトやってみない？",
+    "coordinates": [
+      35.6672573,
+      139.7917852
+    ],
+    "image": "shops/電気動力研究室_ペーパークラフト.webp",
+    "category": "food",
+    "showOnCampusMap": false,
+    "indoorPlanMapId": "exp-3-6",
+    "indoorX": 0.299943,
+    "indoorY": 0.65347,
+    "id": "lab_05"
   }
 ]
