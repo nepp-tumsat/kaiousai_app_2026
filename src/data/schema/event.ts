@@ -11,6 +11,7 @@ export const eventWeatherModeSourceSchema = z.union([
 ])
 
 const festivalEventFieldsSchema = z.object({
+  id: z.string().min(1),
   day: eventDaySchema,
   weatherMode: eventWeatherModeSourceSchema,
   startTime: z.string(),
@@ -45,9 +46,7 @@ export const festivalEventSourceListSchema = z.array(festivalEventSourceSchema)
 
 export type FestivalEventSource = z.infer<typeof festivalEventSourceSchema>
 
-export const festivalEventSchema = festivalEventFieldsSchema.extend({
-  id: z.number().int().positive(),
-})
+export const festivalEventSchema = festivalEventFieldsSchema
 
 export const festivalEventListSchema = z.array(festivalEventSchema)
 
@@ -56,7 +55,5 @@ export type FestivalEvent = z.infer<typeof festivalEventSchema>
 export function buildFestivalEventsFromSources(
   sources: z.infer<typeof festivalEventSourceListSchema>,
 ): z.infer<typeof festivalEventListSchema> {
-  return sources.map((event, index) =>
-    festivalEventSchema.parse({ ...event, id: index + 1 }),
-  )
+  return sources.map((event) => festivalEventSchema.parse(event))
 }

@@ -20,3 +20,16 @@ export function shopThumbUrl(image: string): string {
   }
   return assetUrl(`/images/${image}`)
 }
+
+/**
+ * イベントサムネイル用 URL（`public/images/events-thumb/` の WebP）。
+ * `event.image` が `events/<basename>.<ext>` の前提。
+ * `npm run ingest` が `scripts/lib/generateThumbnails.ts` 経由で生成する。
+ */
+export function eventThumbUrl(image: string): string {
+  if (image.startsWith('events/')) {
+    const basename = image.slice('events/'.length).replace(/\.(png|jpe?g|webp)$/i, '.webp')
+    return assetUrl(`/images/events-thumb/${basename}`)
+  }
+  return assetUrl(`/images/${image}`)
+}

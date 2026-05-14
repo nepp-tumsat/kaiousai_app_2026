@@ -164,7 +164,13 @@ export default function MapZoomAndMarkers({
 
   useMapEvents({
     zoomend(e) {
-      setZoom(e.target.getZoom())
+      const currentZoom = e.target.getZoom()
+      const maxZoom = e.target.getMaxZoom()
+      if (currentZoom > maxZoom) {
+        e.target.setZoom(maxZoom)
+        return
+      }
+      setZoom(currentZoom)
     },
     load(e) {
       setZoom(e.target.getZoom())

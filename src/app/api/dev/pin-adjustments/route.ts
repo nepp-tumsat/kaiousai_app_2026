@@ -1,9 +1,9 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { join, dirname } from 'node:path'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import {
-  OUTPUT_MASTER_XLSX_FILENAME,
+  MASTER_XLSX_FILENAME,
   patchMasterXlsxAdjustment,
   patchMasterXlsxIndoorNormXY,
 } from '@/lib/devMasterXlsxPatch'
@@ -33,11 +33,6 @@ const requestSchema = z.object({
   adjustment: adjustmentSchema,
 })
 
-function readCsvForOutput(basePath: string, outputPath: string): string {
-  if (existsSync(outputPath)) return readFileSync(outputPath, 'utf8')
-  return readFileSync(basePath, 'utf8')
-}
-
 function toFixedCoord(n: number): string {
   return n.toFixed(7)
 }
@@ -54,14 +49,12 @@ function resolveHeaderKey(headers: string[], ...candidates: string[]): string | 
 /** locations.csv の屋内列（`indoor_x`/`indoor_y` または `x_position`/`y_position`）を更新 */
 function patchLocationsCsvIndoorNorm(
   locationsPath: string,
-  outputLocationsPath: string,
   id: string,
   normX: number,
   normY: number,
 ): boolean {
   if (!existsSync(locationsPath)) return false
-  const locationsText = readCsvForOutput(locationsPath, outputLocationsPath)
-  const locationsTable = parseCsvWithHeaders(locationsText)
+  const locationsTable = parseCsvWithHeaders(readFileSync(locationsPath, 'utf8'))
   const target = locationsTable.rows.find((row) => (row.id ?? '').trim() === id)
   if (!target) return false
   const xStr = normX.toFixed(6)
@@ -71,8 +64,7 @@ function patchLocationsCsvIndoorNorm(
   if (!hx || !hy) return false
   target[hx] = xStr
   target[hy] = yStr
-  mkdirSync(dirname(outputLocationsPath), { recursive: true })
-  writeFileSync(outputLocationsPath, stringifyCsvWithHeaders(locationsTable), 'utf8')
+  writeFileSync(locationsPath, stringifyCsvWithHeaders(locationsTable), 'utf8')
   return true
 }
 
@@ -116,8 +108,6 @@ export async function POST(request: Request) {
   const csvDir = join(root, 'scripts', 'sources', 'csv')
   const areasPath = join(csvDir, 'areas.csv')
   const locationsPath = join(csvDir, 'locations.csv')
-  const outputAreasPath = join(csvDir, 'output_areas.csv')
-  const outputLocationsPath = join(csvDir, 'output_locations.csv')
 
   try {
     if (adjustment.kind === 'indoorShop') {
@@ -131,7 +121,7 @@ export async function POST(request: Request) {
           ok: true,
           updated: {
             format: 'xlsx' as const,
-            file: `scripts/sources/${OUTPUT_MASTER_XLSX_FILENAME}`,
+            file: `scripts/sources/${MASTER_XLSX_FILENAME}`,
             sheet: xlsxResult.sheet,
             id: adjustment.id,
           },
@@ -139,7 +129,6 @@ export async function POST(request: Request) {
       }
       const csvOk = patchLocationsCsvIndoorNorm(
         locationsPath,
-        outputLocationsPath,
         adjustment.id,
         adjustment.normX,
         adjustment.normY,
@@ -149,7 +138,7 @@ export async function POST(request: Request) {
           ok: true,
           updated: {
             format: 'csv' as const,
-            file: 'scripts/sources/csv/output_locations.csv',
+            file: 'scripts/sources/csv/locations.csv',
             id: adjustment.id,
           },
         })
@@ -172,7 +161,7 @@ export async function POST(request: Request) {
         ok: true,
         updated: {
           format: 'xlsx' as const,
-          file: `scripts/sources/${OUTPUT_MASTER_XLSX_FILENAME}`,
+          file: `scripts/sources/${MASTER_XLSX_FILENAME}`,
           sheet: xlsxResult.sheet,
           id: adjustment.id,
         },
@@ -188,7 +177,7 @@ export async function POST(request: Request) {
             : 'xlsx マスターがありません'
         return NextResponse.json({ error: `${detail}. scripts/sources/csv/areas.csv もありません` }, { status: 404 })
       }
-      const areasText = readCsvForOutput(areasPath, outputAreasPath)
+      const areasText = readFileSync(areasPath, 'utf8')
       const areasTable = parseCsvWithHeaders(areasText)
       const target = areasTable.rows.find((row) => (row.id ?? '').trim() === adjustment.id)
       if (!target) {
@@ -200,13 +189,12 @@ export async function POST(request: Request) {
       }
       target.lat = toFixedCoord(adjustment.lat)
       target.lng = toFixedCoord(adjustment.lng)
-      mkdirSync(dirname(outputAreasPath), { recursive: true })
-      writeFileSync(outputAreasPath, stringifyCsvWithHeaders(areasTable), 'utf8')
+      writeFileSync(areasPath, stringifyCsvWithHeaders(areasTable), 'utf8')
       return NextResponse.json({
         ok: true,
         updated: {
           format: 'csv' as const,
-          file: 'scripts/sources/csv/output_areas.csv',
+          file: 'scripts/sources/csv/areas.csv',
           id: adjustment.id,
         },
       })
@@ -220,7 +208,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `${detail}. scripts/sources/csv/locations.csv もありません` }, { status: 404 })
     }
 
-    const locationsText = readCsvForOutput(locationsPath, outputLocationsPath)
+    const locationsText = readFileSync(locationsPath, 'utf8')
     const locationsTable = parseCsvWithHeaders(locationsText)
     const target = locationsTable.rows.find((row) => (row.id ?? '').trim() === adjustment.id)
     if (!target) {
@@ -232,13 +220,12 @@ export async function POST(request: Request) {
     }
     target.lat = toFixedCoord(adjustment.lat)
     target.lng = toFixedCoord(adjustment.lng)
-    mkdirSync(dirname(outputLocationsPath), { recursive: true })
-    writeFileSync(outputLocationsPath, stringifyCsvWithHeaders(locationsTable), 'utf8')
+    writeFileSync(locationsPath, stringifyCsvWithHeaders(locationsTable), 'utf8')
     return NextResponse.json({
       ok: true,
       updated: {
         format: 'csv' as const,
-        file: 'scripts/sources/csv/output_locations.csv',
+        file: 'scripts/sources/csv/locations.csv',
         id: adjustment.id,
       },
     })

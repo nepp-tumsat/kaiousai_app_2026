@@ -153,6 +153,23 @@
     "id": "mogi_05"
   },
   {
+    "sourceLocationId": "mogi_06",
+    "organization": "今治造船株式会社",
+    "title": "今治造船株式会社",
+    "description": "VRゴーグルを装着することで、まるで造船所にいるかのような没入感のある見学体験が可能です。普段はなかなか見ることができない建造中の船を歩いたり飛んだり･･･とご自身が操作することで、自由に体感することができます。",
+    "area": "",
+    "location": "今治造船株式会社",
+    "coordinates": [
+      35.6676289,
+      139.790538
+    ],
+    "image": "shops/39-今治造船株式会社.png",
+    "category": "food",
+    "showOnCampusMap": true,
+    "indoorPlanMapId": "",
+    "id": "mogi_06"
+  },
+  {
     "sourceLocationId": "mogi_07",
     "organization": "海王祭実行委員会",
     "title": "海王祭実行委員会ブース",

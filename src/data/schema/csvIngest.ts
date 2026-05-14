@@ -462,6 +462,7 @@ export function csvRowsToFestivalEventSources(
         )
       }
       const row = {
+        id: ev.id,
         day: ev.day,
         weatherMode: weatherModeFromCsv(ev.weather_mode),
         startTime: ev.start_time,
@@ -486,6 +487,7 @@ export function csvRowsToFestivalEventSources(
     const areaLabel = areaLabelForLocation(areaById, loc)
 
     const row = {
+      id: ev.id,
       day: ev.day,
       weatherMode: weatherModeFromCsv(ev.weather_mode),
       startTime: ev.start_time,
