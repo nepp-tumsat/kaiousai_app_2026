@@ -6,6 +6,7 @@ import { useEffect, useState, type FC } from 'react'
 import Image from 'next/image'
 import type { Shop } from '../../data/loaders'
 import { assetUrl } from '../../lib/assetUrl'
+import LinkifiedText from '../../components/LinkifiedText'
 
 interface ShopPopupProps {
   shop: Shop
@@ -71,7 +72,7 @@ const ShopPopup: FC<ShopPopupProps> = ({ shop, onClose, isFav, onToggleFav }) =>
           <h2 id="shop-popup-title">{shop.title}</h2>
           {showVenueLine && <p className="shop-popup-venue">{venueLine}</p>}
           <p className="shop-popup-organization">{organizationLabel}</p>
-          <p className="shop-popup-description">{shop.description}</p>
+          <p className="shop-popup-description"><LinkifiedText text={shop.description} /></p>
         </div>
       </div>
     </div>
