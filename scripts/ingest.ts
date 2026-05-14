@@ -128,6 +128,17 @@ console.log(
   `ingest: shops-thumb (generated=${thumbResult.generated}, skipped=${thumbResult.skipped}, removed=${thumbResult.removed})`,
 )
 
+const eventsImageDir = join(root, 'public/images/events')
+const eventsThumbDir = join(root, 'public/images/events-thumb')
+const eventsThumbResult = await generateThumbnails({
+  sourceDir: eventsImageDir,
+  outDir: eventsThumbDir,
+  maxEdge: 256,
+})
+console.log(
+  `ingest: events-thumb (generated=${eventsThumbResult.generated}, skipped=${eventsThumbResult.skipped}, removed=${eventsThumbResult.removed})`,
+)
+
 const mapImageDir = join(root, 'public/images/map')
 const mapWebpResult = await generateThumbnails({
   sourceDir: mapImageDir,

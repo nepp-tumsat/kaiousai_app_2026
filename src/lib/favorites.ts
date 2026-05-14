@@ -3,7 +3,7 @@ import { getShops } from '../data/loaders'
 
 const KEY = 'favorites'
 
-type Favs = { shops: string[]; events: number[] }
+type Favs = { shops: string[]; events: string[] }
 
 function load(): Favs {
   try {
@@ -17,10 +17,15 @@ function load(): Favs {
         if (typeof x === 'string' && validShopIds.has(x)) shops.push(x)
       }
     }
-    return {
-      shops,
-      events: Array.isArray(d.events) ? d.events.filter(Number.isFinite) : [],
+    const events: string[] = []
+    if (Array.isArray(d.events)) {
+      for (const x of d.events) {
+        if (typeof x === 'string') events.push(x)
+        // 旧形式（number）を string に変換して引き継ぐ
+        else if (typeof x === 'number' && Number.isFinite(x)) events.push(String(x))
+      }
     }
+    return { shops, events }
   } catch {
     return { shops: [], events: [] }
   }
@@ -34,7 +39,7 @@ function save(d: Favs) {
 
 export function useFavorites() {
   const [shopIds, setShopIds] = useState<Set<string>>(new Set())
-  const [eventIds, setEventIds] = useState<Set<number>>(new Set())
+  const [eventIds, setEventIds] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     const d = load()
@@ -52,7 +57,7 @@ export function useFavorites() {
     })
   }, [])
 
-  const toggleEvent = useCallback((id: number) => {
+  const toggleEvent = useCallback((id: string) => {
     setEventIds((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)

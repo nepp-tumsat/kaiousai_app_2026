@@ -4,8 +4,6 @@ import * as XLSX from 'xlsx'
 
 /** `scripts/sources/` 直下のマスター（`readMasterXlsx.ts` と同じ既定名） */
 export const MASTER_XLSX_FILENAME = '海王祭アプリ2026マスターデータ.xlsx'
-/** ドラッグ調整の書き出し先（元ファイルは書き換えない） */
-export const OUTPUT_MASTER_XLSX_FILENAME = `output_${MASTER_XLSX_FILENAME}`
 
 function cellToString(v: unknown): string {
   if (v === null || v === undefined) return ''
@@ -88,7 +86,7 @@ export type PatchMasterResult =
   | { success: false; reason: 'row_not_found'; triedSheets: string[] }
 
 /**
- * マスター xlsx（または既存の output コピー）の該当行の lat/lng を更新し、`output_*.xlsx` に保存する。
+ * マスター xlsx の該当行の lat/lng を直接更新する。
  */
 export function patchMasterXlsxAdjustment(
   rootDir: string,
@@ -96,17 +94,12 @@ export function patchMasterXlsxAdjustment(
 ): PatchMasterResult {
   const sourcesDir = join(rootDir, 'scripts', 'sources')
   const masterPath = join(sourcesDir, MASTER_XLSX_FILENAME)
-  const outputPath = join(sourcesDir, OUTPUT_MASTER_XLSX_FILENAME)
 
-  const masterExists = existsSync(masterPath)
-  const outputExists = existsSync(outputPath)
-  if (!masterExists && !outputExists) {
+  if (!existsSync(masterPath)) {
     return { success: false, reason: 'no_master_file' }
   }
 
-  /** 元マスタが無くても、過去に書き出した output があればそこから累積パッチできる */
-  const inputPath = outputExists ? outputPath : masterPath
-  const wb = XLSX.read(readFileSync(inputPath), { type: 'buffer' })
+  const wb = XLSX.read(readFileSync(masterPath), { type: 'buffer' })
 
   const triedSheets: string[] = []
 
@@ -135,7 +128,7 @@ export function patchMasterXlsxAdjustment(
     return { success: false, reason: 'row_not_found', triedSheets }
   }
 
-  XLSX.writeFile(wb, outputPath, { bookType: 'xlsx' })
+  XLSX.writeFile(wb, masterPath, { bookType: 'xlsx' })
   return { success: true, sheet: sheetUsed }
 }
 
@@ -193,16 +186,12 @@ export function patchMasterXlsxIndoorNormXY(
 ): PatchMasterResult {
   const sourcesDir = join(rootDir, 'scripts', 'sources')
   const masterPath = join(sourcesDir, MASTER_XLSX_FILENAME)
-  const outputPath = join(sourcesDir, OUTPUT_MASTER_XLSX_FILENAME)
 
-  const masterExists = existsSync(masterPath)
-  const outputExists = existsSync(outputPath)
-  if (!masterExists && !outputExists) {
+  if (!existsSync(masterPath)) {
     return { success: false, reason: 'no_master_file' }
   }
 
-  const inputPath = outputExists ? outputPath : masterPath
-  const wb = XLSX.read(readFileSync(inputPath), { type: 'buffer' })
+  const wb = XLSX.read(readFileSync(masterPath), { type: 'buffer' })
 
   const triedSheets: string[] = []
 
@@ -220,6 +209,6 @@ export function patchMasterXlsxIndoorNormXY(
     return { success: false, reason: 'row_not_found', triedSheets }
   }
 
-  XLSX.writeFile(wb, outputPath, { bookType: 'xlsx' })
+  XLSX.writeFile(wb, masterPath, { bookType: 'xlsx' })
   return { success: true, sheet: sheetUsed }
 }

@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { getEvents, getShops, type FestivalEvent, type Shop, type ShopCategory } from '../../data/loaders'
-import { assetUrl, shopThumbUrl } from '../../lib/assetUrl'
+import { eventThumbUrl, shopThumbUrl } from '../../lib/assetUrl'
 import { formatEventDay } from '../timetable/timetableDisplay'
 import { useFavorites } from '@/lib/favorites'
 import { trackEvent } from '@/lib/gtag'
@@ -57,8 +57,8 @@ function EventsResultList({
 }: {
   events: FestivalEvent[]
   q: string
-  favEventIds: Set<number>
-  onToggleEvent: (id: number) => void
+  favEventIds: Set<string>
+  onToggleEvent: (id: string) => void
 }) {
   if (events.length === 0) {
     return (
@@ -77,7 +77,7 @@ function EventsResultList({
           >
             <div className="events-card-row">
               <Image
-                src={assetUrl(`/images/${event.image}`)}
+                src={eventThumbUrl(event.image)}
                 alt={event.title}
                 width={EVENT_CARD_THUMB_PX}
                 height={EVENT_CARD_THUMB_PX}

@@ -1,9 +1,10 @@
 'use client'
 
 import './Map.css'
+import 'leaflet/dist/leaflet.css'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { ImageOverlay, MapContainer, Marker, Popup, TileLayer, ZoomControl } from 'react-leaflet'
+import { ImageOverlay, MapContainer, Marker, Popup, ZoomControl } from 'react-leaflet'
 import L from 'leaflet'
 import {
   getMapAreas,
@@ -16,6 +17,7 @@ import { assetUrl } from '../../lib/assetUrl'
 import {
   buildingLabelFromPins,
   DEFAULT_MAP_CENTER,
+  DEFAULT_MAP_CENTER_MOBILE,
   groupIndoorMapCatalogRows,
   isShopLabelMode,
   loadStoredFilters,
@@ -147,7 +149,7 @@ export default function MapFeature() {
   const [latestPinMove, setLatestPinMove] = useState<DevPinMove | null>(null)
   const [devPinSaveState, setDevPinSaveState] = useState<DevPinSaveState>('idle')
   const [devPinSaveMessage, setDevPinSaveMessage] = useState(
-    'ドラッグで output_xlsx / csv に保存（屋外=lat/lng · 屋内=x/y 正規化）',
+    'ドラッグでマスター xlsx / csv に直接保存（屋外=lat/lng · 屋内=x/y 正規化）',
   )
   const { shopIds: favShopIds, toggleShop: toggleFavShop } = useFavorites()
   const [showOnlyFavs, setShowOnlyFavs] = useState(false)
@@ -157,6 +159,12 @@ export default function MapFeature() {
   const isDev = process.env.NODE_ENV === 'development'
   const isMobile = useIsMobile()
   const popupMinZoom = shopEventPopupMinZoom(isMobile)
+  let mapCenter: [number, number]
+  if (isMobile) {
+    mapCenter = DEFAULT_MAP_CENTER_MOBILE
+  } else {
+    mapCenter = DEFAULT_MAP_CENTER
+  }
 
   const handleMapZoomChange = useCallback((z: number) => {
     mapZoomRef.current = z
@@ -530,9 +538,14 @@ export default function MapFeature() {
           </div>
         )}
       </div>
+      {!isMapReady && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+          マップを読み込み中…
+        </div>
+      )}
       {isMapReady && (
         <MapContainer
-          center={DEFAULT_MAP_CENTER}
+          center={mapCenter}
           zoom={18}
           maxZoom={21}
           style={
@@ -542,6 +555,7 @@ export default function MapFeature() {
           }
           closePopupOnClick={false}
           zoomControl={false}
+          markerZoomAnimation={false}
           /* モバイルで「タップ判定の遅延」がクリックとピンチに干渉することがあるため無効化 */
           tap={false}
         >
@@ -585,16 +599,7 @@ export default function MapFeature() {
             }}
           />
           {viewMode === 'outdoor' && (
-            <>
-              <TileLayer
-                attribution="&copy; OpenStreetMap"
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                maxNativeZoom={19}
-                maxZoom={21}
-                opacity={0.4}
-              />
-              <CampusSvgOverlay />
-            </>
+            <CampusSvgOverlay />
           )}
           {viewMode === 'indoor' && selectedPlanEntry && (
             <IndoorMapPlanLayer
@@ -608,6 +613,7 @@ export default function MapFeature() {
               devPinAdjustEnabled={isDev && devPinAdjustEnabled}
               devPinOverrides={devPinOverrides}
               onDevPinMove={handleDevPinMove}
+              isMobile={isMobile}
             />
           )}
           {viewMode === 'outdoor' && userLocation && (

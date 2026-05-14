@@ -79,6 +79,12 @@
   padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0));
 }
 
+@media (max-width: 640px) {
+  .app-footer {
+    display: none;
+  }
+}
+
 .app-footer-nav {
   display: flex;
   justify-content: space-around;

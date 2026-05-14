@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getEvents, type FestivalEvent } from '../../data/loaders'
-import { assetUrl } from '../../lib/assetUrl'
+import { eventThumbUrl } from '../../lib/assetUrl'
 import EventDetailPopup from './EventDetailPopup'
 import { useFavorites } from '@/lib/favorites'
 import { trackEvent } from '@/lib/gtag'
@@ -37,8 +37,8 @@ function FavEventList({
   onOpenDetail,
 }: {
   events: EventWithMinutes[]
-  favEventIds: Set<number>
-  onToggleFav: (id: number) => void
+  favEventIds: Set<string>
+  onToggleFav: (id: string) => void
   onOpenDetail: (e: FestivalEvent) => void
 }) {
   const favEvents = events.filter((e) => favEventIds.has(e.id))
@@ -58,7 +58,7 @@ function FavEventList({
                 onClick={() => onOpenDetail(event)}
               >
                 <Image
-                  src={assetUrl(`/images/${event.image}`)}
+                  src={eventThumbUrl(event.image)}
                   alt={event.title}
                   width={TIMETABLE_EVENT_THUMB_W}
                   height={TIMETABLE_EVENT_THUMB_H}
@@ -189,7 +189,7 @@ export default function TimetableFeature() {
   const searchParams = useSearchParams()
   const events = useMemo(() => getEvents(), [])
   const appliedDayFromUrl = useRef(false)
-  const scrollTargetHandledRef = useRef<number | null>(null)
+  const scrollTargetHandledRef = useRef<string | null>(null)
   const prevEventParamRef = useRef<string | null>(null)
   const openedAutoDetailForEventParamRef = useRef<string | null>(null)
   const [currentMinutes, setCurrentMinutes] = useState<number>(() => nowInJstMinutes())
@@ -201,8 +201,8 @@ export default function TimetableFeature() {
   const [showFavs, setShowFavs] = useState(false)
   const { eventIds: favEventIds, toggleEvent: toggleFavEvent } = useFavorites()
 
-  function handleToggleFav(id: number, title: string, isFav: boolean) {
-    trackEvent('fav_toggle', { fav_type: 'event', fav_action: isFav ? 'remove' : 'add', item_id: String(id), item_title: title })
+  function handleToggleFav(id: string, title: string, isFav: boolean) {
+    trackEvent('fav_toggle', { fav_type: 'event', fav_action: isFav ? 'remove' : 'add', item_id: id, item_title: title })
     toggleFavEvent(id)
   }
 
@@ -304,8 +304,7 @@ export default function TimetableFeature() {
       scrollTargetHandledRef.current = null
     }
     if (!raw) return
-    const id = Number.parseInt(raw, 10)
-    if (!Number.isFinite(id)) return
+    const id = raw
     if (scrollTargetHandledRef.current === id) return
     const el = document.getElementById(`timetable-event-${id}`)
     if (!el) return
@@ -324,8 +323,7 @@ export default function TimetableFeature() {
       return
     }
     if (openedAutoDetailForEventParamRef.current === raw) return
-    const id = Number.parseInt(raw, 10)
-    if (!Number.isFinite(id)) return
+    const id = raw
     const ev = events.find((e) => e.id === id)
     if (!ev) return
     if (ev.day !== selectedDay) return
@@ -430,7 +428,7 @@ export default function TimetableFeature() {
                                 onClick={() => handleOpenDetail(event)}
                               >
                                 <Image
-                                  src={assetUrl(`/images/${event.image}`)}
+                                  src={eventThumbUrl(event.image)}
                                   alt={event.title}
                                   width={TIMETABLE_EVENT_THUMB_W}
                                   height={TIMETABLE_EVENT_THUMB_H}

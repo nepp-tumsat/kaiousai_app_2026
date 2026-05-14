@@ -12,7 +12,8 @@ import type { IndoorPlanGroup, MapFiltersState, PinKind, ShopLabelMode } from '.
 export const SHOP_EVENT_POPUP_MIN_ZOOM_DESKTOP = 21
 export const MOBILE_ZOOM_OFFSET = 1
 const MOBILE_BREAKPOINT_PX = 640
-export const DEFAULT_MAP_CENTER: [number, number] = [35.6672324, 139.791702]
+export const DEFAULT_MAP_CENTER: [number, number] = [35.666998, 139.792961]
+export const DEFAULT_MAP_CENTER_MOBILE: [number, number] = [35.6672324, 139.791702]
 export const INDOOR_PLAN_LAT_SPAN = 0.00105
 export const SHOP_CATEGORIES_ALL: readonly ShopCategory[] = [
   'food',
