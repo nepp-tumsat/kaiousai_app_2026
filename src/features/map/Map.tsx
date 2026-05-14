@@ -349,10 +349,14 @@ export default function MapFeature() {
   }, [mapPayload])
 
   useEffect(() => {
-    const raw = searchParams.get('shop')
-    if (!raw) return
-    const id = Number.parseInt(raw, 10)
-    if (!Number.isFinite(id)) return
+    const raw = searchParams.get('shop')?.trim() ?? ''
+    if (raw === '') return
+    let id = raw
+    try {
+      id = decodeURIComponent(raw)
+    } catch {
+      /* 生の raw のまま照合 */
+    }
     if (shops.some((s) => s.id === id)) {
       setViewMode('outdoor')
     }
