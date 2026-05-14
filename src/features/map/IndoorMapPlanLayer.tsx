@@ -39,6 +39,7 @@ export default function IndoorMapPlanLayer({
   devPinAdjustEnabled,
   devPinOverrides,
   onDevPinMove,
+  isMobile = false,
 }: {
   entry: MapCatalogEntry
   areaPins: MapAreaPin[]
@@ -50,6 +51,7 @@ export default function IndoorMapPlanLayer({
   devPinAdjustEnabled: boolean
   devPinOverrides: Record<string, LatLngTuple>
   onDevPinMove: (move: DevPinMove) => void
+  isMobile?: boolean
 }) {
   const map = useMap()
   const [plane, setPlane] = useState<IndoorPlaneDisplay | null>(null)
@@ -116,6 +118,9 @@ export default function IndoorMapPlanLayer({
       map.invalidateSize()
       if (lastFitFloorKeyRef.current !== floorKey) {
         map.fitBounds(b, { padding: [20, 20], maxZoom: 21, animate: false })
+        if (isMobile && map.getZoom() < 19) {
+          map.setZoom(19, { animate: false })
+        }
         lastFitFloorKeyRef.current = floorKey
       }
     }, 60)
@@ -128,7 +133,7 @@ export default function IndoorMapPlanLayer({
     const syncIndoorShopPopups = () => {
       timeoutId = window.setTimeout(() => {
         Object.values(indoorShopMarkerRefs.current).forEach((m) => m?.openPopup())
-      }, 120)
+      }, 60)
     }
     map.whenReady(syncIndoorShopPopups)
     return () => {
@@ -139,9 +144,9 @@ export default function IndoorMapPlanLayer({
   useMapEvents({
     zoomend() {
       if (!plane || amenityFocusMode) return
-      window.setTimeout(() => {
+      requestAnimationFrame(() => {
         Object.values(indoorShopMarkerRefs.current).forEach((m) => m?.openPopup())
-      }, 80)
+      })
     },
   })
 

@@ -555,6 +555,7 @@ export default function MapFeature() {
           }
           closePopupOnClick={false}
           zoomControl={false}
+          markerZoomAnimation={false}
           /* モバイルで「タップ判定の遅延」がクリックとピンチに干渉することがあるため無効化 */
           tap={false}
         >
@@ -612,6 +613,7 @@ export default function MapFeature() {
               devPinAdjustEnabled={isDev && devPinAdjustEnabled}
               devPinOverrides={devPinOverrides}
               onDevPinMove={handleDevPinMove}
+              isMobile={isMobile}
             />
           )}
           {viewMode === 'outdoor' && userLocation && (
