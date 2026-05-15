@@ -231,6 +231,29 @@
     "id": "12"
   },
   {
+    "sourceLocationId": "13",
+    "organization": "",
+    "title": "看護師常駐場所",
+    "description": "看護師常駐場所",
+    "area": "1号館",
+    "location": "看護師常駐場所",
+    "coordinates": [
+      35.66821282,
+      139.7911122
+    ],
+    "image": "shops/27-本部.png",
+    "category": "facility",
+    "showOnCampusMap": false,
+    "indoorPlanMapId": "1-1",
+    "indoorX": 0.5,
+    "indoorY": 0.5,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
+    "id": "13"
+  },
+  {
     "sourceLocationId": "mogi_01",
     "organization": "海洋会",
     "title": "海洋会",
@@ -674,10 +697,10 @@
   {
     "sourceLocationId": "mogi_23",
     "organization": "あさり会",
-    "title": "魚介ラーメン",
+    "title": "あら汁など",
     "description": "品川キャンパスから来ました、あさり会です。品川キャンパスらしく魚介料理を提供します。品川キャンパス自治委員会委員長推奨のおいしい料理をぜひご賞味ください。",
     "area": "",
-    "location": "魚介ラーメン",
+    "location": "あら汁など",
     "coordinates": [
       35.6670275,
       139.7916739
@@ -1061,8 +1084,8 @@
     "indoorY": 0.546643,
     "isFood": false,
     "isDrink": false,
-    "isExhibition": false,
-    "isActivity": true,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_59"
   },
   {

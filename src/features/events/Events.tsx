@@ -9,6 +9,8 @@ import { eventThumbUrl, shopThumbUrl } from '../../lib/assetUrl'
 import { formatEventDay } from '../timetable/timetableDisplay'
 import { useFavorites } from '@/lib/favorites'
 import { trackEvent } from '@/lib/gtag'
+import EventDetailPopup from '../timetable/EventDetailPopup'
+import ShopDetailPopup from './ShopDetailPopup'
 
 const EVENT_CARD_THUMB_PX = 96
 const SHOP_CARD_THUMB_PX = 72
@@ -54,11 +56,13 @@ function EventsResultList({
   q,
   favEventIds,
   onToggleEvent,
+  onOpenDetail,
 }: {
   events: FestivalEvent[]
   q: string
   favEventIds: Set<string>
   onToggleEvent: (id: string) => void
+  onOpenDetail: (event: FestivalEvent) => void
 }) {
   if (events.length === 0) {
     return (
@@ -71,9 +75,10 @@ function EventsResultList({
     <div className="events-list">
       {events.map((event) => (
         <div key={event.id} className="events-card-wrap">
-          <Link
-            href={`/timetable?day=${encodeURIComponent(event.day)}&event=${event.id}`}
+          <button
+            type="button"
             className={`events-card${favEventIds.has(event.id) ? ' events-card--fav' : ''}`}
+            onClick={() => onOpenDetail(event)}
           >
             <div className="events-card-row">
               <Image
@@ -95,7 +100,7 @@ function EventsResultList({
                 {event.description ? <p className="events-card-desc">{event.description}</p> : null}
               </div>
             </div>
-          </Link>
+          </button>
           <FavBtn
             active={favEventIds.has(event.id)}
             onToggle={(e) => {
@@ -115,11 +120,13 @@ function ShopsResultList({
   q,
   favShopIds,
   onToggleShop,
+  onOpenDetail,
 }: {
   shops: Shop[]
   q: string
   favShopIds: Set<string>
   onToggleShop: (id: string) => void
+  onOpenDetail: (shop: Shop) => void
 }) {
   if (shops.length === 0) {
     return (
@@ -132,9 +139,10 @@ function ShopsResultList({
     <div className="events-list">
       {shops.map((shop) => (
         <div key={shop.id} className="events-card-wrap">
-          <Link
-            href={`/map?shop=${encodeURIComponent(shop.id)}`}
+          <button
+            type="button"
             className={`events-card${favShopIds.has(shop.id) ? ' events-card--fav' : ''}`}
+            onClick={() => onOpenDetail(shop)}
           >
             <div className="events-card-row">
               <Image
@@ -156,7 +164,7 @@ function ShopsResultList({
                 {shop.description ? <p className="events-card-desc">{shop.description}</p> : null}
               </div>
             </div>
-          </Link>
+          </button>
           <FavBtn
             active={favShopIds.has(shop.id)}
             onToggle={(e) => {
@@ -198,7 +206,19 @@ export default function EventsFeature() {
   const [eventDayFilters, setEventDayFilters] = useState<Set<string>>(new Set())
   const [eventLocationFilters, setEventLocationFilters] = useState<Set<string>>(new Set())
   const [shopTagFilters, setShopTagFilters] = useState<Set<ShopTag>>(new Set())
+  const [detailEvent, setDetailEvent] = useState<FestivalEvent | null>(null)
+  const [detailShop, setDetailShop] = useState<Shop | null>(null)
   const { shopIds: favShopIds, eventIds: favEventIds, toggleShop, toggleEvent } = useFavorites()
+
+  function handleOpenDetail(event: FestivalEvent) {
+    trackEvent('event_detail_open', { event_id: String(event.id), event_title: event.title })
+    setDetailEvent(event)
+  }
+
+  function handleOpenShopDetail(shop: Shop) {
+    trackEvent('shop_detail_open', { item_id: shop.id, item_title: shop.title })
+    setDetailShop(shop)
+  }
 
   const events = useMemo(() => getEvents(), [])
   const shops = useMemo(() => getShops(), [])
@@ -350,10 +370,10 @@ export default function EventsFeature() {
       )}
 
       {tab === 'events' && (
-        <EventsResultList events={filteredEvents} q={q} favEventIds={favEventIds} onToggleEvent={toggleEvent} />
+        <EventsResultList events={filteredEvents} q={q} favEventIds={favEventIds} onToggleEvent={toggleEvent} onOpenDetail={handleOpenDetail} />
       )}
       {tab === 'shops' && (
-        <ShopsResultList shops={filteredShops} q={q} favShopIds={favShopIds} onToggleShop={toggleShop} />
+        <ShopsResultList shops={filteredShops} q={q} favShopIds={favShopIds} onToggleShop={toggleShop} onOpenDetail={handleOpenShopDetail} />
       )}
       {tab === 'favs' && (
         <div>
@@ -364,18 +384,37 @@ export default function EventsFeature() {
               {favShops.length > 0 && (
                 <>
                   <p className="events-fav-section-label">模擬店・会場</p>
-                  <ShopsResultList shops={favShops} q={q} favShopIds={favShopIds} onToggleShop={toggleShop} />
+                  <ShopsResultList shops={favShops} q={q} favShopIds={favShopIds} onToggleShop={toggleShop} onOpenDetail={handleOpenShopDetail} />
                 </>
               )}
               {favEvents.length > 0 && (
                 <>
                   <p className="events-fav-section-label">ステージ企画</p>
-                  <EventsResultList events={favEvents} q={q} favEventIds={favEventIds} onToggleEvent={toggleEvent} />
+                  <EventsResultList events={favEvents} q={q} favEventIds={favEventIds} onToggleEvent={toggleEvent} onOpenDetail={handleOpenDetail} />
                 </>
               )}
             </>
           )}
         </div>
+      )}
+
+      {detailEvent && (
+        <EventDetailPopup
+          event={detailEvent}
+          selectedWeather="sunny"
+          showNowBadge={false}
+          isFav={favEventIds.has(detailEvent.id)}
+          onToggleFav={() => toggleEvent(detailEvent.id)}
+          onClose={() => setDetailEvent(null)}
+        />
+      )}
+      {detailShop && (
+        <ShopDetailPopup
+          shop={detailShop}
+          isFav={favShopIds.has(detailShop.id)}
+          onToggleFav={() => toggleShop(detailShop.id)}
+          onClose={() => setDetailShop(null)}
+        />
       )}
 
       <p className="events-footer-links">

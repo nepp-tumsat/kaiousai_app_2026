@@ -254,10 +254,10 @@
     {
       "kind": "aed",
       "id": "02-aed",
-      "buildingName": "先端科学技術研究センター(非公開)",
+      "buildingName": "守衛所",
       "coordinates": [
-        35.6683382,
-        139.7905755
+        35.6685506,
+        139.7904179
       ]
     },
     {
@@ -294,6 +294,24 @@
       "coordinates": [
         35.6679242,
         139.7917745
+      ]
+    },
+    {
+      "kind": "toilet",
+      "id": "10-toilet",
+      "buildingName": "第3実験棟",
+      "coordinates": [
+        35.6672573,
+        139.7917852
+      ]
+    },
+    {
+      "kind": "fire_extinguisher",
+      "id": "10-fire_extinguisher",
+      "buildingName": "第3実験棟",
+      "coordinates": [
+        35.6672573,
+        139.7917852
       ]
     },
     {

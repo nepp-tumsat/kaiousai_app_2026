@@ -1,0 +1,15 @@
+.shop-detail-popup-map-link {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background-color: var(--primary);
+  color: var(--bg);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.shop-detail-popup-map-link:hover {
+  opacity: 0.85;
+}

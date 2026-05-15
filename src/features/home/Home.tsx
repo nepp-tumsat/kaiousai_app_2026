@@ -28,11 +28,6 @@ export default function HomeFeature() {
           プライバシーポリシー
         </Link>
       </p>
-      <p style={{ marginTop: '0.75rem', fontSize: '0.78rem', textAlign: 'center', color: 'var(--text-muted)', lineHeight: '1.6' }}>
-        現在、店舗・イベント情報のデータを整備中です。<br />
-        情報が不完全な場合がございますが、当日までに順次更新してまいります。<br />
-        ご不便をおかけして申し訳ございません。
-      </p>
     </section>
   )
 }
