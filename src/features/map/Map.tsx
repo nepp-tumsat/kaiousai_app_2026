@@ -356,9 +356,15 @@ export default function MapFeature() {
     } catch {
       /* 生の raw のまま照合 */
     }
-    if (shops.some((s) => s.id === id)) {
-      setViewMode('outdoor')
-    }
+    const shop = shops.find((s) => s.id === id)
+    if (!shop) return
+    setViewMode('outdoor')
+    // フィルターで非表示になっている場合はタグフィルターをクリアして表示する
+    setFilters((prev) => {
+      if (prev.shopTagFilters.size === 0) return prev
+      if (shopMatchesTagFilters(shop, prev.shopTagFilters)) return prev
+      return { ...prev, shopTagFilters: new Set() }
+    })
   }, [searchParams, shops])
 
   const filteredShops = useMemo(
@@ -574,7 +580,7 @@ export default function MapFeature() {
             favShopIds={favShopIds}
           />
           <MapFocusShopFromQuery
-            shops={filteredShops}
+            shops={shops}
             openShopDetail={openShopDetail}
             enabled={viewMode === 'outdoor'}
           />
