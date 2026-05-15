@@ -179,7 +179,7 @@ function formatDayFilterLabel(isoDate: string, index: number): string {
 const SHOP_TAGS = [
   { key: 'food',       label: '食べ物' },
   { key: 'drink',      label: '飲み物' },
-  { key: 'exhibition', label: '展示'   },
+  { key: 'exhibition', label: '展示・販売等' },
   { key: 'activity',   label: '体験'   },
 ] as const
 

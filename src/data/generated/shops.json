@@ -289,8 +289,8 @@
     "indoorPlanMapId": "",
     "isFood": false,
     "isDrink": false,
-    "isExhibition": true,
-    "isActivity": false,
+    "isExhibition": false,
+    "isActivity": true,
     "id": "mogi_03"
   },
   {
@@ -308,7 +308,7 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
-    "isFood": false,
+    "isFood": true,
     "isDrink": false,
     "isExhibition": true,
     "isActivity": false,
@@ -331,8 +331,8 @@
     "indoorPlanMapId": "",
     "isFood": false,
     "isDrink": false,
-    "isExhibition": true,
-    "isActivity": false,
+    "isExhibition": false,
+    "isActivity": true,
     "id": "mogi_05"
   },
   {
@@ -350,9 +350,9 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
-    "isFood": false,
-    "isDrink": false,
-    "isExhibition": true,
+    "isFood": true,
+    "isDrink": true,
+    "isExhibition": false,
     "isActivity": false,
     "id": "mogi_07"
   },
@@ -707,9 +707,9 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
-    "isFood": false,
+    "isFood": true,
     "isDrink": false,
-    "isExhibition": true,
+    "isExhibition": false,
     "isActivity": false,
     "id": "mogi_24"
   },
@@ -792,9 +792,9 @@
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
     "isFood": true,
-    "isDrink": false,
+    "isDrink": true,
     "isExhibition": false,
-    "isActivity": false,
+    "isActivity": true,
     "id": "mogi_28"
   },
   {
@@ -857,7 +857,7 @@
     "isFood": false,
     "isDrink": false,
     "isExhibition": true,
-    "isActivity": false,
+    "isActivity": true,
     "id": "mogi_31"
   },
   {
@@ -1037,7 +1037,7 @@
     "indoorX": 0.477203,
     "indoorY": 0.675296,
     "isFood": true,
-    "isDrink": false,
+    "isDrink": true,
     "isExhibition": false,
     "isActivity": false,
     "id": "mogi_58"
@@ -1200,7 +1200,7 @@
     "isFood": false,
     "isDrink": false,
     "isExhibition": true,
-    "isActivity": false,
+    "isActivity": true,
     "id": "mogi_64"
   },
   {
@@ -1222,7 +1222,7 @@
     "indoorY": 0.374462,
     "isFood": false,
     "isDrink": false,
-    "isExhibition": false,
+    "isExhibition": true,
     "isActivity": true,
     "id": "mogi_65"
   },

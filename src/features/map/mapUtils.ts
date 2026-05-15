@@ -24,13 +24,11 @@ export const SHOP_TAGS_ALL: readonly ShopTag[] = [
 
 export function shopMatchesTagFilters(shop: Shop, tagFilters: ReadonlySet<ShopTag>): boolean {
   if (tagFilters.size === 0) return true
-  const hasAnyTag = shop.isFood || shop.isDrink || shop.isExhibition || shop.isActivity || shop.category === 'facility'
-  if (!hasAnyTag) return true
-  if (tagFilters.has('food') && shop.isFood) return true
-  if (tagFilters.has('drink') && shop.isDrink) return true
-  if (tagFilters.has('exhibition') && shop.isExhibition) return true
-  if (tagFilters.has('activity') && shop.isActivity) return true
-  if (tagFilters.has('facility') && shop.category === 'facility') return true
+  if (tagFilters.has('food')       && (shop.isFood       || (!shop.isDrink && !shop.isExhibition && !shop.isActivity && shop.category === 'food'))) return true
+  if (tagFilters.has('drink')      && shop.isDrink)      return true
+  if (tagFilters.has('exhibition') && (shop.isExhibition || (!shop.isFood  && !shop.isDrink && !shop.isActivity && shop.category === 'experience'))) return true
+  if (tagFilters.has('activity')   && shop.isActivity)   return true
+  if (tagFilters.has('facility')   && shop.category === 'facility') return true
   return false
 }
 

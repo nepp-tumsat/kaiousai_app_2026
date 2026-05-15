@@ -10,13 +10,16 @@ export const SHOP_TAG_COLORS = {
   facility:   '#78909c',
 } as const
 
-/** タグに基づくピン色（施設はグレー、複数タグは food > drink > activity > exhibition の優先順） */
+/** タグに基づくピン色。タグ未設定時はカテゴリでフォールバック */
 export function getShopTagColor(shop: Shop): string {
   if (shop.category === 'facility') return SHOP_TAG_COLORS.facility
   if (shop.isFood)       return SHOP_TAG_COLORS.food
   if (shop.isDrink)      return SHOP_TAG_COLORS.drink
   if (shop.isActivity)   return SHOP_TAG_COLORS.activity
   if (shop.isExhibition) return SHOP_TAG_COLORS.exhibition
+  // タグ列未設定時のカテゴリフォールバック
+  if (shop.category === 'food')       return SHOP_TAG_COLORS.food
+  if (shop.category === 'experience') return SHOP_TAG_COLORS.activity
   return SHOP_TAG_COLORS.facility
 }
 
@@ -25,6 +28,8 @@ export function shopPopupTagClass(shop: Shop): string {
   if (shop.isFood || shop.isDrink)  return 'map-popup--tag-food'
   if (shop.isActivity)              return 'map-popup--tag-activity'
   if (shop.isExhibition)            return 'map-popup--tag-exhibition'
+  // タグ列未設定時のカテゴリフォールバック
+  if (shop.category === 'food' || shop.category === 'experience') return 'map-popup--tag-food'
   return 'map-popup--tag-facility'
 }
 

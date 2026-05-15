@@ -8,7 +8,7 @@ import type { ShopTag } from './mapTypes'
 const SHOP_TAG_FILTER_ITEMS: { key: ShopTag; label: string; color: string }[] = [
   { key: 'food',       label: '食べ物', color: SHOP_TAG_COLORS.food       },
   { key: 'drink',      label: '飲み物', color: SHOP_TAG_COLORS.drink      },
-  { key: 'exhibition', label: '展示',   color: SHOP_TAG_COLORS.exhibition },
+  { key: 'exhibition', label: '展示・販売等', color: SHOP_TAG_COLORS.exhibition },
   { key: 'activity',   label: '体験',   color: SHOP_TAG_COLORS.activity   },
   { key: 'facility',   label: '施設',   color: SHOP_TAG_COLORS.facility   },
 ]
