@@ -142,6 +142,10 @@ export function normalizeLocationCsvRow(raw: Record<string, string>): Record<str
       is_exhibit: sanitizeCsvCell(r.is_exhibit),
       show_on_campus_map: normalizeShowOnCampusMapCell(r),
       indoor_plan_map_id: sanitizeCsvCell(r.indoor_plan_map_id),
+      is_food: sanitizeCsvCell(r.is_food),
+      is_drink: sanitizeCsvCell(r.is_drink),
+      is_exhibition: sanitizeCsvCell(r.is_exhibition),
+      is_activity: sanitizeCsvCell(r.is_activity),
     }
   }
 
@@ -170,6 +174,10 @@ export function normalizeLocationCsvRow(raw: Record<string, string>): Record<str
     is_exhibit: 'false',
     show_on_campus_map: 'true',
     indoor_plan_map_id: '',
+    is_food: 'false',
+    is_drink: 'false',
+    is_exhibition: 'false',
+    is_activity: 'false',
   }
 }
 
@@ -234,6 +242,10 @@ export const csvLocationRowSchema = z.object({
   is_exhibit: boolFromCsv,
   show_on_campus_map: boolFromCsv,
   indoor_plan_map_id: z.string().default(''),
+  is_food: boolFromCsv,
+  is_drink: boolFromCsv,
+  is_exhibition: boolFromCsv,
+  is_activity: boolFromCsv,
 })
 
 export type CsvLocationRow = z.infer<typeof csvLocationRowSchema>
@@ -550,6 +562,10 @@ export function csvRowsToShopSources(areas: CsvAreaRow[], locations: CsvLocation
       indoorPlanMapId: loc.indoor_plan_map_id.trim(),
       indoorX: loc.indoor_x,
       indoorY: loc.indoor_y,
+      isFood: loc.is_food,
+      isDrink: loc.is_drink,
+      isExhibition: loc.is_exhibition,
+      isActivity: loc.is_activity,
     }
     out.push(shopSourceSchema.parse(row))
   }

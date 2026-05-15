@@ -467,6 +467,10 @@ export function readMasterXlsx(buf: Buffer): MasterXlsxRows {
       indoor_y: cellToString(row.y_position),
       img_name: cellToString(row.img_name),
       show_on_campus_map,
+      is_food: cellToString(row.is_food) || 'FALSE',
+      is_drink: cellToString(row.is_drink) || 'FALSE',
+      is_exhibition: cellToString(row.is_exhibition) || 'FALSE',
+      is_activity: cellToString(row.is_activity) || 'FALSE',
     })
   }
 

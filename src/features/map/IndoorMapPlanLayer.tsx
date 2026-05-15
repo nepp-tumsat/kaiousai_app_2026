@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ImageOverlay, Marker, Popup, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
-import type { MapAreaPin, MapCatalogEntry, Shop, ShopCategory } from '../../data/loaders'
+import type { MapAreaPin, MapCatalogEntry, Shop } from '../../data/loaders'
 import { isStakeholderShopId } from '../../data/stakeholderShops'
 import { assetUrl } from '../../lib/assetUrl'
 import type { DevPinMove, LatLngTuple, ShopLabelMode } from './mapTypes'
@@ -17,7 +17,7 @@ import {
   normFromLatLngIndoorBounds,
   shopPopupLabelFor,
 } from './mapUtils'
-import { buildCategoryMarkerIcon } from './categoryMarkerIcon'
+import { buildCategoryMarkerIcon, shopPopupTagClass } from './categoryMarkerIcon'
 
 type IndoorPlaneDisplay = {
   buildingId: string
@@ -33,7 +33,7 @@ export default function IndoorMapPlanLayer({
   areaPins,
   shops,
   shopLabelMode,
-  getCategoryColor,
+
   onSelectShop,
   amenityFocusMode,
   devPinAdjustEnabled,
@@ -45,7 +45,6 @@ export default function IndoorMapPlanLayer({
   areaPins: MapAreaPin[]
   shops: Shop[]
   shopLabelMode: ShopLabelMode
-  getCategoryColor: (category: ShopCategory) => string
   onSelectShop: (shop: Shop) => void
   amenityFocusMode: boolean
   devPinAdjustEnabled: boolean
@@ -209,10 +208,10 @@ export default function IndoorMapPlanLayer({
                   })
                 },
               }}
-              icon={buildCategoryMarkerIcon(shop, getCategoryColor)}
+              icon={buildCategoryMarkerIcon(shop)}
             >
               <Popup
-                className={`map-popup--shop map-popup--shop-${shop.category}${
+                className={`map-popup--shop ${shopPopupTagClass(shop)}${
                   isStakeholderShopId(shop.sourceLocationId) ? ' map-popup--stakeholder' : ''
                 }`}
                 autoPan={false}

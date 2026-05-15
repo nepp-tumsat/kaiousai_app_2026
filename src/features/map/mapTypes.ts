@@ -1,5 +1,5 @@
 import type L from 'leaflet'
-import type { MapAmenityKind, MapCatalogEntry, ShopCategory } from '../../data/loaders'
+import type { MapAmenityKind, MapCatalogEntry } from '../../data/loaders'
 
 export type LatLngTuple = [number, number]
 
@@ -21,8 +21,10 @@ export type ShopLabelMode = 'title' | 'organization'
 
 export type MarkerRefMap = Record<string, L.Marker | null>
 
+export type ShopTag = 'food' | 'drink' | 'exhibition' | 'activity' | 'facility'
+
 export type MapFiltersState = {
-  shopCategories: ReadonlySet<ShopCategory>
+  shopTagFilters: ReadonlySet<ShopTag>
   /** 付帯設備: 1 種類のみ。`null` のとき付帯設備ピンは出さない */
   selectedAmenityKind: MapAmenityKind | null
 }

@@ -1,14 +1,17 @@
 'use client'
 
 import { useEffect, useRef, useState, type FC } from 'react'
-import type { MapAmenityKind, ShopCategory } from '../../data/loaders'
+import type { MapAmenityKind } from '../../data/loaders'
+import { SHOP_TAG_COLORS } from './categoryMarkerIcon'
+import type { ShopTag } from './mapTypes'
 
-const SHOP_CATEGORY_LABELS: Record<ShopCategory, string> = {
-  food: 'フード',
-  stage: 'ステージ',
-  experience: '体験・展示',
-  facility: '施設',
-}
+const SHOP_TAG_FILTER_ITEMS: { key: ShopTag; label: string; color: string }[] = [
+  { key: 'food',       label: '食べ物', color: SHOP_TAG_COLORS.food       },
+  { key: 'drink',      label: '飲み物', color: SHOP_TAG_COLORS.drink      },
+  { key: 'exhibition', label: '展示・販売等', color: SHOP_TAG_COLORS.exhibition },
+  { key: 'activity',   label: '体験',   color: SHOP_TAG_COLORS.activity   },
+  { key: 'facility',   label: '施設',   color: SHOP_TAG_COLORS.facility   },
+]
 
 const AMENITY_LABELS: Record<MapAmenityKind, string> = {
   smoking: '喫煙所',
@@ -24,22 +27,15 @@ const AMENITY_ICONS: Record<MapAmenityKind, string> = {
   fire_extinguisher: '🧯',
 }
 
-const SHOP_CATEGORY_ORDER: readonly ShopCategory[] = [
-  'food',
-  'stage',
-  'experience',
-  'facility',
-]
-
 const AMENITY_ORDER: readonly MapAmenityKind[] = ['toilet', 'smoking', 'aed', 'fire_extinguisher']
 
 type ShopLabelMode = 'title' | 'organization'
 
 interface MapFilterPanelProps {
-  shopCategories: ReadonlySet<ShopCategory>
+  shopTagFilters: ReadonlySet<ShopTag>
   /** 付帯設備: 1 種類のみ選択。`null` は何も表示しない */
   selectedAmenityKind: MapAmenityKind | null
-  onToggleShopCategory: (category: ShopCategory) => void
+  onToggleShopTag: (tag: ShopTag) => void
   onSelectAmenityKind: (kind: MapAmenityKind | null) => void
   /** 利用可能な amenity 種類（generated データに 1 つも該当が無い場合は出さない） */
   availableAmenities: ReadonlySet<MapAmenityKind>
@@ -49,9 +45,9 @@ interface MapFilterPanelProps {
 }
 
 const MapFilterPanel: FC<MapFilterPanelProps> = ({
-  shopCategories,
+  shopTagFilters,
   selectedAmenityKind,
-  onToggleShopCategory,
+  onToggleShopTag,
   onSelectAmenityKind,
   availableAmenities,
   shopLabelMode,
@@ -59,7 +55,7 @@ const MapFilterPanel: FC<MapFilterPanelProps> = ({
   onReset,
 }) => {
   const isFiltered =
-    shopCategories.size < SHOP_CATEGORY_ORDER.length ||
+    shopTagFilters.size > 0 ||
     selectedAmenityKind !== null ||
     shopLabelMode !== 'title'
   const [open, setOpen] = useState(false)
@@ -129,19 +125,16 @@ const MapFilterPanel: FC<MapFilterPanelProps> = ({
             </div>
           </div>
           <div className="map-filter-panel__group">
-            <div className="map-filter-panel__group-title">模擬店カテゴリ</div>
-            {SHOP_CATEGORY_ORDER.map((cat) => (
-              <label
-                key={cat}
-                className={`map-filter-row map-filter-row--shop-${cat}`}
-              >
+            <div className="map-filter-panel__group-title">模擬店・会場</div>
+            {SHOP_TAG_FILTER_ITEMS.map(({ key, label, color }) => (
+              <label key={key} className="map-filter-row">
                 <input
                   type="checkbox"
-                  checked={shopCategories.has(cat)}
-                  onChange={() => onToggleShopCategory(cat)}
+                  checked={shopTagFilters.has(key)}
+                  onChange={() => onToggleShopTag(key)}
                 />
-                <span className={`map-filter-swatch map-filter-swatch--shop-${cat}`} />
-                <span className="map-filter-row__label">{SHOP_CATEGORY_LABELS[cat]}</span>
+                <span className="map-filter-swatch" style={{ backgroundColor: color }} />
+                <span className="map-filter-row__label">{label}</span>
               </label>
             ))}
           </div>

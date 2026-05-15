@@ -14,6 +14,10 @@
     "category": "facility",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "00"
   },
   {
@@ -31,6 +35,10 @@
     "category": "facility",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "01"
   },
   {
@@ -48,6 +56,10 @@
     "category": "facility",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "03"
   },
   {
@@ -58,13 +70,17 @@
     "area": "",
     "location": "第一艇庫(試乗会集合場所)",
     "coordinates": [
-      35.6661613,
-      139.7919166
+      35.666127,
+      139.7921821
     ],
     "image": "shops/49-試乗会.png",
     "category": "facility",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "05"
   },
   {
@@ -75,13 +91,17 @@
     "area": "",
     "location": "ゴミステーション",
     "coordinates": [
-      35.6661613,
-      139.7919166
+      35.6667965,
+      139.7925255
     ],
     "image": "shops/27-本部.png",
     "category": "facility",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "06"
   },
   {
@@ -92,13 +112,17 @@
     "area": "",
     "location": "ゴミステーション",
     "coordinates": [
-      35.6661613,
-      139.7919166
+      35.6679418,
+      139.7910234
     ],
     "image": "shops/27-本部.png",
     "category": "facility",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "07"
   },
   {
@@ -109,13 +133,17 @@
     "area": "",
     "location": "ゴミステーション",
     "coordinates": [
-      35.6661613,
-      139.7919166
+      35.6674426,
+      139.7913212
     ],
     "image": "shops/27-本部.png",
     "category": "facility",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "08"
   },
   {
@@ -126,13 +154,17 @@
     "area": "",
     "location": "ゴミステーション",
     "coordinates": [
-      35.6661613,
-      139.7919166
+      35.6668074,
+      139.7919354
     ],
     "image": "shops/27-本部.png",
     "category": "facility",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "09"
   },
   {
@@ -143,13 +175,17 @@
     "area": "",
     "location": "プラネタリウム受付",
     "coordinates": [
-      35.6661613,
-      139.7919166
+      35.6665051,
+      139.7927494
     ],
     "image": "shops/27-本部.png",
     "category": "facility",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "10"
   },
   {
@@ -167,6 +203,10 @@
     "category": "facility",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "11"
   },
   {
@@ -184,6 +224,10 @@
     "category": "facility",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "12"
   },
   {
@@ -201,6 +245,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_01"
   },
   {
@@ -218,6 +266,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_02"
   },
   {
@@ -235,6 +287,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": true,
     "id": "mogi_03"
   },
   {
@@ -252,6 +308,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_04"
   },
   {
@@ -269,6 +329,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": true,
     "id": "mogi_05"
   },
   {
@@ -286,6 +350,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": true,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_07"
   },
   {
@@ -303,6 +371,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_08"
   },
   {
@@ -320,6 +392,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_09"
   },
   {
@@ -337,6 +413,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_10"
   },
   {
@@ -354,6 +434,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_11"
   },
   {
@@ -371,6 +455,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_12"
   },
   {
@@ -388,6 +476,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_13"
   },
   {
@@ -405,6 +497,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_14"
   },
   {
@@ -422,6 +518,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_15"
   },
   {
@@ -439,6 +539,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_16"
   },
   {
@@ -456,6 +560,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_17"
   },
   {
@@ -466,13 +574,17 @@
     "area": "",
     "location": "特製スタミナ油そば",
     "coordinates": [
-      35.6671809,
-      139.7914797
+      35.6671855,
+      139.791474
     ],
     "image": "shops/33-水泳部.png",
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_18"
   },
   {
@@ -490,6 +602,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": true,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_19"
   },
   {
@@ -507,6 +623,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_20"
   },
   {
@@ -524,6 +644,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_21"
   },
   {
@@ -541,6 +665,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": true,
     "id": "mogi_22"
   },
   {
@@ -558,6 +686,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_23"
   },
   {
@@ -575,6 +707,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_24"
   },
   {
@@ -592,6 +728,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_25"
   },
   {
@@ -609,6 +749,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": true,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_26"
   },
   {
@@ -626,6 +770,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_27"
   },
   {
@@ -643,6 +791,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": true,
+    "isExhibition": false,
+    "isActivity": true,
     "id": "mogi_28"
   },
   {
@@ -660,6 +812,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": true,
+    "isExhibition": false,
+    "isActivity": true,
     "id": "mogi_29"
   },
   {
@@ -677,6 +833,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": true,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_30"
   },
   {
@@ -694,6 +854,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": true,
     "id": "mogi_31"
   },
   {
@@ -713,6 +877,10 @@
     "indoorPlanMapId": "1-1",
     "indoorX": 0.099155,
     "indoorY": 0.195886,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_32"
   },
   {
@@ -732,6 +900,10 @@
     "indoorPlanMapId": "1-1",
     "indoorX": 0.327169,
     "indoorY": 0.2104,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_33"
   },
   {
@@ -751,6 +923,10 @@
     "indoorPlanMapId": "1-1",
     "indoorX": 0.416992,
     "indoorY": 0.09418,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_34"
   },
   {
@@ -770,6 +946,10 @@
     "indoorPlanMapId": "1-1",
     "indoorX": 0.616381,
     "indoorY": 0.20833,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_35"
   },
   {
@@ -789,6 +969,10 @@
     "indoorPlanMapId": "1-1",
     "indoorX": 0.703244,
     "indoorY": 0.092104,
+    "isFood": false,
+    "isDrink": true,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_36"
   },
   {
@@ -808,6 +992,10 @@
     "indoorPlanMapId": "1-1",
     "indoorX": 0.909542,
     "indoorY": 0.197947,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_37"
   },
   {
@@ -825,6 +1013,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_53"
   },
   {
@@ -844,6 +1036,10 @@
     "indoorPlanMapId": "2-1",
     "indoorX": 0.477203,
     "indoorY": 0.675296,
+    "isFood": true,
+    "isDrink": true,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_58"
   },
   {
@@ -863,6 +1059,10 @@
     "indoorPlanMapId": "2-1",
     "indoorX": 0.171122,
     "indoorY": 0.546643,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": true,
     "id": "mogi_59"
   },
   {
@@ -882,6 +1082,10 @@
     "indoorPlanMapId": "2-1",
     "indoorX": 0.470085,
     "indoorY": 0.415865,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": true,
     "id": "mogi_60"
   },
   {
@@ -901,6 +1105,10 @@
     "indoorPlanMapId": "2-1",
     "indoorX": 0.17824,
     "indoorY": 0.843416,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_61"
   },
   {
@@ -920,6 +1128,10 @@
     "indoorPlanMapId": "2-1",
     "indoorX": 0.178241,
     "indoorY": 0.843417,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_76"
   },
   {
@@ -939,6 +1151,10 @@
     "indoorPlanMapId": "2-2",
     "indoorX": 0.147567,
     "indoorY": 0.859998,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": true,
     "id": "mogi_62"
   },
   {
@@ -958,6 +1174,10 @@
     "indoorPlanMapId": "2-2",
     "indoorX": 0.450424,
     "indoorY": 0.853771,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": true,
     "id": "mogi_63"
   },
   {
@@ -977,6 +1197,10 @@
     "indoorPlanMapId": "2-2",
     "indoorX": 0.454554,
     "indoorY": 0.534194,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": true,
     "id": "mogi_64"
   },
   {
@@ -996,6 +1220,10 @@
     "indoorPlanMapId": "ettyu-1",
     "indoorX": 0.461934,
     "indoorY": 0.374462,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": true,
     "id": "mogi_65"
   },
   {
@@ -1015,6 +1243,10 @@
     "indoorPlanMapId": "ettyu-1",
     "indoorX": 0.800634,
     "indoorY": 0.641174,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": false,
     "id": "mogi_67"
   },
   {
@@ -1034,6 +1266,10 @@
     "indoorPlanMapId": "ettyu-1",
     "indoorX": 0.933473,
     "indoorY": 0.63806,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_68"
   },
   {
@@ -1053,6 +1289,10 @@
     "indoorPlanMapId": "ettyu-1",
     "indoorX": 0.421538,
     "indoorY": 0.486531,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_69"
   },
   {
@@ -1070,6 +1310,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_70"
   },
   {
@@ -1087,6 +1331,10 @@
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_71"
   },
   {
@@ -1097,13 +1345,17 @@
     "area": "",
     "location": "試乗会",
     "coordinates": [
-      35.6661243,
-      139.7921808
+      35.6662234,
+      139.7921225
     ],
     "image": "shops/49-試乗会.png",
     "category": "food",
     "showOnCampusMap": true,
     "indoorPlanMapId": "",
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": true,
     "id": "mogi_72"
   },
   {
@@ -1123,6 +1375,10 @@
     "indoorPlanMapId": "ettyu-1",
     "indoorX": 0.44329,
     "indoorY": 0.631808,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "mogi_73"
   },
   {
@@ -1142,6 +1398,10 @@
     "indoorPlanMapId": "exp-3-5",
     "indoorX": 0.680813,
     "indoorY": 0.601611,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "lab_01"
   },
   {
@@ -1161,6 +1421,10 @@
     "indoorPlanMapId": "exp-1-3",
     "indoorX": 0.880508,
     "indoorY": 0.935795,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "lab_02"
   },
   {
@@ -1180,6 +1444,10 @@
     "indoorPlanMapId": "exp-4-5",
     "indoorX": 0.230658,
     "indoorY": 0.61748,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "lab_03"
   },
   {
@@ -1199,6 +1467,10 @@
     "indoorPlanMapId": "exp-1-1",
     "indoorX": 0.816487,
     "indoorY": 0.41284,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": true,
+    "isActivity": false,
     "id": "lab_04"
   },
   {
@@ -1218,6 +1490,10 @@
     "indoorPlanMapId": "exp-3-6",
     "indoorX": 0.299943,
     "indoorY": 0.65347,
+    "isFood": false,
+    "isDrink": false,
+    "isExhibition": false,
+    "isActivity": true,
     "id": "lab_05"
   }
 ]
