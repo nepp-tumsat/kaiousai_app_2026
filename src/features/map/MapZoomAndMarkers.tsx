@@ -5,7 +5,7 @@ import type { MutableRefObject } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Marker, Popup, Tooltip, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
-import type { MapAmenityKind, MapAmenityPin, MapAreaPin, Shop, ShopCategory } from '../../data/loaders'
+import type { MapAmenityKind, MapAmenityPin, MapAreaPin, Shop } from '../../data/loaders'
 import { getMapAreas } from '../../data/loaders'
 import { isStakeholderShopId } from '../../data/stakeholderShops'
 import type { DevPinMove, LatLngTuple, MarkerRefMap, ShopLabelMode } from './mapTypes'
@@ -17,7 +17,7 @@ import {
   shopPopupLabelFor,
   useIsMobile,
 } from './mapUtils'
-import { buildCategoryMarkerIcon } from './categoryMarkerIcon'
+import { buildCategoryMarkerIcon, shopPopupTagClass } from './categoryMarkerIcon'
 
 const AMENITY_KIND_LABEL: Record<MapAmenityKind, string> = {
   smoking: '喫煙所',
@@ -91,7 +91,6 @@ export default function MapZoomAndMarkers({
   isMapReady,
   markerRefs,
   setSelectedShop,
-  getCategoryColor,
   devPinAdjustEnabled,
   devPinOverrides,
   onDevPinMove,
@@ -108,7 +107,6 @@ export default function MapZoomAndMarkers({
   isMapReady: boolean
   markerRefs: MutableRefObject<MarkerRefMap>
   setSelectedShop: (shop: Shop) => void
-  getCategoryColor: (category: ShopCategory) => string
   devPinAdjustEnabled: boolean
   devPinOverrides: Record<string, LatLngTuple>
   onDevPinMove: (move: DevPinMove) => void
@@ -283,11 +281,11 @@ export default function MapZoomAndMarkers({
               })
             },
           }}
-          icon={buildCategoryMarkerIcon(shop, getCategoryColor, favShopIds.has(shop.id))}
+          icon={buildCategoryMarkerIcon(shop, favShopIds.has(shop.id))}
         >
           {showShopEventPopups && !amenityFocusMode && (
             <Popup
-              className={`map-popup--shop map-popup--shop-${shop.category}${
+              className={`map-popup--shop ${shopPopupTagClass(shop)}${
                 isStakeholderShopId(shop.sourceLocationId) ? ' map-popup--stakeholder' : ''
               }`}
               autoPan={false}

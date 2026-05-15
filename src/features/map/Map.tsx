@@ -11,7 +11,6 @@ import {
   getShops,
   type MapAmenityKind,
   type Shop,
-  type ShopCategory,
 } from '../../data/loaders'
 import { assetUrl } from '../../lib/assetUrl'
 import {
@@ -22,8 +21,8 @@ import {
   isShopLabelMode,
   loadStoredFilters,
   persistFilters,
-  SHOP_CATEGORIES_ALL,
   shopEventPopupMinZoom,
+  shopMatchesTagFilters,
   useIsMobile,
 } from './mapUtils'
 import type {
@@ -32,6 +31,7 @@ import type {
   MapFiltersState,
   MarkerRefMap,
   ShopLabelMode,
+  ShopTag,
 } from './mapTypes'
 import IndoorMapPlanLayer from './IndoorMapPlanLayer'
 import MapZoomAndMarkers, { MapFocusShopFromQuery, MapViewResizeSync } from './MapZoomAndMarkers'
@@ -53,19 +53,10 @@ L.Icon.Default.mergeOptions({
 const SHOP_LABEL_MODE_STORAGE_KEY = 'map.shopLabelMode'
 
 const DEFAULT_FILTERS: MapFiltersState = {
-  shopCategories: new Set<ShopCategory>(SHOP_CATEGORIES_ALL),
+  shopTagFilters: new Set<ShopTag>(),
   selectedAmenityKind: null,
 }
 
-const getCategoryColor = (category: ShopCategory): string => {
-  switch (category) {
-    case 'food': return '#ff7043'
-    case 'stage': return '#ab47bc'
-    case 'facility': return '#42a5f5'
-    case 'experience':
-    default: return '#66bb6a'
-  }
-}
 
 function CampusSvgOverlay() {
   const svgBounds: L.LatLngBoundsExpression = [
@@ -328,14 +319,14 @@ export default function MapFeature() {
     persistFilters(filters)
   }, [filters])
 
-  const toggleShopCategory = useCallback((category: ShopCategory) => {
+  const toggleShopTag = useCallback((tag: ShopTag) => {
     setFilters((prev) => {
-      const next = new Set(prev.shopCategories)
-      const action = next.has(category) ? 'remove' : 'add'
-      if (action === 'remove') next.delete(category)
-      else next.add(category)
-      trackEvent('map_filter_category', { category, action })
-      return { ...prev, shopCategories: next }
+      const next = new Set(prev.shopTagFilters)
+      const action = next.has(tag) ? 'remove' : 'add'
+      if (action === 'remove') next.delete(tag)
+      else next.add(tag)
+      trackEvent('map_filter_tag', { tag, action })
+      return { ...prev, shopTagFilters: next }
     })
   }, [])
 
@@ -371,8 +362,8 @@ export default function MapFeature() {
   }, [searchParams, shops])
 
   const filteredShops = useMemo(
-    () => shops.filter((s) => filters.shopCategories.has(s.category)),
-    [shops, filters.shopCategories],
+    () => shops.filter((s) => shopMatchesTagFilters(s, filters.shopTagFilters)),
+    [shops, filters.shopTagFilters],
   )
 
   const campusMapShops = useMemo(
@@ -566,7 +557,6 @@ export default function MapFeature() {
             isMapReady={isMapReady}
             markerRefs={markerRefs}
             setSelectedShop={openShopDetail}
-            getCategoryColor={getCategoryColor}
             onZoomChange={handleMapZoomChange}
             shopLabelMode={shopLabelMode}
             amenityPins={viewMode === 'outdoor' ? visibleAmenityPins : []}
@@ -607,7 +597,6 @@ export default function MapFeature() {
               areaPins={mapPayload.areas}
               shops={indoorMapShops}
               shopLabelMode={shopLabelMode}
-              getCategoryColor={getCategoryColor}
               onSelectShop={openShopDetail}
               amenityFocusMode={filters.selectedAmenityKind !== null}
               devPinAdjustEnabled={isDev && devPinAdjustEnabled}
@@ -641,10 +630,10 @@ export default function MapFeature() {
       )}
       {viewMode === 'outdoor' && (
         <MapFilterPanel
-          shopCategories={filters.shopCategories}
+          shopTagFilters={filters.shopTagFilters}
           selectedAmenityKind={filters.selectedAmenityKind}
           availableAmenities={availableAmenities}
-          onToggleShopCategory={toggleShopCategory}
+          onToggleShopTag={toggleShopTag}
           onSelectAmenityKind={selectAmenityKind}
           shopLabelMode={shopLabelMode}
           onSetShopLabelMode={setShopLabelMode}

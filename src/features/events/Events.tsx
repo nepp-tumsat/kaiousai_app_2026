@@ -176,12 +176,28 @@ function formatDayFilterLabel(isoDate: string, index: number): string {
   return `${index + 1}日目 (${Number(month)}/${Number(day)})`
 }
 
+const SHOP_TAGS = [
+  { key: 'food',       label: '食べ物' },
+  { key: 'drink',      label: '飲み物' },
+  { key: 'exhibition', label: '展示'   },
+  { key: 'activity',   label: '体験'   },
+] as const
+
+type ShopTag = typeof SHOP_TAGS[number]['key']
+
+function toggleSetItem<T>(prev: Set<T>, item: T): Set<T> {
+  const next = new Set(prev)
+  if (next.has(item)) next.delete(item)
+  else next.add(item)
+  return next
+}
+
 export default function EventsFeature() {
   const [query, setQuery] = useState('')
   const [tab, setTab] = useState<'events' | 'shops' | 'favs'>('events')
-  const [eventDayFilter, setEventDayFilter] = useState('all')
-  const [eventLocationFilter, setEventLocationFilter] = useState('all')
-  const [shopCategoryFilter, setShopCategoryFilter] = useState('all')
+  const [eventDayFilters, setEventDayFilters] = useState<Set<string>>(new Set())
+  const [eventLocationFilters, setEventLocationFilters] = useState<Set<string>>(new Set())
+  const [shopTagFilters, setShopTagFilters] = useState<Set<ShopTag>>(new Set())
   const { shopIds: favShopIds, eventIds: favEventIds, toggleShop, toggleEvent } = useFavorites()
 
   const events = useMemo(() => getEvents(), [])
@@ -197,23 +213,26 @@ export default function EventsFeature() {
     () => [...new Set(events.map((e) => e.location).filter(Boolean))].sort(),
     [events],
   )
-  const shopCategoryList = useMemo(
-    () => [...new Set(shops.map((s) => s.category))],
-    [shops],
-  )
 
   const filteredEvents = useMemo(() => {
     let result = !q ? events : events.filter((e) => eventSearchText(e).includes(q))
-    if (eventDayFilter !== 'all') result = result.filter((e) => e.day === eventDayFilter)
-    if (eventLocationFilter !== 'all') result = result.filter((e) => e.location === eventLocationFilter)
+    if (eventDayFilters.size > 0) result = result.filter((e) => eventDayFilters.has(e.day))
+    if (eventLocationFilters.size > 0) result = result.filter((e) => eventLocationFilters.has(e.location))
     return result
-  }, [events, q, eventDayFilter, eventLocationFilter])
+  }, [events, q, eventDayFilters, eventLocationFilters])
 
   const filteredShops = useMemo(() => {
     let result = !q ? shops : shops.filter((s) => shopSearchText(s).includes(q))
-    if (shopCategoryFilter !== 'all') result = result.filter((s) => s.category === shopCategoryFilter)
+    if (shopTagFilters.size > 0) {
+      result = result.filter((s) =>
+        (shopTagFilters.has('food')       && s.isFood)       ||
+        (shopTagFilters.has('drink')      && s.isDrink)      ||
+        (shopTagFilters.has('exhibition') && s.isExhibition) ||
+        (shopTagFilters.has('activity')   && s.isActivity),
+      )
+    }
     return result
-  }, [shops, q, shopCategoryFilter])
+  }, [shops, q, shopTagFilters])
 
   const favEvents = useMemo(
     () => events.filter((e) => favEventIds.has(e.id) && (!q || eventSearchText(e).includes(q))),
@@ -280,19 +299,12 @@ export default function EventsFeature() {
         <div className="events-filters">
           {eventDayList.length > 1 && (
             <div className="events-filter-row">
-              <button
-                type="button"
-                className={`events-filter-button ${eventDayFilter === 'all' ? 'active' : ''}`}
-                onClick={() => setEventDayFilter('all')}
-              >
-                全日程
-              </button>
               {eventDayList.map((day, i) => (
                 <button
                   key={day}
                   type="button"
-                  className={`events-filter-button ${eventDayFilter === day ? 'active' : ''}`}
-                  onClick={() => setEventDayFilter(day)}
+                  className={`events-filter-button ${eventDayFilters.has(day) ? 'active' : ''}`}
+                  onClick={() => setEventDayFilters((prev) => toggleSetItem(prev, day))}
                 >
                   {formatDayFilterLabel(day, i)}
                 </button>
@@ -301,19 +313,12 @@ export default function EventsFeature() {
           )}
           {eventLocationList.length > 1 && (
             <div className="events-filter-row">
-              <button
-                type="button"
-                className={`events-filter-button ${eventLocationFilter === 'all' ? 'active' : ''}`}
-                onClick={() => setEventLocationFilter('all')}
-              >
-                全ての場所
-              </button>
               {eventLocationList.map((loc) => (
                 <button
                   key={loc}
                   type="button"
-                  className={`events-filter-button ${eventLocationFilter === loc ? 'active' : ''}`}
-                  onClick={() => setEventLocationFilter(loc)}
+                  className={`events-filter-button ${eventLocationFilters.has(loc) ? 'active' : ''}`}
+                  onClick={() => setEventLocationFilters((prev) => toggleSetItem(prev, loc))}
                 >
                   {loc}
                 </button>
@@ -322,24 +327,17 @@ export default function EventsFeature() {
           )}
         </div>
       )}
-      {tab === 'shops' && shopCategoryList.length > 1 && (
+      {tab === 'shops' && (
         <div className="events-filters">
           <div className="events-filter-row">
-            <button
-              type="button"
-              className={`events-filter-button ${shopCategoryFilter === 'all' ? 'active' : ''}`}
-              onClick={() => setShopCategoryFilter('all')}
-            >
-              全て
-            </button>
-            {shopCategoryList.map((cat) => (
+            {SHOP_TAGS.map(({ key, label }) => (
               <button
-                key={cat}
+                key={key}
                 type="button"
-                className={`events-filter-button ${shopCategoryFilter === cat ? 'active' : ''}`}
-                onClick={() => setShopCategoryFilter(cat)}
+                className={`events-filter-button ${shopTagFilters.has(key) ? 'active' : ''}`}
+                onClick={() => setShopTagFilters((prev) => toggleSetItem(prev, key))}
               >
-                {shopCategoryLabels[cat]}
+                {label}
               </button>
             ))}
           </div>

@@ -551,7 +551,7 @@
 }
 
 .map-filter-swatch--shop-stage {
-  background-color: #ab47bc;
+  background-color: #78909c;
 }
 
 .map-filter-swatch--shop-experience {
@@ -559,8 +559,20 @@
 }
 
 .map-filter-swatch--shop-facility {
-  background-color: #42a5f5;
+  background-color: #78909c;
   border-radius: 4px;
+}
+
+.map-filter-tag-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.map-filter-tag-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .map-filter-swatch--amenity-smoking,
@@ -1101,40 +1113,40 @@
   box-shadow: none;
 }
 
-.map-container .leaflet-popup.map-popup--shop-food .leaflet-popup-content-wrapper {
+.map-container .leaflet-popup.map-popup--tag-food .leaflet-popup-content-wrapper {
   background: color-mix(in srgb, #ff7043 26%, var(--bg));
   border: 1px solid color-mix(in srgb, #ff7043 42%, transparent);
 }
 
-.map-container .leaflet-popup.map-popup--shop-food .leaflet-popup-tip {
+.map-container .leaflet-popup.map-popup--tag-food .leaflet-popup-tip {
   background: color-mix(in srgb, #ff7043 26%, var(--bg));
 }
 
-.map-container .leaflet-popup.map-popup--shop-stage .leaflet-popup-content-wrapper {
+.map-container .leaflet-popup.map-popup--tag-exhibition .leaflet-popup-content-wrapper {
   background: color-mix(in srgb, #ab47bc 26%, var(--bg));
   border: 1px solid color-mix(in srgb, #ab47bc 42%, transparent);
 }
 
-.map-container .leaflet-popup.map-popup--shop-stage .leaflet-popup-tip {
+.map-container .leaflet-popup.map-popup--tag-exhibition .leaflet-popup-tip {
   background: color-mix(in srgb, #ab47bc 26%, var(--bg));
 }
 
-.map-container .leaflet-popup.map-popup--shop-facility .leaflet-popup-content-wrapper {
-  background: color-mix(in srgb, #42a5f5 26%, var(--bg));
-  border: 1px solid color-mix(in srgb, #42a5f5 42%, transparent);
-}
-
-.map-container .leaflet-popup.map-popup--shop-facility .leaflet-popup-tip {
-  background: color-mix(in srgb, #42a5f5 26%, var(--bg));
-}
-
-.map-container .leaflet-popup.map-popup--shop-experience .leaflet-popup-content-wrapper {
+.map-container .leaflet-popup.map-popup--tag-activity .leaflet-popup-content-wrapper {
   background: color-mix(in srgb, #66bb6a 26%, var(--bg));
   border: 1px solid color-mix(in srgb, #66bb6a 42%, transparent);
 }
 
-.map-container .leaflet-popup.map-popup--shop-experience .leaflet-popup-tip {
+.map-container .leaflet-popup.map-popup--tag-activity .leaflet-popup-tip {
   background: color-mix(in srgb, #66bb6a 26%, var(--bg));
+}
+
+.map-container .leaflet-popup.map-popup--tag-facility .leaflet-popup-content-wrapper {
+  background: color-mix(in srgb, #78909c 26%, var(--bg));
+  border: 1px solid color-mix(in srgb, #78909c 42%, transparent);
+}
+
+.map-container .leaflet-popup.map-popup--tag-facility .leaflet-popup-tip {
+  background: color-mix(in srgb, #78909c 26%, var(--bg));
 }
 
 /**

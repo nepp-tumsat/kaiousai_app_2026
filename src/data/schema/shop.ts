@@ -39,6 +39,10 @@ const shopFieldsSchema = z.object({
    */
   indoorX: z.number().optional(),
   indoorY: z.number().optional(),
+  isFood: z.boolean().default(false),
+  isDrink: z.boolean().default(false),
+  isExhibition: z.boolean().default(false),
+  isActivity: z.boolean().default(false),
 })
 
 export const shopSourceSchema = shopFieldsSchema

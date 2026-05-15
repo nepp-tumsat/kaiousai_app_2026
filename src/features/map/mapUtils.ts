@@ -5,9 +5,8 @@ import type {
   MapAreaPin,
   MapCatalogEntry,
   Shop,
-  ShopCategory,
 } from '../../data/loaders'
-import type { IndoorPlanGroup, MapFiltersState, PinKind, ShopLabelMode } from './mapTypes'
+import type { IndoorPlanGroup, MapFiltersState, PinKind, ShopLabelMode, ShopTag } from './mapTypes'
 
 export const SHOP_EVENT_POPUP_MIN_ZOOM_DESKTOP = 21
 export const MOBILE_ZOOM_OFFSET = 1
@@ -15,12 +14,25 @@ const MOBILE_BREAKPOINT_PX = 640
 export const DEFAULT_MAP_CENTER: [number, number] = [35.666998, 139.792961]
 export const DEFAULT_MAP_CENTER_MOBILE: [number, number] = [35.6672324, 139.791702]
 export const INDOOR_PLAN_LAT_SPAN = 0.00105
-export const SHOP_CATEGORIES_ALL: readonly ShopCategory[] = [
+export const SHOP_TAGS_ALL: readonly ShopTag[] = [
   'food',
-  'stage',
-  'experience',
+  'drink',
+  'exhibition',
+  'activity',
   'facility',
 ]
+
+export function shopMatchesTagFilters(shop: Shop, tagFilters: ReadonlySet<ShopTag>): boolean {
+  if (tagFilters.size === 0) return true
+  const hasAnyTag = shop.isFood || shop.isDrink || shop.isExhibition || shop.isActivity || shop.category === 'facility'
+  if (!hasAnyTag) return true
+  if (tagFilters.has('food') && shop.isFood) return true
+  if (tagFilters.has('drink') && shop.isDrink) return true
+  if (tagFilters.has('exhibition') && shop.isExhibition) return true
+  if (tagFilters.has('activity') && shop.isActivity) return true
+  if (tagFilters.has('facility') && shop.category === 'facility') return true
+  return false
+}
 
 const MAP_FILTERS_STORAGE_KEY = 'map.filters'
 
@@ -164,11 +176,12 @@ export function isShopLabelMode(value: unknown): value is ShopLabelMode {
   return value === 'title' || value === 'organization'
 }
 
-export function isShopCategory(value: unknown): value is ShopCategory {
+export function isShopTag(value: unknown): value is ShopTag {
   return (
     value === 'food' ||
-    value === 'stage' ||
-    value === 'experience' ||
+    value === 'drink' ||
+    value === 'exhibition' ||
+    value === 'activity' ||
     value === 'facility'
   )
 }
@@ -194,9 +207,9 @@ export function loadStoredFilters(): MapFiltersState | null {
     const parsed: unknown = JSON.parse(raw)
     if (typeof parsed !== 'object' || parsed === null) return null
     const obj = parsed as Record<string, unknown>
-    const shops = Array.isArray(obj.shopCategories)
-      ? obj.shopCategories.filter(isShopCategory)
-      : SHOP_CATEGORIES_ALL
+    const tags = Array.isArray(obj.shopTagFilters)
+      ? obj.shopTagFilters.filter(isShopTag)
+      : []
     let selectedAmenityKind: MapAmenityKind | null = null
     if (obj.selectedAmenity !== undefined && obj.selectedAmenity !== null) {
       if (isMapAmenityKind(obj.selectedAmenity)) selectedAmenityKind = obj.selectedAmenity
@@ -205,7 +218,7 @@ export function loadStoredFilters(): MapFiltersState | null {
       if (legacy.length === 1) selectedAmenityKind = legacy[0]!
     }
     return {
-      shopCategories: new Set<ShopCategory>(shops),
+      shopTagFilters: new Set<ShopTag>(tags),
       selectedAmenityKind,
     }
   } catch {
@@ -219,7 +232,7 @@ export function persistFilters(filters: MapFiltersState): void {
     window.localStorage.setItem(
       MAP_FILTERS_STORAGE_KEY,
       JSON.stringify({
-        shopCategories: Array.from(filters.shopCategories),
+        shopTagFilters: Array.from(filters.shopTagFilters),
         selectedAmenity: filters.selectedAmenityKind,
       }),
     )
