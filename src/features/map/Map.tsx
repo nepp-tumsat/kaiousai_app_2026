@@ -64,7 +64,7 @@ function CampusSvgOverlay() {
     [35.669875, 139.796872],
   ]
   const { outdoorMapImage } = getMapAreas()
-  const imageUrl = assetUrl(`/images/${outdoorMapImage}`)
+  const imageUrl = assetUrl(`/images/${outdoorMapImage.replace(/\.png$/, '.webp')}`)
   return (
     <ImageOverlay
       url={imageUrl}
@@ -358,6 +358,19 @@ export default function MapFeature() {
     }
     const shop = shops.find((s) => s.id === id)
     if (!shop) return
+
+    if (!shop.showOnCampusMap && shop.indoorPlanMapId.trim() !== '') {
+      // 屋外非表示の屋内専用店舗は屋内マップに切り替えて開く
+      setViewMode('indoor')
+      const group = indoorPlanGroups.find((g) => g.floors.some((f) => f.id === shop.indoorPlanMapId))
+      if (group) {
+        setIndoorBuildingKey(group.relatedAreaId)
+        setIndoorMapRowId(shop.indoorPlanMapId)
+      }
+      const t = window.setTimeout(() => openShopDetail(shop), 300)
+      return () => window.clearTimeout(t)
+    }
+
     setViewMode('outdoor')
     // フィルターで非表示になっている場合はタグフィルターをクリアして表示する
     setFilters((prev) => {
@@ -365,23 +378,23 @@ export default function MapFeature() {
       if (shopMatchesTagFilters(shop, prev.shopTagFilters)) return prev
       return { ...prev, shopTagFilters: new Set() }
     })
-  }, [searchParams, shops])
+  }, [searchParams, shops, indoorPlanGroups, openShopDetail])
 
   const filteredShops = useMemo(
     () => shops.filter((s) => shopMatchesTagFilters(s, filters.shopTagFilters)),
     [shops, filters.shopTagFilters],
   )
 
-  const campusMapShops = useMemo(
-    () => filteredShops.filter((s) => s.showOnCampusMap && (!showOnlyFavs || favShopIds.has(s.id))),
-    [filteredShops, showOnlyFavs, favShopIds],
-  )
+  const campusMapShops = useMemo(() => {
+    const base = showOnlyFavs ? shops : filteredShops
+    return base.filter((s) => s.showOnCampusMap && (!showOnlyFavs || favShopIds.has(s.id)))
+  }, [shops, filteredShops, showOnlyFavs, favShopIds])
 
   /** 屋内平面図用（`maps` のフロア id が付いた行。屋外にも出す店もここに含め各フロアでピン表示） */
-  const indoorMapShops = useMemo(
-    () => filteredShops.filter((s) => s.indoorPlanMapId.trim() !== ''),
-    [filteredShops],
-  )
+  const indoorMapShops = useMemo(() => {
+    const base = showOnlyFavs ? shops : filteredShops
+    return base.filter((s) => s.indoorPlanMapId.trim() !== '' && (!showOnlyFavs || favShopIds.has(s.id)))
+  }, [shops, filteredShops, showOnlyFavs, favShopIds])
 
   const visibleAmenityPins = useMemo(() => {
     const k = filters.selectedAmenityKind

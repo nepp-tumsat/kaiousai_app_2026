@@ -73,7 +73,7 @@ export default function IndoorMapPlanLayer({
     prevRelatedAreaRef.current = buildingId
 
     let cancelled = false
-    const url = assetUrl(`/images/${entry.image}`)
+    const url = assetUrl(`/images/${entry.image.replace(/\.png$/, '.webp')}`)
     const center = centerForRelatedArea(areaPins, buildingId)
     const img = new Image()
     img.onload = () => {
@@ -166,7 +166,7 @@ export default function IndoorMapPlanLayer({
     <>
       <ImageOverlay
         key="indoor-floor-plan"
-        url={assetUrl(`/images/${plane.image}`)}
+        url={assetUrl(`/images/${plane.image.replace(/\.png$/, '.webp')}`)}
         bounds={plane.bounds}
         opacity={planeOpacity}
         zIndex={400}
